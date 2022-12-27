@@ -165,7 +165,7 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 1,
-                "number": "A",
+                "number": "B",
                 "direction": "W"
             }
         },
@@ -176,7 +176,7 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 1,
-                "number": "B",
+                "number": "A",
                 "direction": "W"
             }
         },
@@ -198,7 +198,7 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 2,
-                "number": "A",
+                "number": "B",
                 "direction": "W"
             }
         },
@@ -209,7 +209,7 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 2,
-                "number": "B",
+                "number": "A",
                 "direction": "W"
             }
         },
