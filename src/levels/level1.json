@@ -179,5 +179,72 @@
                 "class": "coach"
             }
         }
+    ],
+    "passengers": [
+        {
+            "id": 0,
+            "node": 0,
+            "direction": "N",
+            "baggage": [
+                {
+                    "size": 3
+                }
+            ],
+            "ticket": {
+                "class": "coach",
+                "aisle": 1,
+                "seat": "A"
+            }
+        },
+        {
+            "id": 1,
+            "node": 1,
+            "direction": "N",
+            "ticket": {
+                "class": "coach",
+                "aisle": 1,
+                "seat": "B"
+            }
+        },
+        {
+            "id": 2,
+            "node": 2,
+            "direction": "N",
+            "ticket": {
+                "class": "coach",
+                "aisle": 1,
+                "seat": "C"
+            }
+        },
+        {
+            "id": 3,
+            "node": 3,
+            "direction": "E",
+            "ticket": {
+                "class": "coach",
+                "aisle": 2,
+                "seat": "A"
+            }
+        },
+        {
+            "id": 4,
+            "node": 4,
+            "direction": "N",
+            "ticket": {
+                "class": "coach",
+                "aisle": 2,
+                "seat": "B"
+            }
+        },
+        {
+            "id": 5,
+            "node": 5,
+            "direction": "W",
+            "ticket": {
+                "class": "coach",
+                "aisle": 2,
+                "seat": "C"
+            }
+        }
     ]
 }

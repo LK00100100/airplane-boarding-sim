@@ -1,4 +1,5 @@
 import { Baggage } from "./Baggage";
+import { Direction } from "./Direction";
 import { Ticket } from "./Ticket";
 
 export class Passsenger {
@@ -9,12 +10,17 @@ export class Passsenger {
   isMoving: boolean; //either walking or doing stuff
 
   //todo: action timer variable
+  facing: Direction;
+
+  sprite?: Phaser.GameObjects.Triangle | Phaser.GameObjects.Sprite;
 
   constructor(id: number) {
     this.id = id;
     this.baggages = [];
     this.ticket = Ticket.placeholderTicket();
     this.isMoving = false;
+
+    this.facing = Direction.NORTH;
   }
 
   giveBaggage(baggage: Baggage) {

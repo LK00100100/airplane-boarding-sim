@@ -7,6 +7,7 @@ import { Seat } from "./Seat";
  * Passengers cannot hop over occupied nodes
  * Can have one seat.
  * This may not be a grid.
+ * These are static.
  */
 export class PlaneNode {
   id: number; // unique id
