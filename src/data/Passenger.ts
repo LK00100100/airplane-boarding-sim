@@ -6,10 +6,15 @@ export class Passsenger {
   ticket: Ticket; //all passengers have a ticket
   baggages: Baggage[]; //should be at most 1 large piece.
 
+  isMoving: boolean; //either walking or doing stuff
+
+  //todo: action timer variable
+
   constructor(id: number) {
     this.id = id;
     this.baggages = [];
     this.ticket = Ticket.placeholderTicket();
+    this.isMoving = false;
   }
 
   giveBaggage(baggage: Baggage) {
@@ -23,5 +28,9 @@ export class Passsenger {
   /**
    * used to simulate a passenger's thought and then movement
    */
-  thinkAndMove() {}
+  thinkAndMove() {
+    this.isMoving = false;
+
+    this.isMoving = true;
+  }
 }

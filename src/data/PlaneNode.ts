@@ -1,8 +1,12 @@
 import { BaggageCompartment } from "./BaggageCompartment";
+import { Seat } from "./Seat";
 
 /**
+ * This is a directed graph node.
+ * All nodes are walkable.
  * Passengers cannot hop over occupied nodes
- * All nodes are walkable .
+ * Can have one seat.
+ * This may not be a grid.
  */
 export class PlaneNode {
   id: number; // unique id
@@ -12,20 +16,19 @@ export class PlaneNode {
 
   baggageCompartments: BaggageCompartment[];
 
-  occupiedLock: number; //occupying passenger id
+  //when occupied, no one is allowed to enter except the passenger id
+  occupiedLock: number | null; //occupying passenger id
 
-  x: number; // pixel location
-  y: number; // pixel location
+  sprite?: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Sprite;
 
-  constructor() {
-    this.id = 0;
+  seatInfo?: Seat; //if there is a set, then only one seat
+
+  constructor(id: number) {
+    this.id = id;
     this.inNodes = [];
     this.outNodes = [];
     this.baggageCompartments = [];
 
-    this.occupiedLock = 0;
-
-    this.x = 0;
-    this.y = 0;
+    this.occupiedLock = null;
   }
 }
