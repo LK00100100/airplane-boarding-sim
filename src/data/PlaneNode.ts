@@ -17,7 +17,8 @@ export class PlaneNode {
 
   baggageCompartments: BaggageCompartment[];
 
-  sprite?: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Sprite;
+  //TODO: use sprite
+  sprite?: Phaser.GameObjects.Rectangle;
 
   seatInfo?: Seat; //if there is a set, then only one seat
 

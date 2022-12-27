@@ -13,6 +13,7 @@ export class Passsenger {
   //todo: action timer variable
   facing: Direction;
 
+  //TODO: use sprite
   sprite?: Phaser.GameObjects.Triangle | Phaser.GameObjects.Sprite;
 
   constructor(id: number) {
@@ -38,12 +39,14 @@ export class Passsenger {
   isMoving(): boolean {
     if (!this.sprite) return false;
 
+    if (!this.sprite.body?.velocity) return false;
+
     let velocity = this.sprite!.body.velocity;
 
     return velocity.x > 0 || velocity.y > 0;
   }
 
   toString(): string {
-    return `id: ${this.id}, isMoving: ${this.isMoving}`;
+    return `id: ${this.id}, isMoving: ${this.isMoving()}`;
   }
 }

@@ -9,12 +9,14 @@ import Level1 from "../levels/level1.json";
 export default class Demo extends Phaser.Scene {
   private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame
 
+  private timers: Phaser.Time.TimerEvent[]; //all timers
+
   private gameText!: Phaser.GameObjects.Text;
 
   private nodeMap!: Map<number, PlaneNode>;
   private passengerMap!: Map<number, Passsenger>;
 
-  private passengerNeedCalc!: Set<number>; //<passenger ids>
+  private passengerNeedCalc!: Array<number>; //<passenger ids>, a stack
 
   //passengerId is not moving in nodeId. key is removed if passenger is moving.
   private passengerToNodeMap!: Map<number, number>;
@@ -36,11 +38,13 @@ export default class Demo extends Phaser.Scene {
 
     this.nodeMap = new Map();
     this.passengerMap = new Map();
-    this.passengerNeedCalc = new Set();
+    this.passengerNeedCalc = [];
 
     this.passengerToNodeMap = new Map();
     this.passengerToSeatPath = new Map();
     this.nodeToPassengerMap = new Map();
+
+    this.timers = [];
   }
 
   preload() {
@@ -105,7 +109,7 @@ export default class Demo extends Phaser.Scene {
     Level1.passengers.forEach((passengerJson) => {
       let passenger = new Passsenger(passengerJson.id);
 
-      this.passengerNeedCalc.add(passenger.id);
+      this.passengerNeedCalc.push(passenger.id);
 
       this.passengerMap.set(passenger.id, passenger);
 
@@ -127,6 +131,7 @@ export default class Demo extends Phaser.Scene {
       let node = this.nodeMap.get(passengerJson.node)!;
 
       this.passengerToNodeMap.set(passenger.id, node.id);
+      this.nodeToPassengerMap.set(node.id, passenger.id);
 
       let shape = Phaser.Geom.Triangle.BuildEquilateral(15, 0, 30);
 
@@ -192,6 +197,8 @@ export default class Demo extends Phaser.Scene {
         callbackScope: scene,
       });
 
+      scene.timers.push(scene.simulateTimer);
+
       scene.setGameText("simulation started");
     });
 
@@ -209,10 +216,9 @@ export default class Demo extends Phaser.Scene {
    * simulateTimer calls this every frame.
    */
   private simulateFrame(): void {
-    //this.setGameText("" + this.simulateTimer.getProgress());
-
     //simulate passengers
-    for (let passengerId of this.passengerNeedCalc) {
+    while (this.passengerNeedCalc.length > 0) {
+      let passengerId = this.passengerNeedCalc.pop()!;
       let passenger = this.passengerMap.get(passengerId)!;
       let passengerNodeId = this.passengerToNodeMap.get(passengerId);
 
@@ -236,37 +242,48 @@ export default class Demo extends Phaser.Scene {
       if (startNode.seatInfo?.isTicketSeat(passenger.ticket)) {
         //TODO: face the seat direction
         //TODO: passenger ismoving = false, when the animation stops
-        this.passengerNeedCalc.delete(passengerId);
         return;
       }
 
       if (pathToSeat.length == 0) throw Error("shouldn't be 0");
 
       //else move to step closer (if we can)
-      let nextNodeId = pathToSeat.shift()!;
+      let nextNodeId = pathToSeat[0];
 
       //next space occupied
       if (this.nodeToPassengerMap.has(nextNodeId)) {
+        //try again later
+        let timer = this.time.addEvent({
+          delay: 300, //TODO: hard code
+          loop: false,
+          callback: () => {
+            this.passengerNeedCalc.push(passengerId);
+          },
+          callbackScope: this,
+        });
+
+        this.timers.push(timer);
         return;
       }
+
+      pathToSeat.shift();
 
       let nextNode = this.nodeMap.get(nextNodeId)!;
 
       this.nodeToPassengerMap.set(nextNode.id, passengerId); //occupy start and next node
-
-      this.passengerNeedCalc.delete(passengerId);
 
       let scene = this;
       let tween = this.tweens.add({
         targets: passenger.sprite,
         x: nextNode.sprite?.x,
         y: nextNode.sprite?.y,
-        duration: 500,
+        //angle: ,  //TODO: rotation
+        duration: 800, //TODO: hard code
         ease: "Power2",
         onComplete: function () {
           scene.nodeToPassengerMap.delete(startNode.id);
           scene.passengerToNodeMap.set(passengerId, nextNode.id);
-          scene.passengerNeedCalc.add(passengerId);
+          scene.passengerNeedCalc.push(passengerId);
         },
       });
     }
@@ -358,5 +375,26 @@ export default class Demo extends Phaser.Scene {
   update() {
     //this.setGameText
     //TODO: check to see everyone has stopped moving or has their seat
+
+    //TODO: remove later
+    this.colorOccupiedNodes();
+  }
+
+  /**
+   * for debug use.
+   */
+  colorOccupiedNodes() {
+    //TODO: use settint with sprite
+    for (let [_, node] of this.nodeMap) {
+      node.sprite?.setFillStyle(0xaaaaaa);
+
+      if (node.seatInfo) node.sprite?.setFillStyle(0x0000aa);
+    }
+
+    for (let [nodeId, _] of this.nodeToPassengerMap) {
+      let node = this.nodeMap.get(nodeId);
+
+      node?.sprite?.setFillStyle(0x220000);
+    }
   }
 }
