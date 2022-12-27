@@ -12,13 +12,13 @@ import { Seat } from "./Seat";
 export class PlaneNode {
   id: number; // unique id
 
-  inNodes: number[]; //node ids going in
-  outNodes: number[]; //node ids going out
+  inNodes: Set<number>; //node ids going in
+  outNodes: Set<number>; //node ids going out
 
   baggageCompartments: BaggageCompartment[];
 
   //when occupied, no one is allowed to enter except the passenger id
-  occupiedLock: number | null; //occupying passenger id
+  private occupiedLock: number | null; //occupying passenger id
 
   sprite?: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Sprite;
 
@@ -26,10 +26,26 @@ export class PlaneNode {
 
   constructor(id: number) {
     this.id = id;
-    this.inNodes = [];
-    this.outNodes = [];
+    this.inNodes = new Set();
+    this.outNodes = new Set();
     this.baggageCompartments = [];
 
     this.occupiedLock = null;
+  }
+
+  setOccupiedLock(newId: number) {
+    this.occupiedLock = newId;
+  }
+
+  clearOccupiedLock() {
+    this.occupiedLock = null;
+  }
+
+  addInNode(newNodeId: number) {
+    this.inNodes.add(newNodeId);
+  }
+
+  addOutNode(newNodeId: number) {
+    this.outNodes.add(newNodeId);
   }
 }

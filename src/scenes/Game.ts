@@ -11,10 +11,18 @@ export default class Demo extends Phaser.Scene {
 
   private gameText!: Phaser.GameObjects.Text;
 
+  private nodeMap!: Map<number, PlaneNode>;
+  private passengerMap!: Map<number, Passsenger>;
+  private passengerToNodeMap!: Map<number, number>; //passengerId is occupying nodeId
+
   private FPS = 100 / 3; //30 FPS in terms of milliseconds
 
   constructor() {
     super("GameScene");
+
+    this.nodeMap = new Map();
+    this.passengerMap = new Map();
+    this.passengerToNodeMap = new Map();
   }
 
   preload() {
@@ -24,20 +32,39 @@ export default class Demo extends Phaser.Scene {
   create() {
     this.gameText = this.add.text(10, 10, "");
 
-    let nodeMap: Map<number, PlaneNode> = new Map();
-    let passengerMap: Map<number, Passsenger> = new Map();
-
     //TODO: check input data is not goofy. dont go too nuts
 
+    this.createPlaneNodes();
+
+    this.createPassengers();
+
+    this.createButtons();
+  }
+
+  createPlaneNodes(): void {
     //make nodes
     Level1.nodes.forEach((nodeJson) => {
-      let nodeData = new PlaneNode(nodeJson.id);
+      if (!this.nodeMap.has(nodeJson.id))
+        this.nodeMap.set(nodeJson.id, new PlaneNode(nodeJson.id));
+
+      let nodeData = this.nodeMap.get(nodeJson.id);
+
+      //connect in/out nodes
+      nodeJson.out.forEach((outNodeId) => {
+        if (!this.nodeMap.has(outNodeId))
+          this.nodeMap.set(outNodeId, new PlaneNode(outNodeId));
+
+        nodeData!.addOutNode(outNodeId);
+
+        this.nodeMap.get(outNodeId)!.addInNode(nodeJson.id);
+      });
+
       let sprite;
 
       //seat node
       if (nodeJson.seat) {
         let seat = nodeJson.seat;
-        nodeData.seatInfo = new Seat(
+        nodeData!.seatInfo = new Seat(
           seat.class,
           seat.aisle,
           seat.class,
@@ -51,16 +78,16 @@ export default class Demo extends Phaser.Scene {
         sprite = this.add.rectangle(nodeJson.x, nodeJson.y, 30, 30, 0xaaaaaa);
       }
 
-      nodeData.sprite = sprite;
-
-      nodeMap.set(nodeJson.id, nodeData);
+      nodeData!.sprite = sprite;
     });
+  }
 
+  createPassengers(): void {
     //make passengers
     Level1.passengers.forEach((passengerJson) => {
       let passenger = new Passsenger(passengerJson.id);
 
-      passengerMap.set(passenger.id, passenger);
+      this.passengerMap.set(passenger.id, passenger);
 
       if (!passengerJson.ticket) {
         throw Error("ticket required");
@@ -73,11 +100,13 @@ export default class Demo extends Phaser.Scene {
         ticketJson.seat
       );
 
-      if (!nodeMap.has(passengerJson.node)) {
+      if (!this.nodeMap.has(passengerJson.node)) {
         throw Error(`node id doesn't exist: ${passengerJson.node}`);
       }
 
-      let node = nodeMap.get(passengerJson.node);
+      let node = this.nodeMap.get(passengerJson.node);
+
+      node?.setOccupiedLock(passengerJson.id);
 
       let shape = Phaser.Geom.Triangle.BuildEquilateral(15, 0, 30);
 
@@ -107,15 +136,11 @@ export default class Demo extends Phaser.Scene {
         triangle.fillColor = 0xbb0000;
       });
 
-      //TODO: extract methods
-
       //set direction
       triangle.angle = 90 * toDirection(passengerJson.direction);
 
       passenger.sprite = triangle;
     });
-
-    this.createButtons();
   }
 
   createButtons(): void {
@@ -136,6 +161,7 @@ export default class Demo extends Phaser.Scene {
 
       if (scene.simulateTimer && !scene.simulateTimer.paused) {
         scene.simulateTimer.paused = true;
+        scene.setGameText("simulation paused");
         return;
       }
 
@@ -145,6 +171,8 @@ export default class Demo extends Phaser.Scene {
         callback: scene.simulateFrame,
         callbackScope: scene,
       });
+
+      scene.setGameText("simulation started");
     });
 
     sprite.on("pointerover", function (pointer: Phaser.Input.Pointer) {
@@ -157,10 +185,19 @@ export default class Demo extends Phaser.Scene {
   }
 
   /**
-   * simulate timer calls this often
+   * This actually simulates passenger thinking and moving.
+   * simulateTimer calls this every frame.
    */
   simulateFrame() {
-    this.setGameText("" + this.simulateTimer.getProgress());
+    //this.setGameText("" + this.simulateTimer.getProgress());
+
+    //simulate passengers
+    for (let [_, passenger] of this.passengerMap) {
+      //are we at the right aisle?
+      //if(passenger.)
+      //if so, go to my seat
+      //else, step up one
+    }
   }
 
   update() {
