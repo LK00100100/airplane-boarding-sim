@@ -10,8 +10,6 @@ export class Passsenger {
   ticket: Ticket; //all passengers have a ticket
   baggages: Baggage[]; //should be at most 1 large piece.
 
-  isMoving: boolean; //either walking or doing stuff
-
   //todo: action timer variable
   facing: Direction;
 
@@ -21,7 +19,6 @@ export class Passsenger {
     this.id = id;
     this.baggages = [];
     this.ticket = Ticket.placeholderTicket();
-    this.isMoving = false;
 
     this.facing = Direction.NORTH;
   }
@@ -32,6 +29,18 @@ export class Passsenger {
 
   setTicket(ticket: Ticket) {
     this.ticket = ticket;
+  }
+
+  /**
+   *
+   * @returns true if sprite is moving. Otherwise, false
+   */
+  isMoving(): boolean {
+    if (!this.sprite) return false;
+
+    let velocity = this.sprite!.body.velocity;
+
+    return velocity.x > 0 || velocity.y > 0;
   }
 
   toString(): string {

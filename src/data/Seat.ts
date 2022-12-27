@@ -1,4 +1,5 @@
 import { Direction } from "./Direction";
+import { Ticket } from "./Ticket";
 
 export class Seat {
   seatClass: string;
@@ -16,5 +17,13 @@ export class Seat {
     this.aisle = aisle;
     this.number = number;
     this.direction = direction;
+  }
+
+  public toTicket(): Ticket {
+    return new Ticket(this.seatClass, this.aisle, this.number);
+  }
+
+  public isTicketSeat(ticket: Ticket) {
+    return this.toTicket() == ticket;
   }
 }

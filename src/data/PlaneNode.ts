@@ -17,9 +17,6 @@ export class PlaneNode {
 
   baggageCompartments: BaggageCompartment[];
 
-  //when occupied, no one is allowed to enter except the passenger id
-  private occupiedLock: number | null; //occupying passenger id
-
   sprite?: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Sprite;
 
   seatInfo?: Seat; //if there is a set, then only one seat
@@ -29,16 +26,6 @@ export class PlaneNode {
     this.inNodes = new Set();
     this.outNodes = new Set();
     this.baggageCompartments = [];
-
-    this.occupiedLock = null;
-  }
-
-  setOccupiedLock(newId: number) {
-    this.occupiedLock = newId;
-  }
-
-  clearOccupiedLock() {
-    this.occupiedLock = null;
   }
 
   addInNode(newNodeId: number) {
