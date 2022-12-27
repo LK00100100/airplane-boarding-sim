@@ -10,8 +10,7 @@ export class Passsenger {
   ticket: Ticket; //all passengers have a ticket
   baggages: Baggage[]; //should be at most 1 large piece.
 
-  //todo: action timer variable
-  facing: Direction;
+  direction: Direction;
 
   sprite?: Phaser.GameObjects.Sprite;
 
@@ -20,7 +19,7 @@ export class Passsenger {
     this.baggages = [];
     this.ticket = Ticket.placeholderTicket();
 
-    this.facing = Direction.NORTH;
+    this.direction = Direction.NORTH;
   }
 
   addBaggage(baggage: Baggage) {

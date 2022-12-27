@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { toDirection } from "../data/Direction";
+import { Direction, toDirection } from "../data/Direction";
 import { Passsenger } from "../data/Passenger";
 import { PlaneNode } from "../data/PlaneNode";
 import { Seat } from "../data/Seat";
@@ -206,6 +206,8 @@ export default class Demo extends Phaser.Scene {
     sprite.on("pointerover", function (pointer: Phaser.Input.Pointer) {
       sprite.setTint(0x000099);
     });
+
+    //
   }
 
   setGameText(newText: string) {
@@ -217,6 +219,8 @@ export default class Demo extends Phaser.Scene {
    * simulateTimer calls this every frame.
    */
   private simulateFrame(): void {
+    let scene = this;
+
     //simulate passengers
     while (this.passengerNeedCalc.length > 0) {
       let passengerId = this.passengerNeedCalc.pop()!;
@@ -241,8 +245,15 @@ export default class Demo extends Phaser.Scene {
 
       //are we at our seat? sit down
       if (startNode.seatInfo?.isTicketSeat(passenger.ticket)) {
-        //TODO: face the seat direction
-        //TODO: passenger ismoving = false, when the animation stops
+        //face seat
+        let tween = this.tweens.add({
+          targets: passenger.sprite,
+          angle: 90 * startNode.seatInfo.direction,
+          duration: 800, //TODO: hard code
+          ease: "Power2",
+          onComplete: function () {},
+        });
+
         return;
       }
 
@@ -276,12 +287,13 @@ export default class Demo extends Phaser.Scene {
 
       this.nodeToPassengerMap.set(nextNode.id, passengerId); //occupy start and next node
 
-      let scene = this;
+      this.setNextDirection(passenger, startNode, nextNode);
+
       let tween = this.tweens.add({
         targets: passenger.sprite,
         x: nextNode.sprite?.x,
         y: nextNode.sprite?.y,
-        //angle: ,  //TODO: rotation
+        angle: -90,
         duration: 800, //TODO: hard code
         ease: "Power2",
         onComplete: function () {
@@ -290,6 +302,31 @@ export default class Demo extends Phaser.Scene {
           scene.passengerNeedCalc.push(passengerId);
         },
       });
+    }
+  }
+
+  /**
+   * Sets the direction of the passenger to where they are going.
+   */
+  private setNextDirection(
+    passenger: Passsenger,
+    startNode: PlaneNode,
+    nextNode: PlaneNode
+  ) {
+    let nextX = nextNode.sprite!.x - startNode.sprite!.x;
+    let nextY = nextNode.sprite!.y - startNode.sprite!.y;
+
+    //horizontal is more powerful
+    if (Math.abs(nextX) > Math.abs(nextY)) {
+      passenger.direction = Direction.WEST;
+      if (startNode.sprite!.x < nextNode.sprite!.x)
+        passenger.direction = Direction.EAST;
+    }
+    //vertical is more powerful
+    else {
+      passenger.direction = Direction.NORTH;
+      if (startNode.sprite!.y < nextNode.sprite!.y)
+        passenger.direction = Direction.SOUTH;
     }
   }
 
