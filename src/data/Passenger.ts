@@ -13,8 +13,7 @@ export class Passsenger {
   //todo: action timer variable
   facing: Direction;
 
-  //TODO: use sprite
-  sprite?: Phaser.GameObjects.Triangle | Phaser.GameObjects.Sprite;
+  sprite?: Phaser.GameObjects.Sprite;
 
   constructor(id: number) {
     this.id = id;

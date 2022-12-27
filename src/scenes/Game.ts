@@ -49,6 +49,10 @@ export default class Demo extends Phaser.Scene {
 
   preload() {
     this.load.image("btn-simulate", "assets/btn-simulate.png");
+    this.load.image("btn-restart", "assets/btn-restart.png");
+    this.load.image("passenger", "assets/passenger.png");
+    this.load.image("plane-floor", "assets/plane-floor.png");
+    this.load.image("plane-seat", "assets/plane-seat.png");
   }
 
   create() {
@@ -93,11 +97,15 @@ export default class Demo extends Phaser.Scene {
           toDirection(seat.direction)
         );
 
-        sprite = this.add.rectangle(nodeJson.x, nodeJson.y, 30, 30, 0x0000aa);
+        sprite = this.add
+          .sprite(nodeJson.x, nodeJson.y, "plane-seat")
+          .setInteractive();
       }
       //walking node
       else {
-        sprite = this.add.rectangle(nodeJson.x, nodeJson.y, 30, 30, 0xaaaaaa);
+        sprite = this.add
+          .sprite(nodeJson.x, nodeJson.y, "plane-floor")
+          .setInteractive();
       }
 
       nodeData.sprite = sprite;
@@ -133,38 +141,31 @@ export default class Demo extends Phaser.Scene {
       this.passengerToNodeMap.set(passenger.id, node.id);
       this.nodeToPassengerMap.set(node.id, passenger.id);
 
-      let shape = Phaser.Geom.Triangle.BuildEquilateral(15, 0, 30);
+      //let shape = Phaser.Geom.Triangle.BuildEquilateral(15, 0, 30);
 
-      let triangle = this.add
-        .triangle(
-          node?.sprite?.x,
-          node?.sprite?.y,
-          0,
-          30,
-          30,
-          30,
-          15,
-          0,
-          0xbb0000
-        )
-        .setInteractive(shape, Phaser.Geom.Triangle.Contains);
+      let shape = new Phaser.Geom.Rectangle(2, 10, 26, 12);
+
+      let sprite = this.add
+        .sprite(node.sprite!.x, node.sprite!.y, "passenger")
+        .setInteractive(shape, Phaser.Geom.Rectangle.Contains);
 
       let scene = this;
+
       //  Input Event listeners
-      triangle.on("pointerover", function () {
-        triangle.fillColor = 0xbbbb00;
+      sprite.on("pointerover", function () {
+        sprite.setTint(0xbbbb00);
         scene.setGameText(passenger.toString());
       });
 
-      triangle.on("pointerout", function () {
+      sprite.on("pointerout", function () {
         scene.setGameText("");
-        triangle.fillColor = 0xbb0000;
+        sprite.clearTint();
       });
 
       //set direction
-      triangle.angle = 90 * toDirection(passengerJson.direction);
+      sprite.angle = 90 * toDirection(passengerJson.direction);
 
-      passenger.sprite = triangle;
+      passenger.sprite = sprite;
     });
   }
 
@@ -387,17 +388,14 @@ export default class Demo extends Phaser.Scene {
    * for debug use.
    */
   colorOccupiedNodes() {
-    //TODO: use settint with sprite
     for (let [_, node] of this.nodeMap) {
-      node.sprite?.setFillStyle(0xaaaaaa);
-
-      if (node.seatInfo) node.sprite?.setFillStyle(0x0000aa);
+      node.sprite?.clearTint();
     }
 
     for (let [nodeId, _] of this.nodeToPassengerMap) {
-      let node = this.nodeMap.get(nodeId);
+      let node = this.nodeMap.get(nodeId)!;
 
-      node?.sprite?.setFillStyle(0x220000);
+      node.sprite!.tint = 0x900000;
     }
   }
 }
