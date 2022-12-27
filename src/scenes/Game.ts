@@ -13,9 +13,12 @@ export default class Demo extends Phaser.Scene {
 
   private nodeMap!: Map<number, PlaneNode>;
   private passengerMap!: Map<number, Passsenger>;
-  private passengerToNodeMap!: Map<number, number>; //passengerId is in nodeId. also used as a lock
 
-  //when occupied, no one is allowed to enter except the passenger
+  //passengerId is not moving in nodeId. key is removed if passenger is moving.
+  private passengerToNodeMap!: Map<number, number>;
+
+  //used when passenger is entering and/or exiting.
+  //when occupied, no one is allowed to enter except the passenger. used as a lock.
   //no node key means no passenger.
   private nodeToPassengerMap!: Map<number, number>; //nodeId has passengerId
 
@@ -208,9 +211,7 @@ export default class Demo extends Phaser.Scene {
     for (let [passengerId, passenger] of this.passengerMap) {
       let passengerNodeId = this.passengerToNodeMap.get(passengerId);
 
-      let node = this.nodeMap.get(passengerNodeId!)!;
-
-      //TODO: lock and unlock nodes
+      let startNode = this.nodeMap.get(passengerNodeId!)!;
 
       //need to calc path
       if (!this.passengerToSeatPath.has(passengerId)) {
@@ -227,7 +228,7 @@ export default class Demo extends Phaser.Scene {
       let pathToSeat = this.passengerToSeatPath.get(passengerId)!;
 
       //are we at our seat? sit down
-      if (node.seatInfo?.isTicketSeat(passenger.ticket)) {
+      if (startNode.seatInfo?.isTicketSeat(passenger.ticket)) {
         //TODO: face the seat direction
         //TODO: passenger ismoving = false, when the animation stops
 
@@ -236,16 +237,29 @@ export default class Demo extends Phaser.Scene {
 
       if (pathToSeat.length == 0) throw Error("shouldn't be 0");
 
-      //else move to step closer
+      //else move to step closer (if we can)
       let nextNodeId = pathToSeat.shift()!;
+
+      //next space occupied
+      if (this.nodeToPassengerMap.has(nextNodeId)) {
+        return;
+      }
+
       let nextNode = this.nodeMap.get(nextNodeId)!;
 
+      this.nodeToPassengerMap.set(nextNode.id, passengerId);
+
+      let scene = this;
       let tween = this.tweens.add({
         targets: passenger.sprite,
         x: nextNode.sprite?.x,
         y: nextNode.sprite?.y,
         duration: 500,
         ease: "Power2",
+        onComplete: function () {
+          scene.nodeToPassengerMap.delete(startNode.id);
+          scene.passengerToNodeMap.set(passengerId, nextNode.id);
+        },
       });
     }
   }
