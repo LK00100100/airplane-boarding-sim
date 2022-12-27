@@ -2,6 +2,9 @@ import { Baggage } from "./Baggage";
 import { Direction } from "./Direction";
 import { Ticket } from "./Ticket";
 
+/**
+ * Holds information about a passenger
+ */
 export class Passsenger {
   id: number; //unique id
   ticket: Ticket; //all passengers have a ticket
@@ -23,20 +26,15 @@ export class Passsenger {
     this.facing = Direction.NORTH;
   }
 
-  giveBaggage(baggage: Baggage) {
+  addBaggage(baggage: Baggage) {
     this.baggages.push(baggage);
   }
 
-  giveTicket(ticket: Ticket) {
+  setTicket(ticket: Ticket) {
     this.ticket = ticket;
   }
 
-  /**
-   * used to simulate a passenger's thought and then movement
-   */
-  thinkAndMove() {
-    this.isMoving = false;
-
-    this.isMoving = true;
+  toString(): string {
+    return `id: ${this.id}, isMoving: ${this.isMoving}`;
   }
 }

@@ -106,7 +106,8 @@
             "seat": {
                 "aisle": 1,
                 "number": "A",
-                "class": "coach"
+                "class": "coach",
+                "direction": "W"
             }
         },
         {
@@ -120,7 +121,8 @@
             "seat": {
                 "aisle": 1,
                 "number": "B",
-                "class": "coach"
+                "class": "coach",
+                "direction": "W"
             }
         },
         {
@@ -134,7 +136,8 @@
             "seat": {
                 "aisle": 1,
                 "number": "C",
-                "class": "coach"
+                "class": "coach",
+                "direction": "W"
             }
         },
         {
@@ -148,7 +151,8 @@
             "seat": {
                 "aisle": 2,
                 "number": "A",
-                "class": "coach"
+                "class": "coach",
+                "direction": "W"
             }
         },
         {
@@ -162,7 +166,8 @@
             "seat": {
                 "aisle": 2,
                 "number": "B",
-                "class": "coach"
+                "class": "coach",
+                "direction": "W"
             }
         },
         {
@@ -176,7 +181,8 @@
             "seat": {
                 "aisle": 2,
                 "number": "C",
-                "class": "coach"
+                "class": "coach",
+                "direction": "W"
             }
         }
     ],
@@ -193,7 +199,8 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 1,
-                "seat": "A"
+                "seat": "A",
+                "direction": "W"
             }
         },
         {
@@ -203,7 +210,8 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 1,
-                "seat": "B"
+                "seat": "B",
+                "direction": "W"
             }
         },
         {
@@ -213,7 +221,8 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 1,
-                "seat": "C"
+                "seat": "C",
+                "direction": "W"
             }
         },
         {
@@ -223,7 +232,8 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 2,
-                "seat": "A"
+                "seat": "A",
+                "direction": "W"
             }
         },
         {
@@ -233,7 +243,8 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 2,
-                "seat": "B"
+                "seat": "B",
+                "direction": "W"
             }
         },
         {
@@ -243,7 +254,8 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 2,
-                "seat": "C"
+                "seat": "C",
+                "direction": "W"
             }
         }
     ]
