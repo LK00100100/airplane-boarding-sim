@@ -60,6 +60,7 @@
             "id": 7,
             "out": [
                 8,
+                10,
                 11
             ],
             "x": 140,
@@ -164,7 +165,7 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 1,
-                "seat": "A",
+                "number": "A",
                 "direction": "W"
             }
         },
@@ -175,7 +176,7 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 1,
-                "seat": "B",
+                "number": "B",
                 "direction": "W"
             }
         },
@@ -186,7 +187,7 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 1,
-                "seat": "C",
+                "number": "C",
                 "direction": "W"
             }
         },
@@ -197,7 +198,7 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 2,
-                "seat": "A",
+                "number": "A",
                 "direction": "W"
             }
         },
@@ -208,7 +209,7 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 2,
-                "seat": "B",
+                "number": "B",
                 "direction": "W"
             }
         },
@@ -219,7 +220,7 @@
             "ticket": {
                 "class": "coach",
                 "aisle": 2,
-                "seat": "C",
+                "number": "C",
                 "direction": "W"
             }
         }

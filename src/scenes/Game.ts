@@ -78,7 +78,7 @@ export default class Demo extends Phaser.Scene {
         nodeData.seatInfo = new Seat(
           seat.class,
           seat.aisle,
-          seat.class,
+          seat.number,
           toDirection(seat.direction)
         );
 
@@ -106,9 +106,9 @@ export default class Demo extends Phaser.Scene {
 
       let ticketJson = passengerJson.ticket;
       passenger.ticket = new Ticket(
-        ticketJson.seat,
+        ticketJson.class,
         ticketJson.aisle,
-        ticketJson.seat
+        ticketJson.number
       );
 
       if (!this.nodeMap.has(passengerJson.node)) {
@@ -269,7 +269,7 @@ export default class Demo extends Phaser.Scene {
       return [];
     }
 
-    //calc min (BFS)
+    //calc min distance to goal (BFS)
     let queue = Array.from(startNode.outNodes);
     let level = 1;
     let goalNode = null;
@@ -290,13 +290,15 @@ export default class Demo extends Phaser.Scene {
 
         let currentNode = this.nodeMap.get(currentNodeId)!;
 
-        if (startNode.seatInfo?.isTicketSeat(ticket)) {
+        if (currentNode.seatInfo?.isTicketSeat(ticket)) {
           goalNode = currentNode;
           break;
         }
 
-        queue.concat(Array.from(currentNode.outNodes));
+        queue = queue.concat(Array.from(currentNode.outNodes));
       }
+
+      if (goalNode) break;
 
       levelSize = queue.length;
       level++;

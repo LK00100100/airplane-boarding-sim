@@ -1,16 +1,16 @@
 /**
  * A Ticket for a plane.
- * Such as: seatClass: coach; aisle: 10, seat: F.
+ * Such as: seatClass: coach; aisle: 10, number: F.
  */
 export class Ticket {
   seatClass: string;
   aisle: number;
-  seat: string;
+  number: string;
 
-  constructor(seatClass: string, aisle: number, seat: string) {
+  constructor(seatClass: string, aisle: number, number: string) {
     this.seatClass = seatClass;
     this.aisle = aisle;
-    this.seat = seat;
+    this.number = number;
   }
 
   static placeholderTicket(): Ticket {
