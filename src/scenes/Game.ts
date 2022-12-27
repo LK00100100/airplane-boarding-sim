@@ -7,12 +7,14 @@ import { Ticket } from "../data/Ticket";
 import Level1 from "../levels/level1.json";
 
 export default class Demo extends Phaser.Scene {
-  private simulateTimer!: Phaser.Time.TimerEvent;
+  private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame
 
   private gameText!: Phaser.GameObjects.Text;
 
   private nodeMap!: Map<number, PlaneNode>;
   private passengerMap!: Map<number, Passsenger>;
+
+  private passengerNeedCalc!: Set<number>; //<passenger ids>
 
   //passengerId is not moving in nodeId. key is removed if passenger is moving.
   private passengerToNodeMap!: Map<number, number>;
@@ -34,6 +36,8 @@ export default class Demo extends Phaser.Scene {
 
     this.nodeMap = new Map();
     this.passengerMap = new Map();
+    this.passengerNeedCalc = new Set();
+
     this.passengerToNodeMap = new Map();
     this.passengerToSeatPath = new Map();
     this.nodeToPassengerMap = new Map();
@@ -100,6 +104,8 @@ export default class Demo extends Phaser.Scene {
     //make passengers
     Level1.passengers.forEach((passengerJson) => {
       let passenger = new Passsenger(passengerJson.id);
+
+      this.passengerNeedCalc.add(passenger.id);
 
       this.passengerMap.set(passenger.id, passenger);
 
@@ -199,16 +205,15 @@ export default class Demo extends Phaser.Scene {
   }
 
   /**
-   * This actually simulates passenger thinking and moving.
+   * This actually simulates passenger thinking and then orders them to move.
    * simulateTimer calls this every frame.
    */
   private simulateFrame(): void {
     //this.setGameText("" + this.simulateTimer.getProgress());
 
-    //TODO: could replace passengermap with needseatSet()
-
     //simulate passengers
-    for (let [passengerId, passenger] of this.passengerMap) {
+    for (let passengerId of this.passengerNeedCalc) {
+      let passenger = this.passengerMap.get(passengerId)!;
       let passengerNodeId = this.passengerToNodeMap.get(passengerId);
 
       let startNode = this.nodeMap.get(passengerNodeId!)!;
@@ -231,7 +236,7 @@ export default class Demo extends Phaser.Scene {
       if (startNode.seatInfo?.isTicketSeat(passenger.ticket)) {
         //TODO: face the seat direction
         //TODO: passenger ismoving = false, when the animation stops
-
+        this.passengerNeedCalc.delete(passengerId);
         return;
       }
 
@@ -247,7 +252,9 @@ export default class Demo extends Phaser.Scene {
 
       let nextNode = this.nodeMap.get(nextNodeId)!;
 
-      this.nodeToPassengerMap.set(nextNode.id, passengerId);
+      this.nodeToPassengerMap.set(nextNode.id, passengerId); //occupy start and next node
+
+      this.passengerNeedCalc.delete(passengerId);
 
       let scene = this;
       let tween = this.tweens.add({
@@ -259,6 +266,7 @@ export default class Demo extends Phaser.Scene {
         onComplete: function () {
           scene.nodeToPassengerMap.delete(startNode.id);
           scene.passengerToNodeMap.set(passengerId, nextNode.id);
+          scene.passengerNeedCalc.add(passengerId);
         },
       });
     }
