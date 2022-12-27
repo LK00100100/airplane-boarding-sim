@@ -9,7 +9,7 @@ import Level1 from "../levels/level1.json";
 export default class Demo extends Phaser.Scene {
   private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame
 
-  private timers: Phaser.Time.TimerEvent[]; //all timers
+  private timers: Set<Phaser.Time.TimerEvent>; //all timers
 
   private gameText!: Phaser.GameObjects.Text;
 
@@ -44,7 +44,7 @@ export default class Demo extends Phaser.Scene {
     this.passengerToSeatPath = new Map();
     this.nodeToPassengerMap = new Map();
 
-    this.timers = [];
+    this.timers = new Set();
   }
 
   preload() {
@@ -197,7 +197,7 @@ export default class Demo extends Phaser.Scene {
         callbackScope: scene,
       });
 
-      scene.timers.push(scene.simulateTimer);
+      scene.timers.add(scene.simulateTimer);
 
       scene.setGameText("simulation started");
     });
@@ -258,11 +258,14 @@ export default class Demo extends Phaser.Scene {
           loop: false,
           callback: () => {
             this.passengerNeedCalc.push(passengerId);
+            console.log(this.time);
+
+            this.timers.delete(timer);
           },
           callbackScope: this,
         });
 
-        this.timers.push(timer);
+        this.timers.add(timer);
         return;
       }
 
