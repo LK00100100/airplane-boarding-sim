@@ -338,7 +338,7 @@ export default class Demo extends Phaser.Scene {
         passenger.tween = this.tweens.add({
           targets: passenger.sprite,
           angle: newAngle,
-          duration: 800, //TODO: hard code
+          duration: 400, //TODO: hard code
           ease: "Power2",
           onComplete: function () {},
         });
@@ -355,7 +355,7 @@ export default class Demo extends Phaser.Scene {
       if (this.nodeToPassengerMap.has(nextNodeId)) {
         //try again later
         let timer = this.time.addEvent({
-          delay: 300, //TODO: hard code
+          delay: 150, //TODO: hard code
           loop: false,
           callback: () => {
             this.passengerNeedCalc.push(passengerId);
@@ -387,7 +387,7 @@ export default class Demo extends Phaser.Scene {
         x: nextNode.sprite?.x,
         y: nextNode.sprite?.y,
         angle: newAngle, //TODO: hard code
-        duration: 800, //TODO: hard code
+        duration: 400, //TODO: hard code
         ease: "Power2",
         onComplete: function () {
           scene.nodeToPassengerMap.delete(startNode.id);
