@@ -35,4 +35,10 @@ export class PlaneNode {
   addOutNode(newNodeId: number) {
     this.outNodes.add(newNodeId);
   }
+
+  public toString() {
+    const objWithout = { ...this, sprite: undefined };
+
+    return JSON.stringify(objWithout);
+  }
 }

@@ -18,6 +18,6 @@ export class Ticket {
   }
 
   public toString() {
-    return `{${this.seatClass}: ${this.aisle}${this.number}}`;
+    return JSON.stringify(this);
   }
 }

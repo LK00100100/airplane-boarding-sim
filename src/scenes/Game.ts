@@ -52,6 +52,7 @@ export default class Demo extends Phaser.Scene {
   create() {
     console.log("create");
 
+    //TODO: need to destroy all the stuff before reset.
     //stuff isnt destroyed on reset
     //console.log("timer size: " + this.timers?.size);
 
@@ -104,7 +105,7 @@ export default class Demo extends Phaser.Scene {
         this.nodeMap.get(outNodeId)!.addInNode(nodeJson.id);
       });
 
-      let sprite;
+      let sprite: Phaser.GameObjects.Sprite;
 
       //seat node
       if (nodeJson.seat) {
@@ -126,6 +127,17 @@ export default class Demo extends Phaser.Scene {
           .sprite(nodeJson.x, nodeJson.y, "plane-floor")
           .setInteractive();
       }
+
+      //  Input Event listeners
+      sprite.on("pointerover", () => {
+        sprite.setTint(0x00bb00);
+        this.setGameText(nodeData.toString());
+      });
+
+      sprite.on("pointerout", () => {
+        this.setGameText("");
+        sprite.clearTint();
+      });
 
       nodeData.sprite = sprite;
     });
@@ -190,7 +202,7 @@ export default class Demo extends Phaser.Scene {
 
   private createButtons(): void {
     let simulateSprite = this.add
-      .sprite(400, 300, "btn-simulate")
+      .sprite(500, 500, "btn-simulate")
       .setInteractive();
 
     let simulateClickFunc = () => {
@@ -206,7 +218,7 @@ export default class Demo extends Phaser.Scene {
     ButtonUtils.dressUpButton(simulateSprite, simulateClickFunc);
 
     let restartSprite = this.add
-      .sprite(600, 300, "btn-restart")
+      .sprite(700, 500, "btn-restart")
       .setInteractive();
 
     let restartClickFunc = () => {
@@ -216,8 +228,26 @@ export default class Demo extends Phaser.Scene {
     ButtonUtils.dressUpButton(restartSprite, restartClickFunc);
   }
 
+  /**
+   * displays the text. adds new lines if the string is too long
+   * @param newText
+   */
   setGameText(newText: string) {
-    this.gameText.text = newText;
+    let newText2 = "";
+
+    let sentenceLength = 75;
+
+    while (newText.length > 0) {
+      if (newText.length < sentenceLength) {
+        newText2 += newText;
+        break;
+      }
+
+      newText2 += newText.substring(0, sentenceLength) + "\n";
+      newText = newText.substring(sentenceLength);
+    }
+
+    this.gameText.text = newText2;
   }
 
   /**

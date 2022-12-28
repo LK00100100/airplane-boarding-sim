@@ -27,4 +27,8 @@ export class Seat {
   public isTicketSeat(ticket: Ticket) {
     return _.isEqual(this.toTicket(), ticket);
   }
+
+  public toString() {
+    return JSON.stringify(this);
+  }
 }
