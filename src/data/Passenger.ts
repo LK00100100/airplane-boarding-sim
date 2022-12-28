@@ -14,6 +14,8 @@ export class Passsenger {
 
   sprite?: Phaser.GameObjects.Sprite;
 
+  tween?: Phaser.Tweens.Tween; //current animation
+
   constructor(id: number) {
     this.id = id;
     this.baggages = [];
@@ -37,11 +39,9 @@ export class Passsenger {
   isMoving(): boolean {
     if (!this.sprite) return false;
 
-    if (!this.sprite.body?.velocity) return false;
+    if (!this.tween) return false;
 
-    let velocity = this.sprite!.body.velocity;
-
-    return velocity.x > 0 || velocity.y > 0;
+    return this.tween.isPlaying();
   }
 
   toString(): string {

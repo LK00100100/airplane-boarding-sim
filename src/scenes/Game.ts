@@ -252,7 +252,7 @@ export default class Demo extends Phaser.Scene {
         );
 
         //face the  seat
-        let tween = this.tweens.add({
+        passenger.tween = this.tweens.add({
           targets: passenger.sprite,
           angle: newAngle,
           duration: 800, //TODO: hard code
@@ -298,7 +298,7 @@ export default class Demo extends Phaser.Scene {
         90 * passenger.direction
       );
 
-      let tween = this.tweens.add({
+      passenger.tween = this.tweens.add({
         targets: passenger.sprite,
         x: nextNode.sprite?.x,
         y: nextNode.sprite?.y,
