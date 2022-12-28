@@ -7,7 +7,8 @@
                 1
             ],
             "x": 50,
-            "y": 340
+            "y": 340,
+            "enter": true
         },
         {
             "id": 1,
@@ -44,7 +45,9 @@
         {
             "id": 5,
             "out": [
-                6
+                6,
+                24,
+                25
             ],
             "x": 90,
             "y": 180
@@ -52,7 +55,9 @@
         {
             "id": 6,
             "out": [
-                7
+                7,
+                28,
+                29
             ],
             "x": 130,
             "y": 180
@@ -61,8 +66,8 @@
             "id": 7,
             "out": [
                 8,
-                10,
-                11
+                33,
+                34
             ],
             "x": 170,
             "y": 180
@@ -70,97 +75,149 @@
         {
             "id": 8,
             "out": [
-                13,
-                14
+                9,
+                39,
+                40
             ],
             "x": 210,
             "y": 180
         },
         {
             "id": 9,
-            "out": [],
+            "out": [
+                10,
+                45,
+                46
+            ],
             "x": 250,
             "y": 180
         },
         {
             "id": 10,
             "out": [
-                9
+                11,
+                51,
+                52
             ],
             "x": 290,
             "y": 180
         },
         {
             "id": 11,
-            "out": [],
+            "out": [
+                12,
+                57,
+                58
+            ],
             "x": 330,
             "y": 180
         },
         {
             "id": 12,
-            "out": [],
+            "out": [
+                13,
+                63,
+                64
+            ],
             "x": 370,
             "y": 180
         },
         {
             "id": 13,
             "out": [
-                12
+                14,
+                69,
+                70
             ],
             "x": 410,
             "y": 180
         },
         {
             "id": 14,
-            "out": [],
+            "out": [
+                15,
+                75,
+                76
+            ],
             "x": 450,
             "y": 180
         },
         {
             "id": 15,
-            "out": [],
+            "out": [
+                16,
+                81,
+                82
+            ],
             "x": 490,
             "y": 180
         },
         {
             "id": 16,
-            "out": [],
+            "out": [
+                17,
+                87,
+                88
+            ],
             "x": 530,
             "y": 180
         },
         {
             "id": 17,
-            "out": [],
+            "out": [
+                18,
+                93,
+                94
+            ],
             "x": 570,
             "y": 180
         },
         {
             "id": 18,
-            "out": [],
+            "out": [
+                19,
+                99,
+                100
+            ],
             "x": 610,
             "y": 180
         },
         {
             "id": 19,
-            "out": [],
+            "out": [
+                20,
+                105,
+                106
+            ],
             "x": 650,
             "y": 180
         },
         {
             "id": 20,
-            "out": [],
+            "out": [
+                21,
+                111,
+                112
+            ],
             "x": 690,
             "y": 180
         },
         {
             "id": 21,
-            "out": [],
+            "out": [
+                22,
+                117,
+                118
+            ],
             "x": 730,
             "y": 180
         },
         {
             "id": 22,
-            "out": [],
+            "out": [
+                123,
+                124
+            ],
             "x": 770,
             "y": 180
         },
@@ -1416,18 +1473,839 @@
     "passengers": [
         {
             "id": 0,
-            "node": 0,
-            "direction": "N",
             "baggage": [
                 {
                     "size": 3
                 }
             ],
             "ticket": {
-                "class": "coach",
+                "class": "first",
                 "aisle": 1,
-                "number": "B",
-                "direction": "W"
+                "number": "A"
+            }
+        },
+        {
+            "id": 1,
+            "ticket": {
+                "class": "first",
+                "aisle": 1,
+                "number": "B"
+            }
+        },
+        {
+            "id": 2,
+            "ticket": {
+                "class": "first",
+                "aisle": 1,
+                "number": "C"
+            }
+        },
+        {
+            "id": 3,
+            "ticket": {
+                "class": "first",
+                "aisle": 1,
+                "number": "D"
+            }
+        },
+        {
+            "id": 4,
+            "ticket": {
+                "class": "first",
+                "aisle": 2,
+                "number": "A"
+            }
+        },
+        {
+            "id": 5,
+            "ticket": {
+                "class": "first",
+                "aisle": 2,
+                "number": "B"
+            }
+        },
+        {
+            "id": 6,
+            "ticket": {
+                "class": "first",
+                "aisle": 2,
+                "number": "C"
+            }
+        },
+        {
+            "id": 7,
+            "ticket": {
+                "class": "first",
+                "aisle": 2,
+                "number": "D"
+            }
+        },
+        {
+            "id": 8,
+            "ticket": {
+                "class": "coach",
+                "aisle": 3,
+                "number": "A"
+            }
+        },
+        {
+            "id": 9,
+            "ticket": {
+                "class": "coach",
+                "aisle": 3,
+                "number": "B"
+            }
+        },
+        {
+            "id": 10,
+            "ticket": {
+                "class": "coach",
+                "aisle": 3,
+                "number": "C"
+            }
+        },
+        {
+            "id": 11,
+            "ticket": {
+                "class": "coach",
+                "aisle": 3,
+                "number": "D"
+            }
+        },
+        {
+            "id": 12,
+            "ticket": {
+                "class": "coach",
+                "aisle": 3,
+                "number": "E"
+            }
+        },
+        {
+            "id": 13,
+            "ticket": {
+                "class": "coach",
+                "aisle": 3,
+                "number": "F"
+            }
+        },
+        {
+            "id": 14,
+            "ticket": {
+                "class": "coach",
+                "aisle": 4,
+                "number": "A"
+            }
+        },
+        {
+            "id": 15,
+            "ticket": {
+                "class": "coach",
+                "aisle": 4,
+                "number": "B"
+            }
+        },
+        {
+            "id": 16,
+            "ticket": {
+                "class": "coach",
+                "aisle": 4,
+                "number": "C"
+            }
+        },
+        {
+            "id": 17,
+            "ticket": {
+                "class": "coach",
+                "aisle": 4,
+                "number": "D"
+            }
+        },
+        {
+            "id": 18,
+            "ticket": {
+                "class": "coach",
+                "aisle": 4,
+                "number": "E"
+            }
+        },
+        {
+            "id": 19,
+            "ticket": {
+                "class": "coach",
+                "aisle": 4,
+                "number": "F"
+            }
+        },
+        {
+            "id": 20,
+            "ticket": {
+                "class": "coach",
+                "aisle": 5,
+                "number": "A"
+            }
+        },
+        {
+            "id": 21,
+            "ticket": {
+                "class": "coach",
+                "aisle": 5,
+                "number": "B"
+            }
+        },
+        {
+            "id": 22,
+            "ticket": {
+                "class": "coach",
+                "aisle": 5,
+                "number": "C"
+            }
+        },
+        {
+            "id": 23,
+            "ticket": {
+                "class": "coach",
+                "aisle": 5,
+                "number": "D"
+            }
+        },
+        {
+            "id": 24,
+            "ticket": {
+                "class": "coach",
+                "aisle": 5,
+                "number": "E"
+            }
+        },
+        {
+            "id": 25,
+            "ticket": {
+                "class": "coach",
+                "aisle": 5,
+                "number": "F"
+            }
+        },
+        {
+            "id": 26,
+            "ticket": {
+                "class": "coach",
+                "aisle": 6,
+                "number": "A"
+            }
+        },
+        {
+            "id": 27,
+            "ticket": {
+                "class": "coach",
+                "aisle": 6,
+                "number": "B"
+            }
+        },
+        {
+            "id": 28,
+            "ticket": {
+                "class": "coach",
+                "aisle": 6,
+                "number": "C"
+            }
+        },
+        {
+            "id": 29,
+            "ticket": {
+                "class": "coach",
+                "aisle": 6,
+                "number": "D"
+            }
+        },
+        {
+            "id": 30,
+            "ticket": {
+                "class": "coach",
+                "aisle": 6,
+                "number": "E"
+            }
+        },
+        {
+            "id": 31,
+            "ticket": {
+                "class": "coach",
+                "aisle": 6,
+                "number": "F"
+            }
+        },
+        {
+            "id": 32,
+            "ticket": {
+                "class": "coach",
+                "aisle": 7,
+                "number": "A"
+            }
+        },
+        {
+            "id": 33,
+            "ticket": {
+                "class": "coach",
+                "aisle": 7,
+                "number": "B"
+            }
+        },
+        {
+            "id": 34,
+            "ticket": {
+                "class": "coach",
+                "aisle": 7,
+                "number": "C"
+            }
+        },
+        {
+            "id": 35,
+            "ticket": {
+                "class": "coach",
+                "aisle": 7,
+                "number": "D"
+            }
+        },
+        {
+            "id": 36,
+            "ticket": {
+                "class": "coach",
+                "aisle": 7,
+                "number": "E"
+            }
+        },
+        {
+            "id": 37,
+            "ticket": {
+                "class": "coach",
+                "aisle": 7,
+                "number": "F"
+            }
+        },
+        {
+            "id": 38,
+            "ticket": {
+                "class": "coach",
+                "aisle": 8,
+                "number": "A"
+            }
+        },
+        {
+            "id": 39,
+            "ticket": {
+                "class": "coach",
+                "aisle": 8,
+                "number": "B"
+            }
+        },
+        {
+            "id": 40,
+            "ticket": {
+                "class": "coach",
+                "aisle": 8,
+                "number": "C"
+            }
+        },
+        {
+            "id": 41,
+            "ticket": {
+                "class": "coach",
+                "aisle": 8,
+                "number": "D"
+            }
+        },
+        {
+            "id": 42,
+            "ticket": {
+                "class": "coach",
+                "aisle": 8,
+                "number": "E"
+            }
+        },
+        {
+            "id": 43,
+            "ticket": {
+                "class": "coach",
+                "aisle": 8,
+                "number": "F"
+            }
+        },
+        {
+            "id": 44,
+            "ticket": {
+                "class": "coach",
+                "aisle": 9,
+                "number": "A"
+            }
+        },
+        {
+            "id": 45,
+            "ticket": {
+                "class": "coach",
+                "aisle": 9,
+                "number": "B"
+            }
+        },
+        {
+            "id": 46,
+            "ticket": {
+                "class": "coach",
+                "aisle": 9,
+                "number": "C"
+            }
+        },
+        {
+            "id": 47,
+            "ticket": {
+                "class": "coach",
+                "aisle": 9,
+                "number": "D"
+            }
+        },
+        {
+            "id": 48,
+            "ticket": {
+                "class": "coach",
+                "aisle": 9,
+                "number": "E"
+            }
+        },
+        {
+            "id": 49,
+            "ticket": {
+                "class": "coach",
+                "aisle": 9,
+                "number": "F"
+            }
+        },
+        {
+            "id": 50,
+            "ticket": {
+                "class": "coach",
+                "aisle": 10,
+                "number": "A"
+            }
+        },
+        {
+            "id": 51,
+            "ticket": {
+                "class": "coach",
+                "aisle": 10,
+                "number": "B"
+            }
+        },
+        {
+            "id": 52,
+            "ticket": {
+                "class": "coach",
+                "aisle": 10,
+                "number": "C"
+            }
+        },
+        {
+            "id": 53,
+            "ticket": {
+                "class": "coach",
+                "aisle": 10,
+                "number": "D"
+            }
+        },
+        {
+            "id": 54,
+            "ticket": {
+                "class": "coach",
+                "aisle": 10,
+                "number": "E"
+            }
+        },
+        {
+            "id": 55,
+            "ticket": {
+                "class": "coach",
+                "aisle": 10,
+                "number": "F"
+            }
+        },
+        {
+            "id": 56,
+            "ticket": {
+                "class": "coach",
+                "aisle": 11,
+                "number": "A"
+            }
+        },
+        {
+            "id": 57,
+            "ticket": {
+                "class": "coach",
+                "aisle": 11,
+                "number": "B"
+            }
+        },
+        {
+            "id": 58,
+            "ticket": {
+                "class": "coach",
+                "aisle": 11,
+                "number": "C"
+            }
+        },
+        {
+            "id": 59,
+            "ticket": {
+                "class": "coach",
+                "aisle": 11,
+                "number": "D"
+            }
+        },
+        {
+            "id": 60,
+            "ticket": {
+                "class": "coach",
+                "aisle": 11,
+                "number": "E"
+            }
+        },
+        {
+            "id": 61,
+            "ticket": {
+                "class": "coach",
+                "aisle": 11,
+                "number": "F"
+            }
+        },
+        {
+            "id": 62,
+            "ticket": {
+                "class": "coach",
+                "aisle": 12,
+                "number": "A"
+            }
+        },
+        {
+            "id": 63,
+            "ticket": {
+                "class": "coach",
+                "aisle": 12,
+                "number": "B"
+            }
+        },
+        {
+            "id": 64,
+            "ticket": {
+                "class": "coach",
+                "aisle": 12,
+                "number": "C"
+            }
+        },
+        {
+            "id": 65,
+            "ticket": {
+                "class": "coach",
+                "aisle": 12,
+                "number": "D"
+            }
+        },
+        {
+            "id": 66,
+            "ticket": {
+                "class": "coach",
+                "aisle": 12,
+                "number": "E"
+            }
+        },
+        {
+            "id": 67,
+            "ticket": {
+                "class": "coach",
+                "aisle": 12,
+                "number": "F"
+            }
+        },
+        {
+            "id": 68,
+            "ticket": {
+                "class": "coach",
+                "aisle": 13,
+                "number": "A"
+            }
+        },
+        {
+            "id": 69,
+            "ticket": {
+                "class": "coach",
+                "aisle": 13,
+                "number": "B"
+            }
+        },
+        {
+            "id": 70,
+            "ticket": {
+                "class": "coach",
+                "aisle": 13,
+                "number": "C"
+            }
+        },
+        {
+            "id": 71,
+            "ticket": {
+                "class": "coach",
+                "aisle": 13,
+                "number": "D"
+            }
+        },
+        {
+            "id": 72,
+            "ticket": {
+                "class": "coach",
+                "aisle": 13,
+                "number": "E"
+            }
+        },
+        {
+            "id": 73,
+            "ticket": {
+                "class": "coach",
+                "aisle": 13,
+                "number": "F"
+            }
+        },
+        {
+            "id": 74,
+            "ticket": {
+                "class": "coach",
+                "aisle": 14,
+                "number": "A"
+            }
+        },
+        {
+            "id": 75,
+            "ticket": {
+                "class": "coach",
+                "aisle": 14,
+                "number": "B"
+            }
+        },
+        {
+            "id": 76,
+            "ticket": {
+                "class": "coach",
+                "aisle": 14,
+                "number": "C"
+            }
+        },
+        {
+            "id": 77,
+            "ticket": {
+                "class": "coach",
+                "aisle": 14,
+                "number": "D"
+            }
+        },
+        {
+            "id": 78,
+            "ticket": {
+                "class": "coach",
+                "aisle": 14,
+                "number": "E"
+            }
+        },
+        {
+            "id": 79,
+            "ticket": {
+                "class": "coach",
+                "aisle": 14,
+                "number": "F"
+            }
+        },
+        {
+            "id": 80,
+            "ticket": {
+                "class": "coach",
+                "aisle": 15,
+                "number": "A"
+            }
+        },
+        {
+            "id": 81,
+            "ticket": {
+                "class": "coach",
+                "aisle": 15,
+                "number": "B"
+            }
+        },
+        {
+            "id": 82,
+            "ticket": {
+                "class": "coach",
+                "aisle": 15,
+                "number": "C"
+            }
+        },
+        {
+            "id": 83,
+            "ticket": {
+                "class": "coach",
+                "aisle": 15,
+                "number": "D"
+            }
+        },
+        {
+            "id": 84,
+            "ticket": {
+                "class": "coach",
+                "aisle": 15,
+                "number": "E"
+            }
+        },
+        {
+            "id": 85,
+            "ticket": {
+                "class": "coach",
+                "aisle": 15,
+                "number": "F"
+            }
+        },
+        {
+            "id": 86,
+            "ticket": {
+                "class": "coach",
+                "aisle": 16,
+                "number": "A"
+            }
+        },
+        {
+            "id": 87,
+            "ticket": {
+                "class": "coach",
+                "aisle": 16,
+                "number": "B"
+            }
+        },
+        {
+            "id": 88,
+            "ticket": {
+                "class": "coach",
+                "aisle": 16,
+                "number": "C"
+            }
+        },
+        {
+            "id": 89,
+            "ticket": {
+                "class": "coach",
+                "aisle": 16,
+                "number": "D"
+            }
+        },
+        {
+            "id": 90,
+            "ticket": {
+                "class": "coach",
+                "aisle": 16,
+                "number": "E"
+            }
+        },
+        {
+            "id": 91,
+            "ticket": {
+                "class": "coach",
+                "aisle": 16,
+                "number": "F"
+            }
+        },
+        {
+            "id": 92,
+            "ticket": {
+                "class": "coach",
+                "aisle": 17,
+                "number": "A"
+            }
+        },
+        {
+            "id": 93,
+            "ticket": {
+                "class": "coach",
+                "aisle": 17,
+                "number": "B"
+            }
+        },
+        {
+            "id": 94,
+            "ticket": {
+                "class": "coach",
+                "aisle": 17,
+                "number": "C"
+            }
+        },
+        {
+            "id": 95,
+            "ticket": {
+                "class": "coach",
+                "aisle": 17,
+                "number": "D"
+            }
+        },
+        {
+            "id": 96,
+            "ticket": {
+                "class": "coach",
+                "aisle": 17,
+                "number": "E"
+            }
+        },
+        {
+            "id": 97,
+            "ticket": {
+                "class": "coach",
+                "aisle": 17,
+                "number": "F"
+            }
+        },
+        {
+            "id": 98,
+            "ticket": {
+                "class": "coach",
+                "aisle": 18,
+                "number": "A"
+            }
+        },
+        {
+            "id": 99,
+            "ticket": {
+                "class": "coach",
+                "aisle": 18,
+                "number": "B"
+            }
+        },
+        {
+            "id": 100,
+            "ticket": {
+                "class": "coach",
+                "aisle": 18,
+                "number": "C"
+            }
+        },
+        {
+            "id": 101,
+            "ticket": {
+                "class": "coach",
+                "aisle": 18,
+                "number": "D"
+            }
+        },
+        {
+            "id": 102,
+            "ticket": {
+                "class": "coach",
+                "aisle": 18,
+                "number": "E"
+            }
+        },
+        {
+            "id": 103,
+            "ticket": {
+                "class": "coach",
+                "aisle": 18,
+                "number": "F"
             }
         }
     ]
