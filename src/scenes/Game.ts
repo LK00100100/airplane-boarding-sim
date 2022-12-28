@@ -5,6 +5,7 @@ import { PlaneNode } from "../data/PlaneNode";
 import { Seat } from "../data/Seat";
 import { Ticket } from "../data/Ticket";
 import Level1 from "../levels/level1.json";
+import Level2 from "../levels/level2.json";
 import { ButtonUtils } from "../util/ButtonUtils";
 import { SpriteUtils } from "../util/SpriteUtils";
 
@@ -89,7 +90,7 @@ export default class Demo extends Phaser.Scene {
 
   private createPlaneNodes(): void {
     //make nodes
-    Level1.nodes.forEach((nodeJson) => {
+    Level2.nodes.forEach((nodeJson) => {
       if (!this.nodeMap.has(nodeJson.id))
         this.nodeMap.set(nodeJson.id, new PlaneNode(nodeJson.id));
 
@@ -145,7 +146,7 @@ export default class Demo extends Phaser.Scene {
 
   private createPassengers(): void {
     //make passengers
-    Level1.passengers.forEach((passengerJson) => {
+    Level2.passengers.forEach((passengerJson) => {
       let passenger = new Passsenger(passengerJson.id);
 
       this.passengerNeedCalc.push(passenger.id);
