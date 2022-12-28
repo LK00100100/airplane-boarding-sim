@@ -17,7 +17,7 @@ export class ButtonUtils {
     });
 
     sprite.on("pointerup", function (pointer: Phaser.Input.Pointer) {
-      sprite.clearTint();
+      sprite.setTint(0x000099);
 
       onUpFunc();
     });

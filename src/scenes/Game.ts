@@ -11,7 +11,7 @@ import { SpriteUtils } from "../util/SpriteUtils";
 export default class Demo extends Phaser.Scene {
   private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame
 
-  private timers: Set<Phaser.Time.TimerEvent>; //all timers
+  private timers!: Set<Phaser.Time.TimerEvent>; //all timers
 
   private gameText!: Phaser.GameObjects.Text;
 
@@ -38,15 +38,7 @@ export default class Demo extends Phaser.Scene {
   constructor() {
     super("GameScene");
 
-    this.nodeMap = new Map();
-    this.passengerMap = new Map();
-    this.passengerNeedCalc = [];
-
-    this.passengerToNodeMap = new Map();
-    this.passengerToSeatPath = new Map();
-    this.nodeToPassengerMap = new Map();
-
-    this.timers = new Set();
+    //put it in create() for when we reset.
   }
 
   preload() {
@@ -58,6 +50,31 @@ export default class Demo extends Phaser.Scene {
   }
 
   create() {
+    console.log("create");
+
+    //stuff isnt destroyed on reset
+    //console.log("timer size: " + this.timers?.size);
+
+    this.timers = new Set();
+
+    this.simulateTimer = this.time.addEvent({
+      delay: this.FPS,
+      loop: true,
+      paused: true,
+      callback: this.simulateFrame,
+      callbackScope: this,
+    });
+
+    this.timers.add(this.simulateTimer);
+
+    this.nodeMap = new Map();
+    this.passengerMap = new Map();
+    this.passengerNeedCalc = [];
+
+    this.passengerToNodeMap = new Map();
+    this.nodeToPassengerMap = new Map();
+    this.passengerToSeatPath = new Map();
+
     this.gameText = this.add.text(10, 10, "");
 
     //TODO: check input data is not goofy. dont go too nuts
@@ -178,24 +195,25 @@ export default class Demo extends Phaser.Scene {
 
     let simulateClickFunc = () => {
       if (this.simulateTimer && !this.simulateTimer.paused) {
-        this.simulateTimer.paused = true;
-        this.setGameText("simulation paused");
+        this.setGameText("simulation already running");
         return;
       }
 
-      this.simulateTimer = this.time.addEvent({
-        delay: this.FPS,
-        loop: true,
-        callback: this.simulateFrame,
-        callbackScope: this,
-      });
-
-      this.timers.add(this.simulateTimer);
-
+      this.simulateTimer.paused = false;
       this.setGameText("simulation started");
     };
 
     ButtonUtils.dressUpButton(simulateSprite, simulateClickFunc);
+
+    let restartSprite = this.add
+      .sprite(600, 300, "btn-restart")
+      .setInteractive();
+
+    let restartClickFunc = () => {
+      this.scene.restart();
+    };
+
+    ButtonUtils.dressUpButton(restartSprite, restartClickFunc);
   }
 
   setGameText(newText: string) {
