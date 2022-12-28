@@ -19,7 +19,7 @@ export class Passsenger {
   constructor(id: number) {
     this.id = id;
     this.baggages = [];
-    this.ticket = Ticket.placeholderTicket();
+    this.ticket = Ticket.createPlaceholderTicket();
 
     this.direction = Direction.NORTH;
   }
@@ -32,19 +32,7 @@ export class Passsenger {
     this.ticket = ticket;
   }
 
-  /**
-   *
-   * @returns true if sprite is moving. Otherwise, false
-   */
-  isMoving(): boolean {
-    if (!this.sprite) return false;
-
-    if (!this.tween) return false;
-
-    return this.tween.isPlaying();
-  }
-
   toString(): string {
-    return `id: ${this.id}, isMoving: ${this.isMoving()}`;
+    return `id: ${this.id}, ticket: ${this.ticket.toString()}`;
   }
 }

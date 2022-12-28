@@ -13,7 +13,11 @@ export class Ticket {
     this.number = number;
   }
 
-  static placeholderTicket(): Ticket {
+  public static createPlaceholderTicket(): Ticket {
     return new Ticket("fake", -1, "$");
+  }
+
+  public toString() {
+    return `{${this.seatClass}: ${this.aisle}${this.number}}`;
   }
 }

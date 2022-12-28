@@ -5,6 +5,7 @@ import { PlaneNode } from "../data/PlaneNode";
 import { Seat } from "../data/Seat";
 import { Ticket } from "../data/Ticket";
 import Level1 from "../levels/level1.json";
+import { ButtonUtils } from "../util/ButtonUtils";
 import { SpriteUtils } from "../util/SpriteUtils";
 
 export default class Demo extends Phaser.Scene {
@@ -171,44 +172,30 @@ export default class Demo extends Phaser.Scene {
   }
 
   private createButtons(): void {
-    let sprite = this.add.sprite(400, 300, "btn-simulate").setInteractive();
+    let simulateSprite = this.add
+      .sprite(400, 300, "btn-simulate")
+      .setInteractive();
 
-    let scene = this;
-
-    sprite.on("pointerdown", function (pointer: Phaser.Input.Pointer) {
-      sprite.setTint(0x00bb00);
-    });
-
-    sprite.on("pointerout", function (pointer: Phaser.Input.Pointer) {
-      sprite.clearTint();
-    });
-
-    sprite.on("pointerup", function (pointer: Phaser.Input.Pointer) {
-      sprite.clearTint();
-
-      if (scene.simulateTimer && !scene.simulateTimer.paused) {
-        scene.simulateTimer.paused = true;
-        scene.setGameText("simulation paused");
+    let simulateClickFunc = () => {
+      if (this.simulateTimer && !this.simulateTimer.paused) {
+        this.simulateTimer.paused = true;
+        this.setGameText("simulation paused");
         return;
       }
 
-      scene.simulateTimer = scene.time.addEvent({
-        delay: scene.FPS,
+      this.simulateTimer = this.time.addEvent({
+        delay: this.FPS,
         loop: true,
-        callback: scene.simulateFrame,
-        callbackScope: scene,
+        callback: this.simulateFrame,
+        callbackScope: this,
       });
 
-      scene.timers.add(scene.simulateTimer);
+      this.timers.add(this.simulateTimer);
 
-      scene.setGameText("simulation started");
-    });
+      this.setGameText("simulation started");
+    };
 
-    sprite.on("pointerover", function (pointer: Phaser.Input.Pointer) {
-      sprite.setTint(0x000099);
-    });
-
-    //
+    ButtonUtils.dressUpButton(simulateSprite, simulateClickFunc);
   }
 
   setGameText(newText: string) {
