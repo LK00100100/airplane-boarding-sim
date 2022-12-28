@@ -5,6 +5,7 @@ import { PlaneNode } from "../data/PlaneNode";
 import { Seat } from "../data/Seat";
 import { Ticket } from "../data/Ticket";
 import Level1 from "../levels/level1.json";
+import { SpriteUtils } from "../util/SpriteUtils";
 
 export default class Demo extends Phaser.Scene {
   private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame
@@ -245,10 +246,15 @@ export default class Demo extends Phaser.Scene {
 
       //are we at our seat? sit down
       if (startNode.seatInfo?.isTicketSeat(passenger.ticket)) {
-        //face seat
+        let newAngle = SpriteUtils.shortestAngle(
+          passenger.sprite!.angle,
+          90 * startNode.seatInfo.direction
+        );
+
+        //face the  seat
         let tween = this.tweens.add({
           targets: passenger.sprite,
-          angle: 90 * startNode.seatInfo.direction,
+          angle: newAngle,
           duration: 800, //TODO: hard code
           ease: "Power2",
           onComplete: function () {},
@@ -270,8 +276,6 @@ export default class Demo extends Phaser.Scene {
           loop: false,
           callback: () => {
             this.passengerNeedCalc.push(passengerId);
-            console.log(this.time);
-
             this.timers.delete(timer);
           },
           callbackScope: this,
@@ -289,11 +293,16 @@ export default class Demo extends Phaser.Scene {
 
       this.setNextDirection(passenger, startNode, nextNode);
 
+      let newAngle = SpriteUtils.shortestAngle(
+        passenger.sprite!.angle,
+        90 * passenger.direction
+      );
+
       let tween = this.tweens.add({
         targets: passenger.sprite,
         x: nextNode.sprite?.x,
         y: nextNode.sprite?.y,
-        angle: -90,
+        angle: newAngle, //TODO: hard code
         duration: 800, //TODO: hard code
         ease: "Power2",
         onComplete: function () {
