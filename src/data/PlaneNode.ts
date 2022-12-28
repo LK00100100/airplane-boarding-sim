@@ -21,11 +21,17 @@ export class PlaneNode {
 
   seatInfo?: Seat; //if there is a set, then only one seat
 
+  isEnterNode!: boolean;
+  isExitNode!: boolean;
+
   constructor(id: number) {
     this.id = id;
     this.inNodes = new Set();
     this.outNodes = new Set();
     this.baggageCompartments = [];
+
+    this.isEnterNode = false;
+    this.isExitNode = false;
   }
 
   addInNode(newNodeId: number) {

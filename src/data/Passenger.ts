@@ -32,6 +32,14 @@ export class Passsenger {
     this.ticket = ticket;
   }
 
+  /**
+   * sets the sprite angle and passenger's direction.
+   * @param newAngle new angle
+   */
+  setAngleAndDirection(newAngle: number) {
+    //TODO: replace code with "90 *"
+  }
+
   toString(): string {
     return `id: ${this.id}, ticket: ${this.ticket.toString()}`;
   }

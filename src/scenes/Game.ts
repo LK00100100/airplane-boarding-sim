@@ -19,6 +19,8 @@ export default class Demo extends Phaser.Scene {
   private nodeMap!: Map<number, PlaneNode>;
   private passengerMap!: Map<number, Passsenger>;
 
+  //neds calculation from current node to seat
+  //TODO: just use passenger
   private passengerNeedCalc!: Array<number>; //<passenger ids>, a stack
 
   //passengerId is not moving in nodeId. key is removed if passenger is moving.
@@ -33,6 +35,11 @@ export default class Demo extends Phaser.Scene {
   //no passenger means no path. Need to calculate.
   //an empty array means we have arrived.
   private passengerToSeatPath!: Map<number, Array<number>>;
+
+  private enterNodesMap!: Map<number, PlaneNode>; //<enterId, nodeid>
+
+  //waiting to be placed on a PlaneNodeA
+  private passengerQueue!: Array<Passsenger>;
 
   private FPS = 100 / 3; //30 FPS in terms of milliseconds
 
@@ -69,6 +76,8 @@ export default class Demo extends Phaser.Scene {
 
     this.timers.add(this.simulateTimer);
 
+    this.gameText = this.add.text(10, 10, "");
+
     this.nodeMap = new Map();
     this.passengerMap = new Map();
     this.passengerNeedCalc = [];
@@ -77,7 +86,9 @@ export default class Demo extends Phaser.Scene {
     this.nodeToPassengerMap = new Map();
     this.passengerToSeatPath = new Map();
 
-    this.gameText = this.add.text(10, 10, "");
+    this.enterNodesMap = new Map();
+
+    this.passengerQueue = [];
 
     //TODO: check input data is not goofy. dont go too nuts
 
@@ -90,6 +101,7 @@ export default class Demo extends Phaser.Scene {
 
   private createPlaneNodes(): void {
     //make nodes
+    //TODO: use interface
     Level2.nodes.forEach((nodeJson) => {
       if (!this.nodeMap.has(nodeJson.id))
         this.nodeMap.set(nodeJson.id, new PlaneNode(nodeJson.id));
@@ -107,6 +119,13 @@ export default class Demo extends Phaser.Scene {
       });
 
       let sprite: Phaser.GameObjects.Sprite;
+
+      //start node
+      if ("enter" in nodeJson) {
+        let enterId: number = nodeJson["enter"] as number;
+        this.enterNodesMap.set(enterId, nodeData);
+        nodeData.isEnterNode = true;
+      }
 
       //seat node
       if (nodeJson.seat) {
@@ -146,10 +165,9 @@ export default class Demo extends Phaser.Scene {
 
   private createPassengers(): void {
     //make passengers
+    //TODO: use interface
     Level2.passengers.forEach((passengerJson) => {
       let passenger = new Passsenger(passengerJson.id);
-
-      this.passengerNeedCalc.push(passenger.id);
 
       this.passengerMap.set(passenger.id, passenger);
 
@@ -164,41 +182,56 @@ export default class Demo extends Phaser.Scene {
         ticketJson.number
       );
 
-      if (!this.nodeMap.has(passengerJson.node)) {
-        throw Error(`node id doesn't exist: ${passengerJson.node}`);
+      if ("node" in passengerJson) {
+        let nodeId: number = passengerJson["node"] as number;
+        this.putPassengerOnNode(passenger, nodeId);
+        this.passengerNeedCalc.push(passenger.id);
+      } else {
+        this.passengerQueue.push(passenger);
       }
-
-      let node = this.nodeMap.get(passengerJson.node)!;
-
-      this.passengerToNodeMap.set(passenger.id, node.id);
-      this.nodeToPassengerMap.set(node.id, passenger.id);
-
-      //let shape = Phaser.Geom.Triangle.BuildEquilateral(15, 0, 30);
 
       let shape = new Phaser.Geom.Rectangle(2, 10, 26, 12);
 
       let sprite = this.add
-        .sprite(node.sprite!.x, node.sprite!.y, "passenger")
+        .sprite(-100, -100, "passenger")
         .setInteractive(shape, Phaser.Geom.Rectangle.Contains);
 
-      let scene = this;
-
       //  Input Event listeners
-      sprite.on("pointerover", function () {
+      sprite.on("pointerover", () => {
         sprite.setTint(0xbbbb00);
-        scene.setGameText(passenger.toString());
+        this.setGameText(passenger.toString());
       });
 
-      sprite.on("pointerout", function () {
-        scene.setGameText("");
+      sprite.on("pointerout", () => {
+        this.setGameText("");
         sprite.clearTint();
       });
 
       //set direction
-      sprite.angle = 90 * toDirection(passengerJson.direction);
+      if ("direction" in passengerJson) {
+        let directionStr: string = passengerJson["direction"] as string;
+        passenger.direction = toDirection(directionStr);
+        sprite.angle = 90 * toDirection(directionStr);
+      } else {
+        passenger.direction = Direction.NORTH;
+        sprite.angle = 90 * Direction.NORTH;
+      }
 
       passenger.sprite = sprite;
     });
+  }
+
+  private putPassengerOnNode(passenger: Passsenger, nodeId: number) {
+    if (!this.nodeMap.has(nodeId)) {
+      throw Error(`node id doesn't exist: ${nodeId}`);
+    }
+
+    let node = this.nodeMap.get(nodeId)!;
+
+    this.passengerToNodeMap.set(passenger.id, nodeId);
+    this.nodeToPassengerMap.set(nodeId, passenger.id);
+
+    passenger.sprite!.setPosition(node.sprite!.x, node.sprite!.y);
   }
 
   private createButtons(): void {
@@ -258,6 +291,19 @@ export default class Demo extends Phaser.Scene {
   private simulateFrame(): void {
     let scene = this;
 
+    //unqueue one passenger (if we can) onto a starting PlaneNode
+    if (this.passengerQueue.length > 0) {
+      //TODO: fix if multiple entrances
+      let enterNode = this.enterNodesMap.get(0)!;
+
+      if (!this.nodeToPassengerMap.has(enterNode!.id)) {
+        let passenger = this.passengerQueue.shift()!;
+
+        this.putPassengerOnNode(passenger, enterNode.id);
+        this.passengerNeedCalc.push(passenger.id);
+      }
+    }
+
     //simulate passengers
     while (this.passengerNeedCalc.length > 0) {
       let passengerId = this.passengerNeedCalc.pop()!;
@@ -282,12 +328,13 @@ export default class Demo extends Phaser.Scene {
 
       //are we at our seat? sit down
       if (startNode.seatInfo?.isTicketSeat(passenger.ticket)) {
+        //TODO: set direction
         let newAngle = SpriteUtils.shortestAngle(
           passenger.sprite!.angle,
           90 * startNode.seatInfo.direction
         );
 
-        //face the  seat
+        //face the seat
         passenger.tween = this.tweens.add({
           targets: passenger.sprite,
           angle: newAngle,
@@ -334,6 +381,7 @@ export default class Demo extends Phaser.Scene {
         90 * passenger.direction
       );
 
+      //TODO: set direction
       passenger.tween = this.tweens.add({
         targets: passenger.sprite,
         x: nextNode.sprite?.x,
