@@ -8,8 +8,10 @@ import Level1 from "../levels/level1.json";
 import Level2 from "../levels/level2.json";
 import { ButtonUtils } from "../util/ButtonUtils";
 import { SpriteUtils } from "../util/SpriteUtils";
+import EditPassengersScene from "./EditPassengersScene";
+import { GameSubScene } from "./GameSubscene";
 
-export default class Demo extends Phaser.Scene {
+export default class GameScene extends Phaser.Scene {
   private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame
 
   private timers!: Set<Phaser.Time.TimerEvent>; //all timers
@@ -41,6 +43,14 @@ export default class Demo extends Phaser.Scene {
   //waiting to be placed on a PlaneNodeA
   private passengerQueue!: Array<Passsenger>;
 
+  /**
+   * subscenes
+   */
+  private editPassengersScene!: Phaser.Scene;
+
+  /**
+   * constants
+   */
   private FPS = 100 / 3; //30 FPS in terms of milliseconds
 
   constructor() {
@@ -50,11 +60,15 @@ export default class Demo extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image("btn-edit-passengers", "assets/btn-edit-passengers.png");
     this.load.image("btn-simulate", "assets/btn-simulate.png");
     this.load.image("btn-restart", "assets/btn-restart.png");
+
     this.load.image("passenger", "assets/passenger.png");
+
     this.load.image("plane-floor", "assets/plane-floor.png");
-    this.load.image("plane-seat", "assets/plane-seat.png");
+    this.load.image("plane-seat-coach", "assets/plane-seat-coach.png");
+    this.load.image("plane-seat-first", "assets/plane-seat-first.png");
   }
 
   create() {
@@ -90,6 +104,8 @@ export default class Demo extends Phaser.Scene {
 
     this.passengerQueue = [];
 
+    this.initSubscenes();
+
     //TODO: check input data is not goofy. dont go too nuts
 
     this.createPlaneNodes();
@@ -97,6 +113,19 @@ export default class Demo extends Phaser.Scene {
     this.createPassengers();
 
     this.createButtons();
+  }
+
+  /**
+   * init subscenes to be made once and turned on/off.
+   */
+  private initSubscenes() {
+    this.editPassengersScene = new EditPassengersScene(this);
+
+    this.scene.add(
+      GameSubScene.EDIT_PASSENGERS,
+      this.editPassengersScene,
+      false
+    );
   }
 
   private createPlaneNodes(): void {
@@ -138,7 +167,7 @@ export default class Demo extends Phaser.Scene {
         );
 
         sprite = this.add
-          .sprite(nodeJson.x, nodeJson.y, "plane-seat")
+          .sprite(nodeJson.x, nodeJson.y, "plane-seat-" + seat.class)
           .setInteractive();
       }
       //walking node
@@ -235,6 +264,24 @@ export default class Demo extends Phaser.Scene {
   }
 
   private createButtons(): void {
+    let editPassengersSprite = this.add
+      .sprite(300, 500, "btn-edit-passengers")
+      .setInteractive();
+
+    let editPassengersClickFunc = () => {
+      //turn on editing ui
+
+      if (
+        this.editPassengersScene.scene.isActive(GameSubScene.EDIT_PASSENGERS)
+      ) {
+        this.editPassengersScene.scene.sleep();
+      } else {
+        this.scene.launch(GameSubScene.EDIT_PASSENGERS);
+      }
+    };
+
+    ButtonUtils.dressUpButton(editPassengersSprite, editPassengersClickFunc);
+
     let simulateSprite = this.add
       .sprite(500, 500, "btn-simulate")
       .setInteractive();
@@ -284,6 +331,7 @@ export default class Demo extends Phaser.Scene {
     this.gameText.text = newText2;
   }
 
+  //TODO: just move to update, no simulate timer
   /**
    * This actually simulates passenger thinking and then orders them to move.
    * simulateTimer calls this every frame.
