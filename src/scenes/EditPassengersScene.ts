@@ -32,6 +32,11 @@ export default class EditPassengersScene extends Phaser.Scene {
     this.drawBackground();
   }
 
+  reset() {
+    this.passengerUiItems = new Map();
+    this.passengerIdxMap = new Map();
+  }
+
   private drawBackground() {
     let { width: canvasWidth, height: canvasHeight } =
       this.parentScene.sys.game.canvas;

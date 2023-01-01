@@ -131,6 +131,8 @@ export default class GameScene extends Phaser.Scene {
         this.editPassengersScene,
         false
       );
+    } else {
+      this.editPassengersScene.reset();
     }
   }
 
