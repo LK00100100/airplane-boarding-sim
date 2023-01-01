@@ -1,6 +1,6 @@
 import { Passenger } from "../data/Passenger";
+import { EditPassengerItem } from "./EditPassengerItem";
 import GameScene from "./Game";
-import { GameSubScene } from "./GameSubscene";
 
 /**
  * Ui that displays the entire passenger list.
@@ -9,7 +9,7 @@ import { GameSubScene } from "./GameSubscene";
 export default class EditPassengersScene extends Phaser.Scene {
   parentScene: GameScene;
 
-  passengerUiItems: Map<number, PassengerItem>; //<idx, item>
+  passengerUiItems: Map<number, EditPassengerItem>; //<idx, item>
   passengerIdxMap: Map<Passenger, number>; //<Passenger, order idx>
 
   /**
@@ -61,14 +61,15 @@ export default class EditPassengersScene extends Phaser.Scene {
     let backgroundX = canvasWidth / 4;
     let backgroundY = canvasHeight / 2;
 
+    console.log("draw close background...");
     let rect = this.add.rectangle(
       backgroundX,
       backgroundY,
       canvasWidth / 2,
       canvasHeight,
-      0xeeeeee,
-      0.5
+      0xeeeeee
     );
+    rect.setAlpha(0.2);
     rect.setStrokeStyle(1, 0);
 
     rect.setInteractive();
@@ -89,13 +90,13 @@ export default class EditPassengersScene extends Phaser.Scene {
    */
   public redrawPassengerList() {
     let passengerQueue = this.parentScene.passengerInPortQueue;
-    let y = PassengerItem.height / 2;
+    let y = EditPassengerItem.height / 2;
 
     //need to create and draw ui
     if (this.passengerUiItems.size == 0) {
       let idx = 0;
       passengerQueue.forEach((passenger) => {
-        let item = PassengerItem.createPassengerItem(this, y, passenger);
+        let item = EditPassengerItem.createPassengerItem(this, y, passenger);
         this.passengerIdxMap.set(passenger, idx);
         this.passengerUiItems.set(idx, item);
 
@@ -105,7 +106,7 @@ export default class EditPassengersScene extends Phaser.Scene {
     }
     //only redraw
     else {
-      let newUiItemsMap: Map<number, PassengerItem> = new Map();
+      let newUiItemsMap: Map<number, EditPassengerItem> = new Map();
       let newIdxMap: Map<Passenger, number> = new Map();
 
       let idx = 0;
@@ -126,83 +127,5 @@ export default class EditPassengersScene extends Phaser.Scene {
       this.passengerUiItems = newUiItemsMap;
       this.passengerIdxMap = newIdxMap;
     }
-  }
-}
-
-/**
- * a Ui element for one passenger in the edit list.
- */
-class PassengerItem {
-  private backgroundBox!: Phaser.GameObjects.Rectangle;
-  private text!: Phaser.GameObjects.Text;
-
-  /**
-   * constants
-   */
-  static height = 50;
-  static backgroundColor = 0xdddddd;
-  static borderColor = 0xaaaaaa;
-  static borderWidth = 1; //px
-
-  private constructor(
-    backgroundBox: Phaser.GameObjects.Rectangle,
-    text: Phaser.GameObjects.Text
-  ) {
-    this.backgroundBox = backgroundBox;
-    this.text = text;
-  }
-
-  /**
-   * creates and draws a PassengerItem. To be used for a list.
-   * @param parentScene Holds the items
-   * @param y where to draw (center of 'this')
-   * @param passenger data
-   * @returns PassengerItem
-   */
-  static createPassengerItem(
-    parentScene: Phaser.Scene,
-    y: number,
-    passenger: Passenger
-  ) {
-    let { width: canvasWidth } = parentScene.sys.game.canvas;
-    let width = canvasWidth / 2 - 200;
-
-    let background = parentScene.add.rectangle(
-      0,
-      0,
-      width,
-      PassengerItem.height,
-      PassengerItem.backgroundColor
-    );
-
-    background.setStrokeStyle(1, PassengerItem.borderColor);
-    background.setDepth(1);
-
-    let textStr =
-      `id: ${passenger.id}\n` +
-      `${passenger.getTicket().toConciseString()}\n` +
-      `baggage size: ${passenger.getTotalBaggageSize()}`;
-
-    let text = parentScene.add.text(0, 0, textStr);
-    text.setDepth(2);
-    text.setColor("black");
-    text.setFontSize(16);
-
-    let passengerItem = new PassengerItem(background, text);
-    passengerItem.setY(parentScene, y);
-
-    return passengerItem;
-  }
-
-  /**
-   * sets y of this item.
-   * @param y the center y of backgroundBox
-   */
-  public setY(parentScene: Phaser.Scene, y: number) {
-    let { width: canvasWidth } = parentScene.sys.game.canvas;
-    let x = (canvasWidth / 4) * 3 + 75;
-
-    this.backgroundBox.setPosition(x, y);
-    this.text.setPosition(x - 95, y - 22);
   }
 }
