@@ -5,7 +5,7 @@ import { Ticket } from "./Ticket";
 /**
  * Holds information about a passenger
  */
-export class Passsenger {
+export class Passenger {
   id: number; //unique id
   private ticket: Ticket; //all passengers have a ticket
   baggages: Baggage[]; //should be at most 1 large piece.

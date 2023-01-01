@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Direction, toDirection } from "../data/Direction";
-import { Passsenger } from "../data/Passenger";
+import { Passenger } from "../data/Passenger";
 import { PlaneNode } from "../data/PlaneNode";
 import { Seat } from "../data/Seat";
 import { Ticket } from "../data/Ticket";
@@ -19,7 +19,7 @@ export default class GameScene extends Phaser.Scene {
   private gameText!: Phaser.GameObjects.Text;
 
   private nodeMap!: Map<number, PlaneNode>;
-  private passengerMap!: Map<number, Passsenger>;
+  private passengerMap!: Map<number, Passenger>;
 
   //neds calculation from current node to seat
   //TODO: just use passenger
@@ -41,7 +41,7 @@ export default class GameScene extends Phaser.Scene {
   private enterNodesMap!: Map<number, PlaneNode>; //<enterId, nodeid>
 
   //waiting to be placed on a PlaneNode
-  public passengerInPortQueue!: Array<Passsenger>;
+  public passengerInPortQueue!: Array<Passenger>;
 
   private simulationStarted!: boolean; //simulation has begun
 
@@ -202,7 +202,7 @@ export default class GameScene extends Phaser.Scene {
     //make passengers
     //TODO: use interface
     Level2.passengers.forEach((passengerJson) => {
-      let passenger = new Passsenger(passengerJson.id);
+      let passenger = new Passenger(passengerJson.id);
 
       this.passengerMap.set(passenger.id, passenger);
 
@@ -256,7 +256,7 @@ export default class GameScene extends Phaser.Scene {
     });
   }
 
-  private putPassengerOnNode(passenger: Passsenger, nodeId: number) {
+  private putPassengerOnNode(passenger: Passenger, nodeId: number) {
     if (!this.nodeMap.has(nodeId)) {
       throw Error(`node id doesn't exist: ${nodeId}`);
     }
@@ -283,12 +283,11 @@ export default class GameScene extends Phaser.Scene {
       //turn on editing ui
 
       if (
-        this.editPassengersScene.scene.isActive(GameSubScene.EDIT_PASSENGERS)
+        !this.editPassengersScene.scene.isActive(GameSubScene.EDIT_PASSENGERS)
       ) {
-        this.editPassengersScene.scene.sleep();
-      } else {
         this.scene.launch(GameSubScene.EDIT_PASSENGERS);
         this.editPassengersScene.redrawPassengerList();
+        this.scene.pause();
       }
     };
 
@@ -463,7 +462,7 @@ export default class GameScene extends Phaser.Scene {
    * Sets the direction of the passenger to where they are going.
    */
   private setNextDirection(
-    passenger: Passsenger,
+    passenger: Passenger,
     startNode: PlaneNode,
     nextNode: PlaneNode
   ) {
