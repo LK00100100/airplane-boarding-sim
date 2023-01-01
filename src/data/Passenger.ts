@@ -7,7 +7,7 @@ import { Ticket } from "./Ticket";
  */
 export class Passsenger {
   id: number; //unique id
-  ticket: Ticket; //all passengers have a ticket
+  private ticket: Ticket; //all passengers have a ticket
   baggages: Baggage[]; //should be at most 1 large piece.
 
   direction: Direction;
@@ -24,11 +24,17 @@ export class Passsenger {
     this.direction = Direction.NORTH;
   }
 
-  addBaggage(baggage: Baggage) {
+  public addBaggage(baggage: Baggage) {
     this.baggages.push(baggage);
   }
 
-  setTicket(ticket: Ticket) {
+  public getTotalBaggageSize() {
+    return this.baggages
+      .map((b) => b.size)
+      .reduce((previousVal, nextSize) => previousVal + nextSize, 0);
+  }
+
+  public setTicket(ticket: Ticket) {
     this.ticket = ticket;
   }
 
@@ -42,5 +48,13 @@ export class Passsenger {
 
   toString(): string {
     return `id: ${this.id}, ticket: ${this.ticket.toString()}`;
+  }
+
+  /**
+   * gets the ticket.
+   * @returns
+   */
+  getTicket(): Ticket {
+    return this.ticket;
   }
 }

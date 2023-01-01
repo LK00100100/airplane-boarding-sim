@@ -17,7 +17,15 @@ export class Ticket {
     return new Ticket("fake", -1, "$");
   }
 
-  public toString() {
+  public toString(): string {
     return JSON.stringify(this);
+  }
+
+  /**
+   * a shorter output such as: "coach,10D"
+   * @returns
+   */
+  public toConciseString(): string {
+    return `${this.seatClass},${this.aisle}${this.number}`;
   }
 }

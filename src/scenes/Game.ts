@@ -23,7 +23,7 @@ export default class GameScene extends Phaser.Scene {
 
   //neds calculation from current node to seat
   //TODO: just use passenger
-  private passengerNeedCalc!: Array<number>; //<passenger ids>, a stack
+  private passengerOnMove!: Array<number>; //<passenger ids>, a stack
 
   //passengerId is not moving in nodeId. key is removed if passenger is moving.
   private passengerToNodeMap!: Map<number, number>;
@@ -40,13 +40,15 @@ export default class GameScene extends Phaser.Scene {
 
   private enterNodesMap!: Map<number, PlaneNode>; //<enterId, nodeid>
 
-  //waiting to be placed on a PlaneNodeA
-  private passengerQueue!: Array<Passsenger>;
+  //waiting to be placed on a PlaneNode
+  public passengerInPortQueue!: Array<Passsenger>;
+
+  private simulationStarted!: boolean; //simulation has begun
 
   /**
    * subscenes
    */
-  private editPassengersScene!: Phaser.Scene;
+  private editPassengersScene!: EditPassengersScene;
 
   /**
    * constants
@@ -94,7 +96,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.nodeMap = new Map();
     this.passengerMap = new Map();
-    this.passengerNeedCalc = [];
+    this.passengerOnMove = [];
 
     this.passengerToNodeMap = new Map();
     this.nodeToPassengerMap = new Map();
@@ -102,7 +104,9 @@ export default class GameScene extends Phaser.Scene {
 
     this.enterNodesMap = new Map();
 
-    this.passengerQueue = [];
+    this.passengerInPortQueue = [];
+
+    this.simulationStarted = false;
 
     this.initSubscenes();
 
@@ -119,13 +123,15 @@ export default class GameScene extends Phaser.Scene {
    * init subscenes to be made once and turned on/off.
    */
   private initSubscenes() {
-    this.editPassengersScene = new EditPassengersScene(this);
+    if (!this.editPassengersScene) {
+      this.editPassengersScene = new EditPassengersScene(this);
 
-    this.scene.add(
-      GameSubScene.EDIT_PASSENGERS,
-      this.editPassengersScene,
-      false
-    );
+      this.scene.add(
+        GameSubScene.EDIT_PASSENGERS,
+        this.editPassengersScene,
+        false
+      );
+    }
   }
 
   private createPlaneNodes(): void {
@@ -205,18 +211,17 @@ export default class GameScene extends Phaser.Scene {
       }
 
       let ticketJson = passengerJson.ticket;
-      passenger.ticket = new Ticket(
-        ticketJson.class,
-        ticketJson.aisle,
-        ticketJson.number
+      passenger.setTicket(
+        new Ticket(ticketJson.class, ticketJson.aisle, ticketJson.number)
       );
 
+      //TODO: remove starting node
       if ("node" in passengerJson) {
         let nodeId: number = passengerJson["node"] as number;
         this.putPassengerOnNode(passenger, nodeId);
-        this.passengerNeedCalc.push(passenger.id);
+        this.passengerOnMove.push(passenger.id);
       } else {
-        this.passengerQueue.push(passenger);
+        this.passengerInPortQueue.push(passenger);
       }
 
       let shape = new Phaser.Geom.Rectangle(2, 10, 26, 12);
@@ -236,6 +241,7 @@ export default class GameScene extends Phaser.Scene {
         sprite.clearTint();
       });
 
+      //TODO: can remove this later and set
       //set direction
       if ("direction" in passengerJson) {
         let directionStr: string = passengerJson["direction"] as string;
@@ -269,6 +275,11 @@ export default class GameScene extends Phaser.Scene {
       .setInteractive();
 
     let editPassengersClickFunc = () => {
+      if (this.simulationStarted) {
+        this.setGameText("Simulation is in progress");
+        return;
+      }
+
       //turn on editing ui
 
       if (
@@ -277,6 +288,7 @@ export default class GameScene extends Phaser.Scene {
         this.editPassengersScene.scene.sleep();
       } else {
         this.scene.launch(GameSubScene.EDIT_PASSENGERS);
+        this.editPassengersScene.redrawPassengerList();
       }
     };
 
@@ -292,6 +304,7 @@ export default class GameScene extends Phaser.Scene {
         return;
       }
 
+      this.simulationStarted = true;
       this.simulateTimer.paused = false;
       this.setGameText("simulation started");
     };
@@ -340,21 +353,21 @@ export default class GameScene extends Phaser.Scene {
     let scene = this;
 
     //unqueue one passenger (if we can) onto a starting PlaneNode
-    if (this.passengerQueue.length > 0) {
+    if (this.passengerInPortQueue.length > 0) {
       //TODO: fix if multiple entrances
       let enterNode = this.enterNodesMap.get(0)!;
 
       if (!this.nodeToPassengerMap.has(enterNode!.id)) {
-        let passenger = this.passengerQueue.shift()!;
+        let passenger = this.passengerInPortQueue.shift()!;
 
         this.putPassengerOnNode(passenger, enterNode.id);
-        this.passengerNeedCalc.push(passenger.id);
+        this.passengerOnMove.push(passenger.id);
       }
     }
 
     //simulate passengers
-    while (this.passengerNeedCalc.length > 0) {
-      let passengerId = this.passengerNeedCalc.pop()!;
+    while (this.passengerOnMove.length > 0) {
+      let passengerId = this.passengerOnMove.pop()!;
       let passenger = this.passengerMap.get(passengerId)!;
       let passengerNodeId = this.passengerToNodeMap.get(passengerId);
 
@@ -406,7 +419,7 @@ export default class GameScene extends Phaser.Scene {
           delay: 150, //TODO: hard code
           loop: false,
           callback: () => {
-            this.passengerNeedCalc.push(passengerId);
+            this.passengerOnMove.push(passengerId);
             this.timers.delete(timer);
           },
           callbackScope: this,
@@ -440,7 +453,7 @@ export default class GameScene extends Phaser.Scene {
         onComplete: function () {
           scene.nodeToPassengerMap.delete(startNode.id);
           scene.passengerToNodeMap.set(passengerId, nextNode.id);
-          scene.passengerNeedCalc.push(passengerId);
+          scene.passengerOnMove.push(passengerId);
         },
       });
     }
