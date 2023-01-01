@@ -1,6 +1,7 @@
 import { Passenger } from "../data/Passenger";
 import { EditPassengerItem } from "./EditPassengerItem";
 import GameScene from "./Game";
+import { GameSubScene } from "./GameSubscene";
 
 /**
  * Ui that displays the entire passenger list.
@@ -9,7 +10,7 @@ import GameScene from "./Game";
 export default class EditPassengersScene extends Phaser.Scene {
   parentScene: GameScene;
 
-  passengerUiItems: Map<number, EditPassengerItem>; //<idx, item>
+  passengerUiItems: Map<number, EditPassengerItem>; //<idx, uiItem>
   passengerIdxMap: Map<Passenger, number>; //<Passenger, order idx>
 
   /**
@@ -17,7 +18,7 @@ export default class EditPassengersScene extends Phaser.Scene {
    * @param parentScene should be the primary game scene
    */
   constructor(parentScene: GameScene) {
-    super("EditPassengersScene");
+    super(GameSubScene.EDIT_PASSENGERS);
 
     this.parentScene = parentScene;
     this.passengerUiItems = new Map();

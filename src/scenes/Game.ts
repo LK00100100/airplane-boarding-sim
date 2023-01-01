@@ -56,7 +56,7 @@ export default class GameScene extends Phaser.Scene {
   private FPS = 100 / 3; //30 FPS in terms of milliseconds
 
   constructor() {
-    super("GameScene");
+    super(GameSubScene.GAME_SCENE);
 
     //put it in create() for when we reset.
   }
@@ -137,6 +137,9 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private createPlaneNodes(): void {
+    let planeXOffset = Level2.planeOffsetX ?? 0;
+    let planeYOffset = Level2.planeOffSetY ?? 0;
+
     //make nodes
     //TODO: use interface
     Level2.nodes.forEach((nodeJson) => {
@@ -165,6 +168,7 @@ export default class GameScene extends Phaser.Scene {
       }
 
       //seat node
+      let imageName = "plane-floor"; //walking node
       if (nodeJson.seat) {
         let seat = nodeJson.seat;
         nodeData.seatInfo = new Seat(
@@ -174,16 +178,12 @@ export default class GameScene extends Phaser.Scene {
           toDirection(seat.direction)
         );
 
-        sprite = this.add
-          .sprite(nodeJson.x, nodeJson.y, "plane-seat-" + seat.class)
-          .setInteractive();
+        imageName = "plane-seat-" + seat.class;
       }
-      //walking node
-      else {
-        sprite = this.add
-          .sprite(nodeJson.x, nodeJson.y, "plane-floor")
-          .setInteractive();
-      }
+
+      sprite = this.add
+        .sprite(nodeJson.x + planeXOffset, nodeJson.y + planeYOffset, imageName)
+        .setInteractive();
 
       //  Input Event listeners
       sprite.on("pointerover", () => {
@@ -283,14 +283,16 @@ export default class GameScene extends Phaser.Scene {
       }
 
       //turn on editing ui
+      console.log("opening editPassengerlist");
 
-      if (
-        !this.editPassengersScene.scene.isActive(GameSubScene.EDIT_PASSENGERS)
-      ) {
+      if (this.editPassengersScene.scene.isSleeping()) {
+        this.scene.wake(GameSubScene.EDIT_PASSENGERS);
+      } else {
         this.scene.launch(GameSubScene.EDIT_PASSENGERS);
-        this.editPassengersScene.redrawPassengerList();
-        this.scene.pause();
       }
+
+      this.editPassengersScene.redrawPassengerList();
+      this.scene.pause();
     };
 
     ButtonUtils.dressUpButton(editPassengersSprite, editPassengersClickFunc);
@@ -377,7 +379,7 @@ export default class GameScene extends Phaser.Scene {
       //need to calc path
       if (!this.passengerToSeatPath.has(passengerId)) {
         let path = this.calculateMinPassengerSeatPath(
-          passenger.ticket,
+          passenger.getTicket(),
           passengerNodeId!
         );
 
@@ -389,7 +391,7 @@ export default class GameScene extends Phaser.Scene {
       let pathToSeat = this.passengerToSeatPath.get(passengerId)!;
 
       //are we at our seat? sit down
-      if (startNode.seatInfo?.isTicketSeat(passenger.ticket)) {
+      if (startNode.seatInfo?.isTicketSeat(passenger.getTicket())) {
         //TODO: set direction
         let newAngle = SpriteUtils.shortestAngle(
           passenger.sprite!.angle,
