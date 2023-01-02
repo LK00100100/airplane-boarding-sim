@@ -80,8 +80,15 @@ export class EditPassengerItem {
     let passengerItem = new EditPassengerItem(rect, text, passenger);
     passengerItem.setY(y);
 
+    /*
+     * drag variables
+     */
     let originalY: number;
     let line: Phaser.GameObjects.Line;
+    let halfHeight = EditPassengerItem.height / 2;
+    let currentIdx: number;
+    let targetIdx: number;
+
     rect.on("dragstart", function (pointer: Phaser.Input.Pointer) {
       console.log("drag start");
 
@@ -109,25 +116,20 @@ export class EditPassengerItem {
       text.setDepth(10);
     });
 
-    console.log("passheight:" + EditPassengerItem.height);
-
-    let halfHeight = EditPassengerItem.height / 2;
     rect.on("drag", (pointer: Phaser.Input.Pointer) => {
-      let currentPassengerIdx = parentScene.passengerIdxMap.get(passenger)!;
+      currentIdx = parentScene.passengerIdxMap.get(passenger)!;
 
-      let positionDiff = (pointer.y - originalY) / EditPassengerItem.height;
+      let positionDiff = Math.trunc(
+        (pointer.y - originalY) / EditPassengerItem.height
+      );
 
-      positionDiff =
-        positionDiff < 0 ? Math.ceil(positionDiff) : Math.floor(positionDiff);
-
-      let targetPositionIdx = Math.max(currentPassengerIdx + positionDiff, 0);
-      let targetPassengerItem =
-        parentScene.passengerUiItems.get(targetPositionIdx)!;
+      targetIdx = Math.max(currentIdx + positionDiff, 0);
+      let targetPassengerItem = parentScene.passengerUiItems.get(targetIdx)!;
 
       let targetItemY = targetPassengerItem.backgroundBox.y;
 
       //draw that line
-      if (currentPassengerIdx != targetPositionIdx) {
+      if (currentIdx != targetIdx) {
         if (pointer.y < targetItemY) {
           line.setPosition(EditPassengerItem.x, targetItemY - halfHeight);
         } else {
@@ -143,6 +145,24 @@ export class EditPassengerItem {
     rect.on("dragend", (pointer: Phaser.Input.Pointer) => {
       console.log("drag end");
 
+      //book-keeping
+      let step = targetIdx < currentIdx ? -1 : 1; //shift down / shift up
+
+      //do shifting
+      for (let i = 0; i < Math.abs(currentIdx - targetIdx); i++) {
+        let nextUi = parentScene.passengerUiItems.get(
+          currentIdx + (i * step) + step
+        )!; // prettier-ignore
+        let nextPassenger = nextUi.passenger;
+
+        parentScene.passengerUiItems.set(currentIdx + (i * step), nextUi); // prettier-ignore
+        parentScene.passengerIdxMap.set(nextPassenger, currentIdx + (i * step)); // prettier-ignore
+      }
+
+      parentScene.passengerUiItems.set(targetIdx, passengerItem);
+      parentScene.passengerIdxMap.set(passenger, targetIdx);
+
+      //visuals
       rect.fillColor = EditPassengerItem.backgroundColor;
       rect.setAlpha(1);
       rect.setDepth(1);

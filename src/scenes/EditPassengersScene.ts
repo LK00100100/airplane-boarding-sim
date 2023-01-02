@@ -126,26 +126,13 @@ export default class EditPassengersScene extends Phaser.Scene {
     }
     //only redraw
     else {
-      let newUiItemsMap: Map<number, EditPassengerItem> = new Map();
-      let newIdxMap: Map<Passenger, number> = new Map();
-
-      let idx = 0;
-
-      passengerQueue.forEach((passenger) => {
-        let passengerIdx = this.passengerIdxMap.get(passenger)!;
-        let uiItem = this.passengerUiItems.get(passengerIdx)!;
+      for (let i = 0; i < this.passengerIdxMap.size; i++) {
+        let uiItem = this.passengerUiItems.get(i)!;
 
         uiItem.setY(y);
 
-        newUiItemsMap.set(idx, uiItem);
-        newIdxMap.set(passenger, idx);
-
-        idx++;
         y += 50;
-      });
-
-      this.passengerUiItems = newUiItemsMap;
-      this.passengerIdxMap = newIdxMap;
+      }
     }
   }
 }
