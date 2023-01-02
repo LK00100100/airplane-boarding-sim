@@ -13,6 +13,8 @@ export default class EditPassengersScene extends Phaser.Scene {
   passengerUiItems: Map<number, EditPassengerItem>; //<idx, uiItem>
   passengerIdxMap: Map<Passenger, number>; //<Passenger, order idx>
 
+  needsRedraw!: boolean;
+
   /**
    *
    * @param parentScene should be the primary game scene
@@ -23,6 +25,15 @@ export default class EditPassengersScene extends Phaser.Scene {
     this.parentScene = parentScene;
     this.passengerUiItems = new Map();
     this.passengerIdxMap = new Map();
+
+    let { width: canvasWidth } = parentScene.sys.game.canvas;
+    let width = canvasWidth / 2 - 200;
+    let x = (canvasWidth / 4) * 3 + 75;
+
+    EditPassengerItem.setWidth(width);
+    EditPassengerItem.setX(x);
+
+    this.needsRedraw = false;
   }
 
   preload() {}
@@ -36,6 +47,14 @@ export default class EditPassengersScene extends Phaser.Scene {
   reset() {
     this.passengerUiItems = new Map();
     this.passengerIdxMap = new Map();
+  }
+
+  update() {
+    if (!this.needsRedraw) return;
+
+    this.redrawPassengerList();
+
+    this.needsRedraw = false;
   }
 
   private drawBackground() {
@@ -116,7 +135,7 @@ export default class EditPassengersScene extends Phaser.Scene {
         let passengerIdx = this.passengerIdxMap.get(passenger)!;
         let uiItem = this.passengerUiItems.get(passengerIdx)!;
 
-        uiItem.setY(this.parentScene, y);
+        uiItem.setY(y);
 
         newUiItemsMap.set(idx, uiItem);
         newIdxMap.set(passenger, idx);

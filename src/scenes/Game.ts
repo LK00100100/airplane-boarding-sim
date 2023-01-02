@@ -291,7 +291,7 @@ export default class GameScene extends Phaser.Scene {
         this.scene.launch(GameSubScene.EDIT_PASSENGERS);
       }
 
-      this.editPassengersScene.redrawPassengerList();
+      this.editPassengersScene.needsRedraw = true;
       this.scene.pause();
     };
 
