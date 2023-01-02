@@ -145,7 +145,7 @@ export class EditPassengerItem {
     rect.on("dragend", (pointer: Phaser.Input.Pointer) => {
       console.log("drag end");
 
-      //book-keeping
+      //UI book-keeping
       let step = targetIdx < currentIdx ? -1 : 1; //shift down / shift up
 
       //do shifting
@@ -161,6 +161,14 @@ export class EditPassengerItem {
 
       parentScene.passengerUiItems.set(targetIdx, passengerItem);
       parentScene.passengerIdxMap.set(passenger, targetIdx);
+
+      //actual data book-keeping
+      let newQueue = [];
+      for (let i = 0; i < parentScene.passengerUiItems.size; i++) {
+        let passenger = parentScene.passengerUiItems.get(i)!.passenger;
+        newQueue.push(passenger);
+      }
+      parentScene.parentScene.passengerInPortQueue = newQueue;
 
       //visuals
       rect.fillColor = EditPassengerItem.backgroundColor;
