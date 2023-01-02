@@ -13,7 +13,7 @@ export default class EditPassengersScene extends Phaser.Scene {
   passengerUiItems: Map<number, EditPassengerItem>; //<idx, uiItem>
   passengerIdxMap: Map<Passenger, number>; //<Passenger, order idx>
 
-  needsRedraw!: boolean;
+  needsRedraw!: boolean; //some ui only needs to be drawn uncommonly.
 
   /**
    *
@@ -89,7 +89,7 @@ export default class EditPassengersScene extends Phaser.Scene {
       canvasHeight,
       0xeeeeee
     );
-    rect.setAlpha(0.2);
+    rect.setAlpha(0.4);
     rect.setStrokeStyle(1, 0);
 
     rect.setInteractive();

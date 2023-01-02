@@ -5,6 +5,8 @@ import EditPassengersScene from "./EditPassengersScene";
  * a Ui element for one passenger in the edit list.
  */
 export class EditPassengerItem {
+  private passenger: Passenger;
+
   private backgroundBox!: Phaser.GameObjects.Rectangle;
   private text!: Phaser.GameObjects.Text;
 
@@ -20,10 +22,12 @@ export class EditPassengerItem {
 
   private constructor(
     backgroundBox: Phaser.GameObjects.Rectangle,
-    text: Phaser.GameObjects.Text
+    text: Phaser.GameObjects.Text,
+    passenger: Passenger
   ) {
     this.backgroundBox = backgroundBox;
     this.text = text;
+    this.passenger = passenger;
 
     if (EditPassengerItem.width == -1) throw Error("width is not set");
     if (EditPassengerItem.x == -1) throw Error("x is not set");
@@ -77,9 +81,11 @@ export class EditPassengerItem {
 
     parentScene.input.setDraggable(rect);
 
-    let passengerItem = new EditPassengerItem(rect, text);
+    let passengerItem = new EditPassengerItem(rect, text, passenger);
     passengerItem.setY(y);
 
+    let originalX: number;
+    let originalY: number;
     let currentIdx: number;
     let line: Phaser.GameObjects.Line;
     rect.on("dragstart", function (pointer: Phaser.Input.Pointer) {
@@ -89,6 +95,9 @@ export class EditPassengerItem {
 
       let lineX = rect.x;
       let lineY = rect.y;
+
+      originalX = rect.x;
+      originalY = rect.y;
 
       line = parentScene.add.line(
         lineX,
@@ -101,17 +110,35 @@ export class EditPassengerItem {
       );
 
       line.setPosition(lineX, lineY);
-
       line.setDepth(10);
+
+      rect.setDepth(10);
+      text.setDepth(10);
     });
 
+    let halfHeight = EditPassengerItem.height / 2;
     rect.on(
       "drag",
       (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
-        passengerItem.setY(dragY);
+        let currentPassengerIdx = parentScene.passengerIdxMap.get(passenger)!;
 
-        rect.setDepth(10);
-        text.setDepth(10);
+        let positionDiff = (dragY - originalY) / EditPassengerItem.height;
+
+        let targetPosition = Math.floor(
+          Math.max(currentPassengerIdx + positionDiff, 0)
+        );
+
+        let targetPassengerItem =
+          parentScene.passengerUiItems.get(targetPosition)!;
+        let targetItemY = targetPassengerItem.backgroundBox.y;
+
+        if (dragY < targetItemY) {
+          line.setPosition(EditPassengerItem.x, targetItemY - halfHeight);
+        } else {
+          line.setPosition(EditPassengerItem.x, targetItemY + halfHeight);
+        }
+
+        passengerItem.setY(dragY);
       }
     );
 
