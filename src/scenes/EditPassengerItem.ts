@@ -75,18 +75,12 @@ export class EditPassengerItem {
     text.setColor("black");
     text.setFontSize(16);
 
-    rect.on("pointerover", function (pointer: Phaser.Input.Pointer) {
-      //text.text = "aaaa";
-    });
-
     parentScene.input.setDraggable(rect);
 
     let passengerItem = new EditPassengerItem(rect, text, passenger);
     passengerItem.setY(y);
 
-    let originalX: number;
     let originalY: number;
-    let currentIdx: number;
     let line: Phaser.GameObjects.Line;
     rect.on("dragstart", function (pointer: Phaser.Input.Pointer) {
       console.log("drag start");
@@ -96,7 +90,6 @@ export class EditPassengerItem {
       let lineX = rect.x;
       let lineY = rect.y;
 
-      originalX = rect.x;
       originalY = rect.y;
 
       line = parentScene.add.line(
@@ -116,35 +109,42 @@ export class EditPassengerItem {
       text.setDepth(10);
     });
 
+    console.log("passheight:" + EditPassengerItem.height);
+
     let halfHeight = EditPassengerItem.height / 2;
-    rect.on(
-      "drag",
-      (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
-        let currentPassengerIdx = parentScene.passengerIdxMap.get(passenger)!;
+    rect.on("drag", (pointer: Phaser.Input.Pointer) => {
+      let currentPassengerIdx = parentScene.passengerIdxMap.get(passenger)!;
 
-        let positionDiff = (dragY - originalY) / EditPassengerItem.height;
+      let positionDiff = (pointer.y - originalY) / EditPassengerItem.height;
 
-        let targetPosition = Math.floor(
-          Math.max(currentPassengerIdx + positionDiff, 0)
-        );
+      positionDiff =
+        positionDiff < 0 ? Math.ceil(positionDiff) : Math.floor(positionDiff);
 
-        let targetPassengerItem =
-          parentScene.passengerUiItems.get(targetPosition)!;
-        let targetItemY = targetPassengerItem.backgroundBox.y;
+      let targetPositionIdx = Math.max(currentPassengerIdx + positionDiff, 0);
+      let targetPassengerItem =
+        parentScene.passengerUiItems.get(targetPositionIdx)!;
 
-        if (dragY < targetItemY) {
+      let targetItemY = targetPassengerItem.backgroundBox.y;
+
+      //draw that line
+      if (currentPassengerIdx != targetPositionIdx) {
+        if (pointer.y < targetItemY) {
           line.setPosition(EditPassengerItem.x, targetItemY - halfHeight);
         } else {
           line.setPosition(EditPassengerItem.x, targetItemY + halfHeight);
         }
-
-        passengerItem.setY(dragY);
+      } else {
+        line.setPosition(EditPassengerItem.x, originalY);
       }
-    );
+
+      passengerItem.setY(pointer.y);
+    });
 
     rect.on("dragend", (pointer: Phaser.Input.Pointer) => {
       console.log("drag end");
 
+      rect.fillColor = EditPassengerItem.backgroundColor;
+      rect.setAlpha(1);
       rect.setDepth(1);
       text.setDepth(1);
 
