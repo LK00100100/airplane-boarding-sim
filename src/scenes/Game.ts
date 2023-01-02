@@ -9,7 +9,7 @@ import Level2 from "../levels/level2.json";
 import { ButtonUtils } from "../util/ButtonUtils";
 import { SpriteUtils } from "../util/SpriteUtils";
 import EditPassengersScene from "./EditPassengersScene";
-import { GameSubScene } from "./GameSubscene";
+import { SceneNames } from "./SceneNames";
 
 export default class GameScene extends Phaser.Scene {
   private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame
@@ -56,9 +56,9 @@ export default class GameScene extends Phaser.Scene {
   private FPS = 100 / 3; //30 FPS in terms of milliseconds
 
   constructor() {
-    super(GameSubScene.GAME_SCENE);
+    super(SceneNames.GAME_SCENE);
 
-    //put it in create() for when we reset.
+    //put it in create() for when we restart().
   }
 
   preload() {
@@ -76,6 +76,7 @@ export default class GameScene extends Phaser.Scene {
   create() {
     console.log("create");
 
+    //TODO: find a way to just destroy the scene
     //TODO: need to destroy all the stuff before reset.
     //stuff isnt destroyed on reset
     //console.log("timer size: " + this.timers?.size);
@@ -123,17 +124,9 @@ export default class GameScene extends Phaser.Scene {
    * init subscenes to be made once and turned on/off.
    */
   private initSubscenes() {
-    if (!this.editPassengersScene) {
-      this.editPassengersScene = new EditPassengersScene(this);
+    this.editPassengersScene = new EditPassengersScene(this);
 
-      this.scene.add(
-        GameSubScene.EDIT_PASSENGERS,
-        this.editPassengersScene,
-        false
-      );
-    } else {
-      this.editPassengersScene.reset();
-    }
+    this.scene.add(SceneNames.EDIT_PASSENGERS, this.editPassengersScene, false);
   }
 
   private createPlaneNodes(): void {
@@ -286,9 +279,9 @@ export default class GameScene extends Phaser.Scene {
       console.log("opening editPassengerlist");
 
       if (this.editPassengersScene.scene.isSleeping()) {
-        this.scene.wake(GameSubScene.EDIT_PASSENGERS);
+        this.scene.wake(SceneNames.EDIT_PASSENGERS);
       } else {
-        this.scene.launch(GameSubScene.EDIT_PASSENGERS);
+        this.scene.launch(SceneNames.EDIT_PASSENGERS);
       }
 
       this.editPassengersScene.needsRedraw = true;
@@ -318,11 +311,16 @@ export default class GameScene extends Phaser.Scene {
       .sprite(700, 500, "btn-restart")
       .setInteractive();
 
-    let restartClickFunc = () => {
-      this.scene.restart();
-    };
+    ButtonUtils.dressUpButton(restartSprite, this.restart.bind(this));
+  }
 
-    ButtonUtils.dressUpButton(restartSprite, restartClickFunc);
+  /**
+   * restarts scene
+   */
+  restart() {
+    this.scene.remove(SceneNames.EDIT_PASSENGERS);
+
+    this.scene.restart(); //doesnt destroy everything
   }
 
   /**
