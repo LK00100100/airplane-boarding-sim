@@ -1,5 +1,10 @@
 # Airplane Boarding Simulator
 
+Install dependencies:
+```
+npm install
+```
+
 To do development work:
 ```
 npm run dev
