@@ -12,13 +12,13 @@ import EditPassengersScene from "./EditPassengersScene";
 import { SceneNames } from "./SceneNames";
 
 export default class GameScene extends Phaser.Scene {
-  private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame
+  private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame. simulates passengers.
 
   private timers!: Set<Phaser.Time.TimerEvent>; //all timers
 
-  private gameText!: Phaser.GameObjects.Text;
+  private gameText!: Phaser.GameObjects.Text; //any messages for the player to read.
 
-  private nodeMap!: Map<number, PlaneNode>;
+  private nodeMap!: Map<number, PlaneNode>; //<node id, PlaneNode
   private passengerMap!: Map<number, Passenger>;
 
   //neds calculation from current node to seat
@@ -31,19 +31,20 @@ export default class GameScene extends Phaser.Scene {
   //used when passenger is entering and/or exiting.
   //when occupied, no one is allowed to enter except the passenger. used as a lock.
   //no node key means no passenger.
-  private nodeToPassengerMap!: Map<number, number>; //nodeId has passengerId
+  private nodeToPassengerMap!: Map<number, number>; //<nodeId, passengerId in this nodeId>
 
-  //passengerId to list of nodeIds to our seat.
   //no passenger means no path. Need to calculate.
   //an empty array means we have arrived.
-  private passengerToSeatPath!: Map<number, Array<number>>;
+  private passengerToSeatPath!: Map<number, Array<number>>; //<passengerId, list of nodeIds to our seat
 
-  private enterNodesMap!: Map<number, PlaneNode>; //<enterId, nodeid>
+  private enterNodesMap!: Map<number, PlaneNode>; //<enterId, nodeid>, plane entrance nodes
 
   //waiting to be placed on a PlaneNode
   public passengerInPortQueue!: Array<Passenger>;
 
-  private simulationStarted!: boolean; //simulation has begun
+  private isSimulationOn!: boolean; //simulation has begun
+
+  private currentPlane: any;
 
   /**
    * subscenes
@@ -54,6 +55,7 @@ export default class GameScene extends Phaser.Scene {
    * constants
    */
   private FPS = 100 / 3; //30 FPS in terms of milliseconds
+  private IS_DEBUG_MODE = true;
 
   constructor() {
     super(SceneNames.GAME_SCENE);
@@ -64,7 +66,8 @@ export default class GameScene extends Phaser.Scene {
   preload() {
     this.load.image("btn-edit-passengers", "assets/btn-edit-passengers.png");
     this.load.image("btn-simulate", "assets/btn-simulate.png");
-    this.load.image("btn-restart", "assets/btn-restart.png");
+    this.load.image("btn-reset", "assets/btn-reset.png");
+    this.load.image("btn-complete-reset", "assets/btn-complete-reset.png");
 
     this.load.image("passenger", "assets/passenger.png");
 
@@ -75,6 +78,9 @@ export default class GameScene extends Phaser.Scene {
 
   create() {
     console.log("create");
+
+    //TODO: actual reader and validator
+    this.currentPlane = Level2;
 
     //TODO: find a way to just destroy the scene
     //TODO: need to destroy all the stuff before reset.
@@ -107,7 +113,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.passengerInPortQueue = [];
 
-    this.simulationStarted = false;
+    this.isSimulationOn = false;
 
     this.initSubscenes();
 
@@ -130,19 +136,19 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private createPlaneNodes(): void {
-    let planeXOffset = Level2.planeOffsetX ?? 0;
-    let planeYOffset = Level2.planeOffSetY ?? 0;
+    let planeXOffset = this.currentPlane.planeOffsetX ?? 0;
+    let planeYOffset = this.currentPlane.planeOffSetY ?? 0;
 
     //make nodes
     //TODO: use interface
-    Level2.nodes.forEach((nodeJson) => {
+    this.currentPlane.nodes.forEach((nodeJson: any) => {
       if (!this.nodeMap.has(nodeJson.id))
         this.nodeMap.set(nodeJson.id, new PlaneNode(nodeJson.id));
 
       let nodeData = this.nodeMap.get(nodeJson.id)!;
 
       //connect in/out nodes
-      nodeJson.out.forEach((outNodeId) => {
+      nodeJson.out.forEach((outNodeId: number) => {
         if (!this.nodeMap.has(outNodeId))
           this.nodeMap.set(outNodeId, new PlaneNode(outNodeId));
 
@@ -193,10 +199,13 @@ export default class GameScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * Creates and places passengers.
+   */
   private createPassengers(): void {
     //make passengers
-    //TODO: use interface
-    Level2.passengers.forEach((passengerJson) => {
+    //TODO: use interface that reads and validates json.
+    this.currentPlane.passengers.forEach((passengerJson: any) => {
       let passenger = new Passenger(passengerJson.id);
 
       this.passengerMap.set(passenger.id, passenger);
@@ -209,15 +218,6 @@ export default class GameScene extends Phaser.Scene {
       passenger.setTicket(
         new Ticket(ticketJson.class, ticketJson.aisle, ticketJson.number)
       );
-
-      //TODO: remove starting node
-      if ("node" in passengerJson) {
-        let nodeId: number = passengerJson["node"] as number;
-        this.putPassengerOnNode(passenger, nodeId);
-        this.passengerOnMove.push(passenger.id);
-      } else {
-        this.passengerInPortQueue.push(passenger);
-      }
 
       let shape = new Phaser.Geom.Rectangle(2, 10, 26, 12);
 
@@ -248,6 +248,14 @@ export default class GameScene extends Phaser.Scene {
       }
 
       passenger.sprite = sprite;
+
+      if ("node" in passengerJson) {
+        let nodeId: number = passengerJson["node"] as number;
+        this.putPassengerOnNode(passenger, nodeId);
+        this.passengerOnMove.push(passenger.id);
+      } else {
+        this.passengerInPortQueue.push(passenger);
+      }
     });
   }
 
@@ -266,11 +274,11 @@ export default class GameScene extends Phaser.Scene {
 
   private createButtons(): void {
     let editPassengersSprite = this.add
-      .sprite(300, 500, "btn-edit-passengers")
+      .sprite(100, 500, "btn-edit-passengers")
       .setInteractive();
 
     let editPassengersClickFunc = () => {
-      if (this.simulationStarted) {
+      if (this.isSimulationOn) {
         this.setGameText("Simulation is in progress");
         return;
       }
@@ -291,7 +299,7 @@ export default class GameScene extends Phaser.Scene {
     ButtonUtils.dressUpButton(editPassengersSprite, editPassengersClickFunc);
 
     let simulateSprite = this.add
-      .sprite(500, 500, "btn-simulate")
+      .sprite(300, 500, "btn-simulate")
       .setInteractive();
 
     let simulateClickFunc = () => {
@@ -300,18 +308,24 @@ export default class GameScene extends Phaser.Scene {
         return;
       }
 
-      this.simulationStarted = true;
+      this.isSimulationOn = true;
       this.simulateTimer.paused = false;
       this.setGameText("simulation started");
     };
 
     ButtonUtils.dressUpButton(simulateSprite, simulateClickFunc);
 
-    let restartSprite = this.add
-      .sprite(700, 500, "btn-restart")
-      .setInteractive();
+    let resetClickFunc = () => {
+      alert("todo: lite reset");
+    };
 
-    ButtonUtils.dressUpButton(restartSprite, this.restart.bind(this));
+    let resetSprite = this.add.sprite(500, 500, "btn-reset").setInteractive();
+    ButtonUtils.dressUpButton(resetSprite, resetClickFunc);
+
+    let completeResetSprite = this.add
+      .sprite(750, 500, "btn-complete-reset")
+      .setInteractive();
+    ButtonUtils.dressUpButton(completeResetSprite, this.restart.bind(this));
   }
 
   /**
@@ -437,7 +451,7 @@ export default class GameScene extends Phaser.Scene {
 
       this.nodeToPassengerMap.set(nextNode.id, passengerId); //occupy start and next node
 
-      this.setNextDirection(passenger, startNode, nextNode);
+      this.setFacingDirection(passenger, startNode, nextNode);
 
       let newAngle = SpriteUtils.shortestAngle(
         passenger.sprite!.angle,
@@ -462,9 +476,9 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Sets the direction of the passenger to where they are going.
+   * Sets the facing direction of the passenger to where they are going.
    */
-  private setNextDirection(
+  private setFacingDirection(
     passenger: Passenger,
     startNode: PlaneNode,
     nextNode: PlaneNode
@@ -573,12 +587,12 @@ export default class GameScene extends Phaser.Scene {
     //this.setGameText
     //TODO: check to see everyone has stopped moving or has their seat
 
-    //TODO: remove later
-    this.colorOccupiedNodes();
+    if (this.IS_DEBUG_MODE) this.colorOccupiedNodes();
   }
 
   /**
-   * for debug use.
+   * For debug use.
+   * Color nodes which are occupied by passengers.
    */
   colorOccupiedNodes() {
     for (let [_, node] of this.nodeMap) {
@@ -587,7 +601,6 @@ export default class GameScene extends Phaser.Scene {
 
     for (let [nodeId, _] of this.nodeToPassengerMap) {
       let node = this.nodeMap.get(nodeId)!;
-
       node.sprite!.tint = 0x900000;
     }
   }

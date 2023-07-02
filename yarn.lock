@@ -44,10 +44,10 @@
   "resolved" "https://registry.npmjs.org/@types/estree/-/estree-0.0.39.tgz"
   "version" "0.0.39"
 
-"@types/lodash@^4.14.191":
-  "integrity" "sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ=="
-  "resolved" "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.191.tgz"
-  "version" "4.14.191"
+"@types/lodash@^4.14.195":
+  "integrity" "sha512-Hwx9EUgdwf2GLarOjQp5ZH8ZmblzcbTBC2wtQWNKARBSxM9ezRIAUpeDTgoQRAFB0+8CNWXVA9+MaSOzOF3nPg=="
+  "resolved" "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.195.tgz"
+  "version" "4.14.195"
 
 "@types/node@^17.0.31":
   "integrity" "sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw=="
@@ -185,10 +185,17 @@
   dependencies:
     "@types/estree" "*"
 
-"lodash@^4.17.21":
-  "integrity" "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="
-  "resolved" "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
-  "version" "4.17.21"
+"jquery-ui@^1.13.2":
+  "integrity" "sha512-wBZPnqWs5GaYJmo1Jj0k/mrSkzdQzKDwhXNtHKcBdAcKVxMM3KNYFq+iJ2i1rwiG53Z8M4mTn3Qxrm17uH1D4Q=="
+  "resolved" "https://registry.npmjs.org/jquery-ui/-/jquery-ui-1.13.2.tgz"
+  "version" "1.13.2"
+  dependencies:
+    "jquery" ">=1.8.0 <4.0.0"
+
+"jquery@>=1.8.0 <4.0.0":
+  "integrity" "sha512-umpJ0/k8X0MvD1ds0P9SfowREz2LenHsQaxSohMZ5OMNEU2r0tf8pdeEFTHMFxWVxKNyU9rTtK3CWzUCTKJUeQ=="
+  "resolved" "https://registry.npmjs.org/jquery/-/jquery-3.7.0.tgz"
+  "version" "3.7.0"
 
 "magic-string@^0.25.7":
   "integrity" "sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ=="
@@ -327,9 +334,9 @@
     "inherits" "2.0.3"
 
 "vite@^2.9.13":
-  "integrity" "sha512-fzMt2jK4vQ3yK56te3Kqpkaeq9DkcZfBbzHwYpobasvgYmP2SoAr6Aic05CsB4CzCZbsDv4sujX3pkEGhLabVQ=="
-  "resolved" "https://registry.npmjs.org/vite/-/vite-2.9.15.tgz"
-  "version" "2.9.15"
+  "integrity" "sha512-X+6q8KPyeuBvTQV8AVSnKDvXoBMnTx8zxh54sOwmmuOdxkjMmEJXH2UEchA+vTMps1xw9vL64uwJOWryULg7nA=="
+  "resolved" "https://registry.npmjs.org/vite/-/vite-2.9.16.tgz"
+  "version" "2.9.16"
   dependencies:
     "esbuild" "^0.14.27"
     "postcss" "^8.4.13"
