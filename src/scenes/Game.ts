@@ -321,6 +321,7 @@ export default class GameScene extends Phaser.Scene {
     this.scene.remove(SceneNames.EDIT_PASSENGERS);
 
     this.scene.restart(); //doesnt destroy everything
+    //TODO: could try another smaller scene that switches to this?
   }
 
   /**

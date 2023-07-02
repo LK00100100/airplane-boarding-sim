@@ -42,6 +42,10 @@ export default class EditPassengersScene extends Phaser.Scene {
     this.drawCloseBackground();
 
     this.drawBackground();
+
+    this.drawScrollBar();
+
+    this.drawButtons();
   }
 
   update() {
@@ -98,6 +102,10 @@ export default class EditPassengersScene extends Phaser.Scene {
       onClickFunc();
     });
   }
+
+  private drawScrollBar() {}
+
+  private drawButtons() {}
 
   /**
    * redraw the passenger list.
