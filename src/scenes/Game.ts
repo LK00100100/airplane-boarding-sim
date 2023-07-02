@@ -8,7 +8,6 @@ import Level1 from "../levels/level1.json";
 import Level2 from "../levels/level2.json";
 import { ButtonUtils } from "../util/ButtonUtils";
 import { SpriteUtils } from "../util/SpriteUtils";
-import EditPassengersScene from "./EditPassengersScene";
 import { SceneNames } from "./SceneNames";
 
 export default class GameScene extends Phaser.Scene {
@@ -49,7 +48,6 @@ export default class GameScene extends Phaser.Scene {
   /**
    * subscenes
    */
-  private editPassengersScene!: EditPassengersScene;
 
   /**
    * constants
@@ -64,7 +62,6 @@ export default class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image("btn-edit-passengers", "assets/btn-edit-passengers.png");
     this.load.image("btn-simulate", "assets/btn-simulate.png");
     this.load.image("btn-reset", "assets/btn-reset.png");
     this.load.image("btn-complete-reset", "assets/btn-complete-reset.png");
@@ -129,11 +126,7 @@ export default class GameScene extends Phaser.Scene {
   /**
    * init subscenes to be made once and turned on/off.
    */
-  private initSubscenes() {
-    this.editPassengersScene = new EditPassengersScene(this);
-
-    this.scene.add(SceneNames.EDIT_PASSENGERS, this.editPassengersScene, false);
-  }
+  private initSubscenes() {}
 
   private createPlaneNodes(): void {
     let planeXOffset = this.currentPlane.planeOffsetX ?? 0;
@@ -273,31 +266,6 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private createButtons(): void {
-    let editPassengersSprite = this.add
-      .sprite(100, 500, "btn-edit-passengers")
-      .setInteractive();
-
-    let editPassengersClickFunc = () => {
-      if (this.isSimulationOn) {
-        this.setGameText("Simulation is in progress");
-        return;
-      }
-
-      //turn on editing ui
-      console.log("opening editPassengerlist");
-
-      if (this.editPassengersScene.scene.isSleeping()) {
-        this.scene.wake(SceneNames.EDIT_PASSENGERS);
-      } else {
-        this.scene.launch(SceneNames.EDIT_PASSENGERS);
-      }
-
-      this.editPassengersScene.needsRedraw = true;
-      this.scene.pause();
-    };
-
-    ButtonUtils.dressUpButton(editPassengersSprite, editPassengersClickFunc);
-
     let simulateSprite = this.add
       .sprite(300, 500, "btn-simulate")
       .setInteractive();
@@ -323,7 +291,7 @@ export default class GameScene extends Phaser.Scene {
     ButtonUtils.dressUpButton(resetSprite, resetClickFunc);
 
     let completeResetSprite = this.add
-      .sprite(750, 500, "btn-complete-reset")
+      .sprite(740, 500, "btn-complete-reset")
       .setInteractive();
     ButtonUtils.dressUpButton(completeResetSprite, this.restart.bind(this));
   }
@@ -332,8 +300,6 @@ export default class GameScene extends Phaser.Scene {
    * restarts scene
    */
   restart() {
-    this.scene.remove(SceneNames.EDIT_PASSENGERS);
-
     this.scene.restart(); //doesnt destroy everything
     //TODO: could try another smaller scene that switches to this?
   }
