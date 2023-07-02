@@ -5,7 +5,7 @@ Passengers cannot move through other passengers.
 
 ## Development
 
-Install dependencies:
+Install dependencies (when needed):
 ```
 npm install
 ```

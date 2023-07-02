@@ -4,7 +4,7 @@ import { Passenger } from "../data/Passenger";
 import { PlaneNode } from "../data/PlaneNode";
 import { Seat } from "../data/Seat";
 import { Ticket } from "../data/Ticket";
-import * as Level1 from "../levels/level1.json";
+//import * as Level1 from "../levels/level1.json";
 import * as Level2 from "../levels/level2.json";
 import { ButtonUtils } from "../util/ButtonUtils";
 import { SpriteUtils } from "../util/SpriteUtils";
@@ -13,11 +13,12 @@ import { SceneNames } from "./SceneNames";
 export default class GameScene extends Phaser.Scene {
   private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame. simulates passengers.
 
-  private timers!: Set<Phaser.Time.TimerEvent>; //all timers
+  private timers!: Array<Phaser.Time.TimerEvent>; //all Phaser timers
+  private activeTweens: Array<Phaser.Tweens.Tween>;
 
   private gameText!: Phaser.GameObjects.Text; //any messages for the player to read.
 
-  private nodeMap!: Map<number, PlaneNode>; //<node id, PlaneNode
+  private nodeMap!: Map<number, PlaneNode>; //<node id, PlaneNode>
   private passengerMap!: Map<number, Passenger>;
 
   //neds calculation from current node to seat
@@ -41,9 +42,9 @@ export default class GameScene extends Phaser.Scene {
   //waiting to be placed on a PlaneNode
   public passengerInPortQueue!: Array<Passenger>;
 
-  private isSimulationOn!: boolean; //simulation has begun
+  private isSimulationOn: boolean; //simulation has begun
 
-  private currentPlane: any;
+  private currentPlane: any; //JSON TODO: json -> class converter thing
 
   /**
    * subscenes
@@ -73,30 +74,42 @@ export default class GameScene extends Phaser.Scene {
     this.load.image("plane-seat-first", "assets/plane-seat-first.png");
   }
 
+  /**
+   * one time Phaser scene setup.
+   */
   create() {
-    console.log("create");
-
     //TODO: actual reader and validator
     this.currentPlane = Level2;
 
     //TODO: find a way to just destroy the scene
     //TODO: need to destroy all the stuff before reset.
     //stuff isnt destroyed on reset
-    //console.log("timer size: " + this.timers?.size);
 
-    this.timers = new Set();
-
-    this.simulateTimer = this.time.addEvent({
-      delay: this.FPS,
-      loop: true,
-      paused: true,
-      callback: this.simulateFrame,
-      callbackScope: this,
-    });
-
-    this.timers.add(this.simulateTimer);
+    this.timers = [];
+    this.activeTweens = [];
 
     this.gameText = this.add.text(10, 10, "");
+
+    this.initSubscenes();
+
+    this.createButtons();
+
+    this.resetScene();
+  }
+
+  /**
+   * init subscenes to be made once and turned on/off.
+   */
+  private initSubscenes() {}
+
+  /**
+   * Move back the passengers and other metadata to before "simulate".
+   */
+  private resetScene() {
+    this.deleteOldSprites();
+
+    this.resetTimers();
+    this.resetTweens();
 
     this.nodeMap = new Map();
     this.passengerMap = new Map();
@@ -110,23 +123,60 @@ export default class GameScene extends Phaser.Scene {
 
     this.passengerInPortQueue = [];
 
+    this.simulateTimer.paused = true;
     this.isSimulationOn = false;
 
-    this.initSubscenes();
-
     //TODO: check input data is not goofy. dont go too nuts
-
     this.createPlaneNodes();
 
     this.createPassengers();
-
-    this.createButtons();
   }
 
   /**
-   * init subscenes to be made once and turned on/off.
+   * When you reset the game, you'll have to delete the old sprites.
+   * Only used by resetScene().
    */
-  private initSubscenes() {}
+  private deleteOldSprites() {
+    if (!this.nodeMap && !this.passengerMap) return;
+
+    //delete plane sprites
+
+    for (let [_, planeNode] of this.nodeMap) {
+      planeNode.sprite.destroy();
+    }
+
+    //delete passenger sprites
+    for (let [_, passenger] of this.passengerMap) {
+      passenger.sprite.destroy();
+    }
+  }
+
+  /**
+   * Reset all timers
+   */
+  private resetTimers() {
+    while (this.timers.length > 0) {
+      let timer = this.timers.pop();
+      timer.destroy();
+    }
+
+    this.simulateTimer = this.time.addEvent({
+      delay: this.FPS,
+      loop: true,
+      paused: true,
+      callback: this.simulateFrame,
+      callbackScope: this,
+    });
+
+    this.timers.push(this.simulateTimer);
+  }
+
+  private resetTweens() {
+    while (this.activeTweens.length > 0) {
+      let tween = this.activeTweens.pop();
+      tween.destroy();
+    }
+  }
 
   private createPlaneNodes(): void {
     let planeXOffset = this.currentPlane.planeOffsetX ?? 0;
@@ -284,16 +334,16 @@ export default class GameScene extends Phaser.Scene {
     ButtonUtils.dressUpButton(simulateSprite, simulateClickFunc);
 
     let resetClickFunc = () => {
-      alert("todo: lite reset");
+      this.resetScene();
     };
 
     let resetSprite = this.add.sprite(500, 500, "btn-reset").setInteractive();
     ButtonUtils.dressUpButton(resetSprite, resetClickFunc);
 
-    let completeResetSprite = this.add
-      .sprite(740, 500, "btn-complete-reset")
-      .setInteractive();
-    ButtonUtils.dressUpButton(completeResetSprite, this.restart.bind(this));
+    // let completeResetSprite = this.add
+    //   .sprite(740, 500, "btn-complete-reset")
+    //   .setInteractive();
+    // ButtonUtils.dressUpButton(completeResetSprite, this.restart.bind(this));
   }
 
   /**
@@ -389,25 +439,28 @@ export default class GameScene extends Phaser.Scene {
         return;
       }
 
-      if (pathToSeat.length == 0) throw Error("shouldn't be 0");
+      if (pathToSeat.length == 0)
+        throw Error(
+          "shouldn't be 0. This passenger is sitting down yet still being calculated."
+        );
 
       //else move to step closer (if we can)
       let nextNodeId = pathToSeat[0];
 
       //next space occupied
       if (this.nodeToPassengerMap.has(nextNodeId)) {
-        //try again later
+        //try moving there a bit later
         let timer = this.time.addEvent({
           delay: 150, //TODO: hard code
           loop: false,
           callback: () => {
             this.passengerOnMove.push(passengerId);
-            this.timers.delete(timer);
+            timer.destroy();
           },
           callbackScope: this,
         });
 
-        this.timers.add(timer);
+        this.timers.push(timer);
         return;
       }
 
@@ -438,6 +491,8 @@ export default class GameScene extends Phaser.Scene {
           scene.passengerOnMove.push(passengerId);
         },
       });
+
+      this.activeTweens.push(passenger.tween);
     }
   }
 
