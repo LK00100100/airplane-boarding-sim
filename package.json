@@ -4,24 +4,30 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "serve": "vite preview"
+    "dev": "rollup --config rollup.config.dev.mjs",
+    "build": "rollup --config rollup.config.dist.mjs",
+    "watch": "rollup --watch --config rollup.config.dev.mjs"
   },
   "author": "LK00100100",
   "license": "",
   "devDependencies": {
-    "@rollup/plugin-alias": "^3.1.9",
-    "@rollup/plugin-commonjs": "^22.0.0",
-    "@rollup/plugin-replace": "^4.0.0",
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-replace": "^5.0.2",
+    "@rollup/plugin-terser": "^0.4.0",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "@types/lodash": "^4.14.195",
     "@types/node": "^17.0.31",
     "jquery-ui": "^1.13.2",
-    "phaser": "^3.55.2",
+    "phaser": "^3.60.0",
     "prettier": "2.8.1",
-    "typescript": "^4.6.4",
-    "vite": "^2.9.13"
+    "rollup": "^3.20.2",
+    "rollup-plugin-serve": "^2.0.2",
+    "tslib": "^2.6.0",
+    "typescript": "^5.0.3"
   },
   "dependencies": {
-    "@types/lodash": "^4.14.195"
+    "lodash-es": "^4.17.21"
   }
 }

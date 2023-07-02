@@ -1,3 +1,5 @@
+import * as Phaser from "phaser";
+
 export class SpriteUtils {
   /**
    * Used so your sprite doesn't spin too many degrees.

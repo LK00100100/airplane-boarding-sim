@@ -7,4 +7,4 @@ Thumbs.db
 node_modules/
 
 # Build
-dist
+dist/game*

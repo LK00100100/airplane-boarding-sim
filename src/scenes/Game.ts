@@ -1,4 +1,4 @@
-import Phaser from "phaser";
+import * as Phaser from "phaser";
 import { Direction, toDirection } from "../data/Direction";
 import { Passenger } from "../data/Passenger";
 import { PlaneNode } from "../data/PlaneNode";
