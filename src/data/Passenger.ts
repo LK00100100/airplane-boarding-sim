@@ -12,7 +12,8 @@ export class Passenger {
 
   direction: Direction;
 
-  sprite?: Phaser.GameObjects.Sprite;
+  //TODO: sprite's angle and this.direction should be in sync
+  sprites?: Phaser.GameObjects.Group; //group of sprites. Passenger and baggage
 
   tween?: Phaser.Tweens.Tween; //current animation
 
@@ -56,5 +57,15 @@ export class Passenger {
    */
   getTicket(): Ticket {
     return this.ticket;
+  }
+
+  /**
+   * Get this sprite's angle.
+   * All angles in this sprite group should be the same.
+   */
+  getSpriteAngle() {
+    const sprites = this.sprites.getChildren();
+    const sprite = sprites[0] as Phaser.GameObjects.Sprite;
+    return sprite.angle;
   }
 }

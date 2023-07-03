@@ -7,4 +7,8 @@ export class Baggage {
     this.ownerId = ownerId;
     this.size = size;
   }
+
+  toString(): string {
+    return `ownerId: ${this.ownerId}, size: ${this.size}`;
+  }
 }

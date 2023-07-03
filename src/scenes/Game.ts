@@ -9,7 +9,10 @@ import * as Level2 from "../levels/level2.json";
 import { ButtonUtils } from "../util/ButtonUtils";
 import { SpriteUtils } from "../util/SpriteUtils";
 import { SceneNames } from "./SceneNames";
+import { Baggage } from "../data/Baggage";
 
+//TODO: use const
+//TODO: refactor methods by moving them.
 export default class GameScene extends Phaser.Scene {
   private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame. simulates passengers.
 
@@ -68,6 +71,7 @@ export default class GameScene extends Phaser.Scene {
     this.load.image("btn-complete-reset", "assets/btn-complete-reset.png");
 
     this.load.image("passenger", "assets/passenger.png");
+    this.load.image("baggage", "assets/baggage.png");
 
     this.load.image("plane-floor", "assets/plane-floor.png");
     this.load.image("plane-seat-coach", "assets/plane-seat-coach.png");
@@ -147,7 +151,7 @@ export default class GameScene extends Phaser.Scene {
 
     //delete passenger sprites
     for (let [_, passenger] of this.passengerMap) {
-      passenger.sprite.destroy();
+      passenger.sprites.destroy();
     }
   }
 
@@ -255,45 +259,70 @@ export default class GameScene extends Phaser.Scene {
 
       this.passengerMap.set(passenger.id, passenger);
 
-      if (!passengerJson.ticket) {
+      const ticketJson = passengerJson.ticket;
+      if (!ticketJson) {
         throw Error("ticket required");
       }
-
-      let ticketJson = passengerJson.ticket;
       passenger.setTicket(
         new Ticket(ticketJson.class, ticketJson.aisle, ticketJson.number)
       );
 
-      let shape = new Phaser.Geom.Rectangle(2, 10, 26, 12);
+      var passengerSpriteGroup = this.add.group();
+      //build passenger sprite
+      const shape = new Phaser.Geom.Rectangle(2, 10, 26, 12);
 
-      let sprite = this.add
-        .sprite(-100, -100, "passenger")
+      let passengerSprite = passengerSpriteGroup
+        .create(-100, -100, "passenger")
         .setInteractive(shape, Phaser.Geom.Rectangle.Contains);
 
       //  Input Event listeners
-      sprite.on("pointerover", () => {
-        sprite.setTint(0xbbbb00);
+      passengerSprite.on("pointerover", () => {
+        passengerSprite.setTint(0xbbbb00);
         this.setGameText(passenger.toString());
       });
 
-      sprite.on("pointerout", () => {
+      passengerSprite.on("pointerout", () => {
         this.setGameText("");
-        sprite.clearTint();
+        passengerSprite.clearTint();
       });
 
+      //build baggage
+      //TODO: handle more than 1 baggage.
+      if (passengerJson.baggage) {
+        const baggage = new Baggage(passenger.id, passengerJson.baggage[0]);
+
+        const baggageShape = new Phaser.Geom.Rectangle(0, 0, 20, 6);
+
+        const baggageSprite = passengerSpriteGroup
+          .create(-100, -100, "baggage")
+          .setInteractive(baggageShape, Phaser.Geom.Rectangle.Contains);
+
+        //  Input Event listeners
+        baggageSprite.on("pointerover", () => {
+          baggageSprite.setTint(0xbbbb00);
+          this.setGameText(baggage.toString());
+        });
+
+        baggageSprite.on("pointerout", () => {
+          this.setGameText("");
+          baggageSprite.clearTint();
+        });
+      }
+
+      passenger.sprites = passengerSpriteGroup;
+
       //TODO: can remove this later and set
-      //set direction
+      //set direction if specified
       if ("direction" in passengerJson) {
         let directionStr: string = passengerJson["direction"] as string;
         passenger.direction = toDirection(directionStr);
-        sprite.angle = 90 * toDirection(directionStr);
+        passengerSpriteGroup.angle(90 * toDirection(directionStr));
       } else {
         passenger.direction = Direction.NORTH;
-        sprite.angle = 90 * Direction.NORTH;
+        passengerSpriteGroup.angle(90 * Direction.NORTH);
       }
 
-      passenger.sprite = sprite;
-
+      //set on starting node in plane
       if ("node" in passengerJson) {
         let nodeId: number = passengerJson["node"] as number;
         this.putPassengerOnNode(passenger, nodeId);
@@ -314,7 +343,7 @@ export default class GameScene extends Phaser.Scene {
     this.passengerToNodeMap.set(passenger.id, nodeId);
     this.nodeToPassengerMap.set(nodeId, passenger.id);
 
-    passenger.sprite!.setPosition(node.sprite!.x, node.sprite!.y);
+    passenger.sprites!.setXY(node.sprite!.x, node.sprite!.y);
   }
 
   private createButtons(): void {
@@ -422,14 +451,15 @@ export default class GameScene extends Phaser.Scene {
       //are we at our seat? sit down
       if (startNode.seatInfo?.isTicketSeat(passenger.getTicket())) {
         //TODO: set direction
+
         let newAngle = SpriteUtils.shortestAngle(
-          passenger.sprite!.angle,
+          passenger.getSpriteAngle(),
           90 * startNode.seatInfo.direction
         );
 
         //face the seat
         passenger.tween = this.tweens.add({
-          targets: passenger.sprite,
+          targets: passenger.sprites.getChildren(),
           angle: newAngle,
           duration: 400, //TODO: hard code
           ease: "Power2",
@@ -475,13 +505,14 @@ export default class GameScene extends Phaser.Scene {
       this.setFacingDirection(passenger, startNode, nextNode);
 
       let newAngle = SpriteUtils.shortestAngle(
-        passenger.sprite!.angle,
+        passenger.getSpriteAngle(),
         90 * passenger.direction
       );
 
       //TODO: set direction
+      //move to next spot
       passenger.tween = this.tweens.add({
-        targets: passenger.sprite,
+        targets: passenger.sprites.getChildren(),
         x: nextNode.sprite?.x,
         y: nextNode.sprite?.y,
         angle: newAngle, //TODO: hard code
