@@ -13,8 +13,8 @@ import { SceneNames } from "./SceneNames";
 export default class GameScene extends Phaser.Scene {
   private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame. simulates passengers.
 
-  private timers!: Array<Phaser.Time.TimerEvent>; //all Phaser timers
-  private activeTweens: Array<Phaser.Tweens.Tween>;
+  private timers!: Set<Phaser.Time.TimerEvent>; //all Phaser timers
+  private activeTweens: Set<Phaser.Tweens.Tween>;
 
   private gameText!: Phaser.GameObjects.Text; //any messages for the player to read.
 
@@ -85,8 +85,8 @@ export default class GameScene extends Phaser.Scene {
     //TODO: need to destroy all the stuff before reset.
     //stuff isnt destroyed on reset
 
-    this.timers = [];
-    this.activeTweens = [];
+    this.timers = new Set();
+    this.activeTweens = new Set();
 
     this.gameText = this.add.text(10, 10, "");
 
@@ -155,10 +155,11 @@ export default class GameScene extends Phaser.Scene {
    * Reset all timers
    */
   private resetTimers() {
-    while (this.timers.length > 0) {
-      let timer = this.timers.pop();
+    for (let timer of this.timers) {
       timer.destroy();
     }
+
+    this.timers.clear();
 
     this.simulateTimer = this.time.addEvent({
       delay: this.FPS,
@@ -168,14 +169,15 @@ export default class GameScene extends Phaser.Scene {
       callbackScope: this,
     });
 
-    this.timers.push(this.simulateTimer);
+    this.timers.add(this.simulateTimer);
   }
 
   private resetTweens() {
-    while (this.activeTweens.length > 0) {
-      let tween = this.activeTweens.pop();
-      tween.destroy();
+    for (let activeTween of this.activeTweens) {
+      activeTween.destroy();
     }
+
+    this.activeTweens.clear();
   }
 
   private createPlaneNodes(): void {
@@ -382,8 +384,6 @@ export default class GameScene extends Phaser.Scene {
    * simulateTimer calls this every frame.
    */
   private simulateFrame(): void {
-    let scene = this;
-
     //unqueue one passenger (if we can) onto a starting PlaneNode
     if (this.passengerInPortQueue.length > 0) {
       //TODO: fix if multiple entrances
@@ -456,11 +456,13 @@ export default class GameScene extends Phaser.Scene {
           callback: () => {
             this.passengerOnMove.push(passengerId);
             timer.destroy();
+
+            this.timers.delete(timer);
           },
           callbackScope: this,
         });
 
-        this.timers.push(timer);
+        this.timers.add(timer);
         return;
       }
 
@@ -486,13 +488,16 @@ export default class GameScene extends Phaser.Scene {
         duration: 400, //TODO: hard code
         ease: "Power2",
         onComplete: function () {
-          scene.nodeToPassengerMap.delete(startNode.id);
-          scene.passengerToNodeMap.set(passengerId, nextNode.id);
-          scene.passengerOnMove.push(passengerId);
+          this.nodeToPassengerMap.delete(startNode.id);
+          this.passengerToNodeMap.set(passengerId, nextNode.id);
+          this.passengerOnMove.push(passengerId);
+
+          this.activeTweens.delete(passenger.tween);
         },
+        callbackScope: this,
       });
 
-      this.activeTweens.push(passenger.tween);
+      this.activeTweens.add(passenger.tween);
     }
   }
 
