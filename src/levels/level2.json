@@ -51,6 +51,16 @@
                 24,
                 25
             ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
+            ],
             "x": 90,
             "y": 180
         },
@@ -60,6 +70,16 @@
                 7,
                 28,
                 29
+            ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
             ],
             "x": 130,
             "y": 180
@@ -71,6 +91,16 @@
                 33,
                 34
             ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
+            ],
             "x": 170,
             "y": 180
         },
@@ -80,6 +110,16 @@
                 9,
                 39,
                 40
+            ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
             ],
             "x": 210,
             "y": 180
@@ -91,6 +131,16 @@
                 45,
                 46
             ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
+            ],
             "x": 250,
             "y": 180
         },
@@ -100,6 +150,16 @@
                 11,
                 51,
                 52
+            ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
             ],
             "x": 290,
             "y": 180
@@ -111,6 +171,16 @@
                 57,
                 58
             ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
+            ],
             "x": 330,
             "y": 180
         },
@@ -120,6 +190,16 @@
                 13,
                 63,
                 64
+            ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
             ],
             "x": 370,
             "y": 180
@@ -131,6 +211,16 @@
                 69,
                 70
             ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
+            ],
             "x": 410,
             "y": 180
         },
@@ -140,6 +230,16 @@
                 15,
                 75,
                 76
+            ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
             ],
             "x": 450,
             "y": 180
@@ -151,6 +251,16 @@
                 81,
                 82
             ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
+            ],
             "x": 490,
             "y": 180
         },
@@ -160,6 +270,16 @@
                 17,
                 87,
                 88
+            ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
             ],
             "x": 530,
             "y": 180
@@ -171,6 +291,16 @@
                 93,
                 94
             ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
+            ],
             "x": 570,
             "y": 180
         },
@@ -180,6 +310,16 @@
                 19,
                 99,
                 100
+            ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
             ],
             "x": 610,
             "y": 180
@@ -191,6 +331,16 @@
                 105,
                 106
             ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
+            ],
             "x": 650,
             "y": 180
         },
@@ -200,6 +350,16 @@
                 21,
                 111,
                 112
+            ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
             ],
             "x": 690,
             "y": 180
@@ -211,6 +371,16 @@
                 117,
                 118
             ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
+            ],
             "x": 730,
             "y": 180
         },
@@ -219,6 +389,16 @@
             "out": [
                 123,
                 124
+            ],
+            "containers": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
             ],
             "x": 770,
             "y": 180

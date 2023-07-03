@@ -1,4 +1,5 @@
 import { BaggageCompartment } from "./BaggageCompartment";
+import { Direction } from "./Direction";
 import { Seat } from "./Seat";
 
 /**
@@ -15,7 +16,7 @@ export class PlaneNode {
   inNodes: Set<number>; //node ids going in
   outNodes: Set<number>; //node ids going out
 
-  baggageCompartments: BaggageCompartment[];
+  baggageCompartments: Map<Direction, BaggageCompartment>;
 
   sprite?: Phaser.GameObjects.Sprite;
 
@@ -28,7 +29,7 @@ export class PlaneNode {
     this.id = id;
     this.inNodes = new Set();
     this.outNodes = new Set();
-    this.baggageCompartments = [];
+    this.baggageCompartments = new Map();
 
     this.isEnterNode = false;
     this.isExitNode = false;
@@ -42,8 +43,21 @@ export class PlaneNode {
     this.outNodes.add(newNodeId);
   }
 
+  setBaggageComparment(direction: Direction, size: number) {
+    this.baggageCompartments.set(direction, new BaggageCompartment(size));
+  }
+
   public toString() {
-    const objWithout = { ...this, sprite: undefined };
+    let baggageStr = "";
+    for (const [key, val] of this.baggageCompartments) {
+      baggageStr += `{dir: ${key} : cap: ${val.current}/${val.max}}`;
+    }
+
+    const objWithout = {
+      ...this,
+      sprite: undefined,
+      baggageCompartments: `[${baggageStr}]`,
+    };
 
     return JSON.stringify(objWithout);
   }

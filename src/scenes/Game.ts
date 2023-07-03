@@ -115,6 +115,10 @@ export default class GameScene extends Phaser.Scene {
     this.resetTimers();
     this.resetTweens();
 
+    /**
+     * reset, part 2
+     */
+
     this.nodeMap = new Map();
     this.passengerMap = new Map();
     this.passengerOnMove = [];
@@ -189,7 +193,7 @@ export default class GameScene extends Phaser.Scene {
     let planeYOffset = this.currentPlane.planeOffSetY ?? 0;
 
     //make nodes
-    //TODO: use interface
+    //TODO: use interface to read json, verify, and spit out a class
     this.currentPlane.nodes.forEach((nodeJson: any) => {
       if (!this.nodeMap.has(nodeJson.id))
         this.nodeMap.set(nodeJson.id, new PlaneNode(nodeJson.id));
@@ -227,6 +231,16 @@ export default class GameScene extends Phaser.Scene {
         );
 
         imageName = "plane-seat-" + seat.class;
+      }
+
+      //start node
+      if ("containers" in nodeJson) {
+        const containers = nodeJson["containers"];
+
+        for (const container of containers) {
+          const direction = toDirection(container.direction);
+          nodeData.setBaggageComparment(direction, container.size);
+        }
       }
 
       sprite = this.add
