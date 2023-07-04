@@ -9,12 +9,15 @@ import * as Level2 from "../levels/level2.json";
 import { ButtonUtils } from "../util/ButtonUtils";
 import { SpriteUtils } from "../util/SpriteUtils";
 import { SceneNames } from "./SceneNames";
+import { Baggage } from "../data/Baggage";
 
+//TODO: use const
+//TODO: refactor methods by moving them.
 export default class GameScene extends Phaser.Scene {
   private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame. simulates passengers.
 
-  private timers!: Array<Phaser.Time.TimerEvent>; //all Phaser timers
-  private activeTweens: Array<Phaser.Tweens.Tween>;
+  private timers!: Set<Phaser.Time.TimerEvent>; //all Phaser timers
+  private activeTweens: Set<Phaser.Tweens.Tween>;
 
   private gameText!: Phaser.GameObjects.Text; //any messages for the player to read.
 
@@ -68,6 +71,7 @@ export default class GameScene extends Phaser.Scene {
     this.load.image("btn-complete-reset", "assets/btn-complete-reset.png");
 
     this.load.image("passenger", "assets/passenger.png");
+    this.load.image("baggage", "assets/baggage.png");
 
     this.load.image("plane-floor", "assets/plane-floor.png");
     this.load.image("plane-seat-coach", "assets/plane-seat-coach.png");
@@ -85,8 +89,8 @@ export default class GameScene extends Phaser.Scene {
     //TODO: need to destroy all the stuff before reset.
     //stuff isnt destroyed on reset
 
-    this.timers = [];
-    this.activeTweens = [];
+    this.timers = new Set();
+    this.activeTweens = new Set();
 
     this.gameText = this.add.text(10, 10, "");
 
@@ -110,6 +114,10 @@ export default class GameScene extends Phaser.Scene {
 
     this.resetTimers();
     this.resetTweens();
+
+    /**
+     * reset, part 2
+     */
 
     this.nodeMap = new Map();
     this.passengerMap = new Map();
@@ -147,7 +155,7 @@ export default class GameScene extends Phaser.Scene {
 
     //delete passenger sprites
     for (let [_, passenger] of this.passengerMap) {
-      passenger.sprite.destroy();
+      passenger.sprites.destroy();
     }
   }
 
@@ -155,10 +163,11 @@ export default class GameScene extends Phaser.Scene {
    * Reset all timers
    */
   private resetTimers() {
-    while (this.timers.length > 0) {
-      let timer = this.timers.pop();
+    for (let timer of this.timers) {
       timer.destroy();
     }
+
+    this.timers.clear();
 
     this.simulateTimer = this.time.addEvent({
       delay: this.FPS,
@@ -168,14 +177,15 @@ export default class GameScene extends Phaser.Scene {
       callbackScope: this,
     });
 
-    this.timers.push(this.simulateTimer);
+    this.timers.add(this.simulateTimer);
   }
 
   private resetTweens() {
-    while (this.activeTweens.length > 0) {
-      let tween = this.activeTweens.pop();
-      tween.destroy();
+    for (let activeTween of this.activeTweens) {
+      activeTween.destroy();
     }
+
+    this.activeTweens.clear();
   }
 
   private createPlaneNodes(): void {
@@ -183,7 +193,7 @@ export default class GameScene extends Phaser.Scene {
     let planeYOffset = this.currentPlane.planeOffSetY ?? 0;
 
     //make nodes
-    //TODO: use interface
+    //TODO: use interface to read json, verify, and spit out a class
     this.currentPlane.nodes.forEach((nodeJson: any) => {
       if (!this.nodeMap.has(nodeJson.id))
         this.nodeMap.set(nodeJson.id, new PlaneNode(nodeJson.id));
@@ -223,6 +233,16 @@ export default class GameScene extends Phaser.Scene {
         imageName = "plane-seat-" + seat.class;
       }
 
+      //add baggage compartments
+      if ("compartments" in nodeJson) {
+        const compartments = nodeJson["compartments"];
+
+        for (const compartment of compartments) {
+          const direction = toDirection(compartment.direction);
+          nodeData.setBaggageComparment(direction, compartment.size);
+        }
+      }
+
       sprite = this.add
         .sprite(nodeJson.x + planeXOffset, nodeJson.y + planeYOffset, imageName)
         .setInteractive();
@@ -253,45 +273,74 @@ export default class GameScene extends Phaser.Scene {
 
       this.passengerMap.set(passenger.id, passenger);
 
-      if (!passengerJson.ticket) {
+      const ticketJson = passengerJson.ticket;
+      if (!ticketJson) {
         throw Error("ticket required");
       }
-
-      let ticketJson = passengerJson.ticket;
       passenger.setTicket(
         new Ticket(ticketJson.class, ticketJson.aisle, ticketJson.number)
       );
 
-      let shape = new Phaser.Geom.Rectangle(2, 10, 26, 12);
+      var passengerSpriteGroup = this.add.group();
+      //build passenger sprite
+      const shape = new Phaser.Geom.Rectangle(2, 10, 26, 12);
 
-      let sprite = this.add
-        .sprite(-100, -100, "passenger")
+      let passengerSprite = passengerSpriteGroup
+        .create(-100, -100, "passenger")
         .setInteractive(shape, Phaser.Geom.Rectangle.Contains);
 
       //  Input Event listeners
-      sprite.on("pointerover", () => {
-        sprite.setTint(0xbbbb00);
+      passengerSprite.on("pointerover", () => {
+        passengerSprite.setTint(0xbbbb00);
         this.setGameText(passenger.toString());
       });
 
-      sprite.on("pointerout", () => {
+      passengerSprite.on("pointerout", () => {
         this.setGameText("");
-        sprite.clearTint();
+        passengerSprite.clearTint();
       });
 
+      //build baggage
+      //TODO: handle more than 1 baggage.
+      if (passengerJson.baggage) {
+        const baggage = new Baggage(
+          passenger.id,
+          passengerJson.baggage[0].size
+        );
+        passenger.addBaggage(baggage);
+
+        const baggageShape = new Phaser.Geom.Rectangle(0, 0, 20, 6);
+
+        const baggageSprite = passengerSpriteGroup
+          .create(-100, -100, "baggage")
+          .setInteractive(baggageShape, Phaser.Geom.Rectangle.Contains);
+
+        //  Input Event listeners
+        baggageSprite.on("pointerover", () => {
+          baggageSprite.setTint(0xbbbb00);
+          this.setGameText(baggage.toString());
+        });
+
+        baggageSprite.on("pointerout", () => {
+          this.setGameText("");
+          baggageSprite.clearTint();
+        });
+      }
+
+      passenger.sprites = passengerSpriteGroup;
+
       //TODO: can remove this later and set
-      //set direction
+      //set direction if specified
       if ("direction" in passengerJson) {
         let directionStr: string = passengerJson["direction"] as string;
         passenger.direction = toDirection(directionStr);
-        sprite.angle = 90 * toDirection(directionStr);
+        passengerSpriteGroup.angle(90 * toDirection(directionStr));
       } else {
         passenger.direction = Direction.NORTH;
-        sprite.angle = 90 * Direction.NORTH;
+        passengerSpriteGroup.angle(90 * Direction.NORTH);
       }
 
-      passenger.sprite = sprite;
-
+      //set on starting node in plane
       if ("node" in passengerJson) {
         let nodeId: number = passengerJson["node"] as number;
         this.putPassengerOnNode(passenger, nodeId);
@@ -312,7 +361,7 @@ export default class GameScene extends Phaser.Scene {
     this.passengerToNodeMap.set(passenger.id, nodeId);
     this.nodeToPassengerMap.set(nodeId, passenger.id);
 
-    passenger.sprite!.setPosition(node.sprite!.x, node.sprite!.y);
+    passenger.sprites!.setXY(node.sprite!.x, node.sprite!.y);
   }
 
   private createButtons(): void {
@@ -382,8 +431,6 @@ export default class GameScene extends Phaser.Scene {
    * simulateTimer calls this every frame.
    */
   private simulateFrame(): void {
-    let scene = this;
-
     //unqueue one passenger (if we can) onto a starting PlaneNode
     if (this.passengerInPortQueue.length > 0) {
       //TODO: fix if multiple entrances
@@ -419,24 +466,75 @@ export default class GameScene extends Phaser.Scene {
 
       let pathToSeat = this.passengerToSeatPath.get(passengerId)!;
 
+      //do we store our baggage here?
+      if (passenger.hasBaggage()) {
+        let baggageSize: number = passenger.baggages[0].size; //TODO: multiple baggage support
+        let targetBaggageNode = this.getClosestBaggageNodeToSeat(
+          pathToSeat,
+          baggageSize
+        );
+
+        //we are at the target storage node //TODO: make less crappy
+        if (targetBaggageNode == null) {
+          //TODO: assume this direction has space. fix later >:)
+          //TODO: assume baggageNode != target seat
+
+          const nextNodeId = pathToSeat[0];
+          let nextNode = this.nodeMap.get(nextNodeId)!;
+
+          this.setFacingDirection(passenger, startNode, nextNode);
+
+          let newAngle = SpriteUtils.shortestAngle(
+            passenger.getSpriteAngle(),
+            90 * passenger.direction
+          );
+
+          //face toward your seat
+          passenger.tween = this.tweens.add({
+            targets: passenger.sprites.getChildren(),
+            angle: newAngle, //TODO: hard code
+            duration: 3000, //TODO: hard code
+            ease: "Power2",
+            onComplete: function () {
+              //throw in baggage
+              //TODO: better animation here
+              //TODO: just throws the baggage where ever
+              //TODO: better sprite group code
+              const baggage = passenger.baggages.pop();
+              startNode.addBaggage(Direction.NORTH, baggage);
+              passenger.sprites.getChildren()[1].destroy(); //TODO: jank
+
+              //keep on truckin'
+              this.passengerOnMove.push(passengerId);
+              this.activeTweens.delete(passenger.tween);
+            },
+            callbackScope: this,
+          });
+          this.activeTweens.add(passenger.tween);
+
+          continue;
+        }
+      }
+
       //are we at our seat? sit down
       if (startNode.seatInfo?.isTicketSeat(passenger.getTicket())) {
         //TODO: set direction
+
         let newAngle = SpriteUtils.shortestAngle(
-          passenger.sprite!.angle,
+          passenger.getSpriteAngle(),
           90 * startNode.seatInfo.direction
         );
 
         //face the seat
         passenger.tween = this.tweens.add({
-          targets: passenger.sprite,
+          targets: passenger.sprites.getChildren(),
           angle: newAngle,
           duration: 400, //TODO: hard code
           ease: "Power2",
           onComplete: function () {},
         });
 
-        return;
+        continue;
       }
 
       if (pathToSeat.length == 0)
@@ -456,12 +554,14 @@ export default class GameScene extends Phaser.Scene {
           callback: () => {
             this.passengerOnMove.push(passengerId);
             timer.destroy();
+
+            this.timers.delete(timer);
           },
           callbackScope: this,
         });
 
-        this.timers.push(timer);
-        return;
+        this.timers.add(timer);
+        continue;
       }
 
       pathToSeat.shift();
@@ -473,29 +573,56 @@ export default class GameScene extends Phaser.Scene {
       this.setFacingDirection(passenger, startNode, nextNode);
 
       let newAngle = SpriteUtils.shortestAngle(
-        passenger.sprite!.angle,
+        passenger.getSpriteAngle(),
         90 * passenger.direction
       );
 
       //TODO: set direction
+      //move to next spot
       passenger.tween = this.tweens.add({
-        targets: passenger.sprite,
+        targets: passenger.sprites.getChildren(),
         x: nextNode.sprite?.x,
         y: nextNode.sprite?.y,
         angle: newAngle, //TODO: hard code
         duration: 400, //TODO: hard code
         ease: "Power2",
         onComplete: function () {
-          scene.nodeToPassengerMap.delete(startNode.id);
-          scene.passengerToNodeMap.set(passengerId, nextNode.id);
-          scene.passengerOnMove.push(passengerId);
+          this.nodeToPassengerMap.delete(startNode.id);
+          this.passengerToNodeMap.set(passengerId, nextNode.id);
+          this.passengerOnMove.push(passengerId);
+
+          this.activeTweens.delete(passenger.tween);
         },
+        callbackScope: this,
       });
 
-      this.activeTweens.push(passenger.tween);
-    }
+      this.activeTweens.add(passenger.tween);
+    } //end simulate loop
   }
 
+  /**
+   * Finds the closest baggage node to the seat.
+   * Throws an error if there is no baggage node at all.
+   * @param pathToSeat a list of nodes to the target seat.
+   * @param baggageSize the baggage you have.
+   * @returns The closest plane node that can hold your baggage. If none available, return null;
+   */
+  private getClosestBaggageNodeToSeat(
+    pathToSeat: number[],
+    baggageSize: number
+  ): PlaneNode {
+    //TODO: think more on this
+    for (let i = pathToSeat.length - 1; i >= 0; i--) {
+      const nodeId = pathToSeat[i];
+      const planeNode = this.nodeMap.get(nodeId);
+
+      if (planeNode.hasOpenBaggageCompartments(baggageSize)) return planeNode;
+    }
+
+    return null;
+  }
+
+  //TODO: also set the sprite angle
   /**
    * Sets the facing direction of the passenger to where they are going.
    */
