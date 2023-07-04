@@ -142,6 +142,7 @@ export default class GameScene extends Phaser.Scene {
     //TODO: test sort passengers here. remove later
     //this.passengerInPortQueue.sort(PassengerSorts.backToFront);
     this.passengerInPortQueue.sort(PassengerSorts.outToIn);
+    //this.passengerInPortQueue.sort(PassengerSorts.steffanMethod);
   }
 
   /**
