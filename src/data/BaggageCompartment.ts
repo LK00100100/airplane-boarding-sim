@@ -25,6 +25,8 @@ export class BaggageCompartment {
       this.baggageList.set(passengerId, []);
 
     this.baggageList.get(passengerId).push(baggage);
+
+    //TODO: add math and errors
   }
 
   /**
@@ -49,6 +51,8 @@ export class BaggageCompartment {
     //no more baggage for passengerId
     if (this.baggageList.get(passengerId).length == 0)
       this.baggageList.delete(passengerId);
+
+    //TODO: add math and errors
 
     return baggage;
   }

@@ -534,7 +534,7 @@ export default class GameScene extends Phaser.Scene {
           onComplete: function () {},
         });
 
-        return; //TODO: do we need return/
+        continue;
       }
 
       if (pathToSeat.length == 0)
@@ -561,7 +561,7 @@ export default class GameScene extends Phaser.Scene {
         });
 
         this.timers.add(timer);
-        return; //TODO: do we need return/
+        continue;
       }
 
       pathToSeat.shift();
