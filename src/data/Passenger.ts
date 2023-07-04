@@ -25,8 +25,15 @@ export class Passenger {
     this.direction = Direction.NORTH;
   }
 
+  public hasBaggage() {
+    return this.baggages.length > 0;
+  }
+
   public addBaggage(baggage: Baggage) {
     this.baggages.push(baggage);
+
+    if (this.baggages.length > 1)
+      throw new Error("not supported. too much baggage");
   }
 
   public getTotalBaggageSize() {
@@ -47,10 +54,6 @@ export class Passenger {
     //TODO: replace code with "90 *"
   }
 
-  toString(): string {
-    return `id: ${this.id}, ticket: ${this.ticket.toString()}`;
-  }
-
   /**
    * gets the ticket.
    * @returns
@@ -67,5 +70,9 @@ export class Passenger {
     const sprites = this.sprites.getChildren();
     const sprite = sprites[0] as Phaser.GameObjects.Sprite;
     return sprite.angle;
+  }
+
+  toString(): string {
+    return `id: ${this.id}, ticket: ${this.ticket.toString()}`;
   }
 }

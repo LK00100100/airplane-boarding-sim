@@ -27,8 +27,13 @@ export class BaggageCompartment {
     this.baggageList.get(passengerId).push(baggage);
   }
 
-  hasBaggage(passengerId: number) {
-    return this.baggageList.has(passengerId);
+  /**
+   * Sees if you can fit this baggage here.
+   * @param baggageSize
+   * @returns  Returns true if there's enough space. False, otherwise.
+   */
+  hasRemainingSpace(baggageSize: number) {
+    return this.max - this.current >= baggageSize;
   }
 
   /**
