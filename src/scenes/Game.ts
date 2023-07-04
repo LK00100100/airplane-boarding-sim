@@ -10,6 +10,7 @@ import { ButtonUtils } from "../util/ButtonUtils";
 import { SpriteUtils } from "../util/SpriteUtils";
 import { SceneNames } from "./SceneNames";
 import { Baggage } from "../data/Baggage";
+import PassengerSorts from "../algo/PassengerSorts";
 
 //TODO: use const
 //TODO: refactor methods by moving them.
@@ -24,8 +25,7 @@ export default class GameScene extends Phaser.Scene {
   private nodeMap!: Map<number, PlaneNode>; //<node id, PlaneNode>
   private passengerMap!: Map<number, Passenger>;
 
-  //neds calculation from current node to seat
-  //TODO: just use passenger
+  //passengers here will be simulated.
   private passengerOnMove!: Array<number>; //<passenger ids>, a stack
 
   //passengerId is not moving in nodeId. key is removed if passenger is moving.
@@ -138,6 +138,10 @@ export default class GameScene extends Phaser.Scene {
     this.createPlaneNodes();
 
     this.createPassengers();
+
+    //TODO: test sort passengers here. remove later
+    //this.passengerInPortQueue.sort(PassengerSorts.backToFront);
+    this.passengerInPortQueue.sort(PassengerSorts.outToIn);
   }
 
   /**
@@ -735,7 +739,9 @@ export default class GameScene extends Phaser.Scene {
     //this.setGameText
     //TODO: check to see everyone has stopped moving or has their seat
 
-    if (this.IS_DEBUG_MODE) this.colorOccupiedNodes();
+    if (this.IS_DEBUG_MODE) {
+      this.colorOccupiedNodes();
+    }
   }
 
   /**
