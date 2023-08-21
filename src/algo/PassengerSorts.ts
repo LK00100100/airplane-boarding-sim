@@ -7,8 +7,37 @@ import { Passenger } from "../data/Passenger";
  */
 export default class PassengerSorts {
   /**
+   * Sorts passengers from front to back.
+   * And Out (windows) to In (aisles).
+   * @param a passenger
+   * @param b passenger
+   * @returns -1 if a < b; 1 if a > b; otherwise, 0.
+   */
+  public static frontToBack(a: Passenger, b: Passenger) {
+    const aTicket = a.getTicket();
+    const bTicket = b.getTicket();
+
+    if (aTicket.aisle == bTicket.aisle) {
+      if (aTicket.number == bTicket.number) throw new Error("bad comparator");
+
+      //A + F < B + E < C + D
+      const aTicketNumber = PassengerSorts.backToFrontAssignNumber(
+        aTicket.number
+      );
+      const bTicketNumber = PassengerSorts.backToFrontAssignNumber(
+        bTicket.number
+      );
+
+      return aTicketNumber - bTicketNumber;
+    }
+
+    //aisle 1 < aisle 2
+    return aTicket.aisle - bTicket.aisle;
+  }
+
+  /**
    * Sorts passengers from back to front.
-   * And Out (windwos) to In (aisles).
+   * And Out (windows) to In (aisles).
    * @param a passenger
    * @param b passenger
    * @returns -1 if a < b; 1 if a > b; otherwise, 0.

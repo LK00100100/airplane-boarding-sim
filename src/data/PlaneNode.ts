@@ -8,12 +8,14 @@ import { Seat } from "./Seat";
  * All nodes are walkable.
  * Passengers cannot hop over occupied nodes
  * Can have one seat.
- * This may not be a grid.
+ * This doesn't need to be a grid.
  * These are static.
  */
 export class PlaneNode {
   id: number; // unique id
 
+  //note: overengineering for now
+  //TODO: just use Node
   inNodes: Set<number>; //node ids going in
   outNodes: Set<number>; //node ids going out
 
@@ -23,8 +25,8 @@ export class PlaneNode {
 
   seatInfo?: Seat; //if there is a set, then only one seat
 
-  isEnterNode!: boolean;
-  isExitNode!: boolean;
+  isEnterNode!: boolean; //plane entrance
+  isExitNode!: boolean; //plane exit
 
   constructor(id: number) {
     this.id = id;
