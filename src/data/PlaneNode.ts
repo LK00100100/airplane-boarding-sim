@@ -14,7 +14,7 @@ import { Seat } from "./Seat";
 export class PlaneNode {
   id: number; // unique id
 
-  //note: overengineering for now
+  //TODO: overengineering for now. just use two-way
   //TODO: just use Node
   inNodes: Set<number>; //node ids going in
   outNodes: Set<number>; //node ids going out
