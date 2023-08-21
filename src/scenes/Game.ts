@@ -484,6 +484,7 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
+    //TODO: no timers. just for-loop, reuse this
     //simulate passengers
     while (this.passengerOnMove.length > 0) {
       const passengerId = this.passengerOnMove.pop()!;
@@ -576,10 +577,28 @@ export default class GameScene extends Phaser.Scene {
         continue;
       }
 
-      if (pathToSeat.length == 0)
-        throw Error(
-          "shouldn't be 0. This passenger is sitting down yet still being calculated."
-        );
+      if (pathToSeat.length == 0) {
+        if (!this.shufflersSet.has(passenger)) {
+          throw Error(
+            "shouldn't be 0. This passenger is sitting down yet still being calculated."
+          );
+        } else {
+          //TODO: DRY
+          //try moving there a bit later
+          let timer = this.time.addEvent({
+            delay: 150, //TODO: hard code
+            loop: false,
+            callback: () => {
+              this.passengerOnMove.push(passengerId);
+              timer.destroy();
+
+              this.timers.delete(timer);
+            },
+            callbackScope: this,
+          });
+          continue;
+        }
+      }
 
       //else move to step closer (if we can)
       let nextNodeId = pathToSeat[0];
@@ -618,7 +637,7 @@ export default class GameScene extends Phaser.Scene {
               },
               callbackScope: this,
             });
-            return;
+            continue;
           }
 
           const shufflerIds = new Set([passengerId, ...blockerIds]);
@@ -651,10 +670,10 @@ export default class GameScene extends Phaser.Scene {
           this.passengerOnMove.push(passengerId);
 
           blockers.forEach((blocker) => {
-            this.passengerToSeatPath.set(
-              blocker.id,
-              freeSpaces.blockerSpaces.map((node) => node.id)
-            );
+            this.passengerToSeatPath.set(blocker.id, [
+              startNode.id,
+              ...freeSpaces.blockerSpaces.map((node) => node.id),
+            ]);
 
             freeSpaces.blockerSpaces.pop();
             this.passengerOnMove.push(blocker.id);
@@ -996,6 +1015,11 @@ export default class GameScene extends Phaser.Scene {
   colorOccupiedNodes() {
     for (let [_, node] of this.nodeMap) {
       node.sprite?.clearTint();
+    }
+
+    for (let [nodeId, _] of this.nodeToMultiPassengerMap) {
+      let node = this.nodeMap.get(nodeId)!;
+      node.sprite!.tint = 0xffbf00;
     }
 
     for (let [nodeId, _] of this.nodeToPassengerMap) {
