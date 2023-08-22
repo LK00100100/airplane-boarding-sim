@@ -555,42 +555,31 @@ export default class GameScene extends Phaser.Scene {
         }
       }
 
-      //are we at our seat? sit down
-      if (
-        startNode.seatInfo?.isTicketSeat(passengerTicket) &&
-        !this.shufflersSet.has(passenger)
-      ) {
-        //TODO: set direction
-        //TODO: sat down counter
+      //no more walking
+      if (pathToSeat.length == 0) {
+        this.passengerSemaphore.release(passenger);
 
-        let newAngle = SpriteUtils.shortestAngle(
-          passenger.getSpriteAngle(),
-          90 * startNode.seatInfo.direction
-        );
+        //are we at our seat? sit down
+        if (startNode.seatInfo?.isTicketSeat(passengerTicket)) {
+          //TODO: set direction
+          //TODO: sat down counter
 
-        //face the seat
-        passenger.tween = this.tweens.add({
-          targets: passenger.sprites.getChildren(),
-          angle: newAngle,
-          duration: 400, //TODO: hard code
-          ease: "Power2",
-          onComplete: function () {},
-        });
+          let newAngle = SpriteUtils.shortestAngle(
+            passenger.getSpriteAngle(),
+            90 * startNode.seatInfo.direction
+          );
+
+          //face the seat
+          passenger.tween = this.tweens.add({
+            targets: passenger.sprites.getChildren(),
+            angle: newAngle,
+            duration: 400, //TODO: hard code
+            ease: "Power2",
+            onComplete: function () {},
+          });
+        }
 
         continue;
-      }
-
-      if (pathToSeat.length == 0) {
-        if (!this.shufflersSet.has(passenger)) {
-          throw Error(
-            "shouldn't be 0. This passenger is sitting down yet still being calculated."
-          );
-        }
-        //shufflers have reached destination
-        else {
-          this.passengerSemaphore.release(passenger);
-          continue;
-        }
       }
 
       //else move to step closer (if we can)
