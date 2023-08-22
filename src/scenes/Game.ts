@@ -166,18 +166,7 @@ export default class GameScene extends Phaser.Scene {
     //this.passengerInPortQueue.sort(PassengerSorts.backToFront);
     //this.passengerInPortQueue.sort(PassengerSorts.outToIn);
     //this.passengerInPortQueue.sort(PassengerSorts.steffanMethod);
-
-    this.createTrafficJam();
-  }
-
-  private createTrafficJam() {
-    this.passengerInPortQueue.sort(PassengerSorts.frontToBack);
-
-    let first = this.passengerInPortQueue[0];
-    let second = this.passengerInPortQueue[1];
-
-    this.passengerInPortQueue[0] = second;
-    this.passengerInPortQueue[1] = first;
+    this.passengerInPortQueue.sort(PassengerSorts.slothSort);
   }
 
   /**
