@@ -68,15 +68,19 @@ export class PlaneNode {
   }
 
   public toString() {
+    //TODO: fix this filth. doesnt work :)
     let baggageStr = "";
     for (const [direction, compartment] of this.baggageCompartments) {
       baggageStr += `{dir: ${direction} : cap: ${compartment.current}/${compartment.max}}`;
     }
 
+    const outNodeStr = Array.from(this.outNodes.values()).join(",");
+
     const objWithout = {
       ...this,
       sprite: undefined,
-      baggageCompartments: `[${baggageStr}]`,
+      outs: outNodeStr, //TODO: using outNodes doesn't overwrite?
+      baggageCompartments: `[${baggageStr}]`, //TODO: using baggageCompartments doesn't overwrite?
     };
 
     return JSON.stringify(objWithout);
