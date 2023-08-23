@@ -200,4 +200,27 @@ export default class PassengerSorts {
     if (seatNumber == "B" || seatNumber == "E") return 1;
     if (seatNumber == "A" || seatNumber == "F") return 2;
   }
+
+  /**
+   * Randomizes list.
+   * @param list target list.
+   * @param numSwaps number of times to swap two random things in the list. Should be positive. Otherwise, set to 0.
+   */
+  public static randomize(list: Array<any>, numSwaps: number): void {
+    numSwaps = Math.max(0, numSwaps);
+
+    //getRandomInt(3) = 0, 1, 2
+    function getRandomInt(max: number) {
+      return Math.floor(Math.random() * max);
+    }
+
+    for (let i = 0; i < numSwaps; i++) {
+      const a = getRandomInt(list.length);
+      const b = getRandomInt(list.length);
+
+      const temp = list[a];
+      list[a] = list[b];
+      list[b] = temp;
+    }
+  }
 }

@@ -168,8 +168,11 @@ export default class GameScene extends Phaser.Scene {
     //this.passengerInPortQueue.sort(PassengerSorts.backToFront);
     //this.passengerInPortQueue.sort(PassengerSorts.outToIn);
     //this.passengerInPortQueue.sort(PassengerSorts.steffanMethod);
-    this.passengerInPortQueue.sort(PassengerSorts.slothSort);
-    //TODO: random sort
+    //this.passengerInPortQueue.sort(PassengerSorts.slothSort);
+    PassengerSorts.randomize(
+      this.passengerInPortQueue,
+      this.passengerInPortQueue.length * 100
+    );
   }
 
   /**
@@ -284,7 +287,10 @@ export default class GameScene extends Phaser.Scene {
       //  Input Event listeners
       sprite.on("pointerover", () => {
         sprite.setTint(0x00bb00);
-        this.setGameText(nodeData.toString());
+        const nodeOccupied = `; occupied by: ${this.nodeToPassengerMap.get(
+          nodeData.id
+        )};`;
+        this.setGameText(nodeData.toString() + nodeOccupied);
       });
 
       sprite.on("pointerout", () => {
@@ -614,19 +620,28 @@ export default class GameScene extends Phaser.Scene {
 
           //1) lock all needed nodes
           //1a) can we lock all needed nodes?
-          //TODO: simplify all below
-          if (this.nodeToMultiPassengerMap.has(startNode.id)) continue;
-
+          //TODO: simplify all below.
+          //note: i shouldn't need to nodeToPassengerMap check since freeSpaces should be free, yet...
           let cannotLock = false;
+          if (this.nodeToMultiPassengerMap.has(startNode.id)) {
+            cannotLock = true;
+          }
+
           for (const node of freeSpaces.tickerholderSpaces) {
-            if (this.nodeToMultiPassengerMap.has(node.id)) {
+            if (
+              this.nodeToMultiPassengerMap.has(node.id) ||
+              this.nodeToPassengerMap.has(node.id)
+            ) {
               cannotLock = true;
               break;
             }
           }
 
           for (const node of freeSpaces.blockerSpaces) {
-            if (this.nodeToMultiPassengerMap.has(node.id)) {
+            if (
+              this.nodeToMultiPassengerMap.has(node.id) ||
+              this.nodeToPassengerMap.has(node.id)
+            ) {
               cannotLock = true;
               break;
             }
