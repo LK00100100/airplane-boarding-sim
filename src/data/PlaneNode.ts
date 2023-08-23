@@ -8,12 +8,14 @@ import { Seat } from "./Seat";
  * All nodes are walkable.
  * Passengers cannot hop over occupied nodes
  * Can have one seat.
- * This may not be a grid.
+ * This doesn't need to be a grid.
  * These are static.
  */
 export class PlaneNode {
   id: number; // unique id
 
+  //TODO: overengineering for now. just use two-way
+  //TODO: just use Node
   inNodes: Set<number>; //node ids going in
   outNodes: Set<number>; //node ids going out
 
@@ -23,8 +25,8 @@ export class PlaneNode {
 
   seatInfo?: Seat; //if there is a set, then only one seat
 
-  isEnterNode!: boolean;
-  isExitNode!: boolean;
+  isEnterNode!: boolean; //plane entrance
+  isExitNode!: boolean; //plane exit
 
   constructor(id: number) {
     this.id = id;
@@ -66,15 +68,19 @@ export class PlaneNode {
   }
 
   public toString() {
+    //TODO: fix this filth. doesnt work :)
     let baggageStr = "";
     for (const [direction, compartment] of this.baggageCompartments) {
       baggageStr += `{dir: ${direction} : cap: ${compartment.current}/${compartment.max}}`;
     }
 
+    const outNodeStr = Array.from(this.outNodes.values()).join(",");
+
     const objWithout = {
       ...this,
       sprite: undefined,
-      baggageCompartments: `[${baggageStr}]`,
+      outs: outNodeStr, //TODO: using outNodes doesn't overwrite?
+      baggageCompartments: `[${baggageStr}]`, //TODO: using baggageCompartments doesn't overwrite?
     };
 
     return JSON.stringify(objWithout);

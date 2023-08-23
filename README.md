@@ -10,7 +10,7 @@ Install dependencies (when needed):
 npm install
 ```
 
-To do development work:
+To do development work, and have it rebuild on changes:
 ```
 npm run watch
 ```

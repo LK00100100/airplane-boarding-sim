@@ -2,6 +2,7 @@ import { Baggage } from "./Baggage";
 import { Direction } from "./Direction";
 import { Ticket } from "./Ticket";
 
+//TODO: hold path info
 /**
  * Holds information about a passenger
  */

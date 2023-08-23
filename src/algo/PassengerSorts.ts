@@ -3,12 +3,41 @@ import { Passenger } from "../data/Passenger";
 /**
  * Sorting algorithms for lists of passengers.
  * Only been tested with one plane.
- * May goof with other planes.
+ * WILL goof with other planes.
  */
 export default class PassengerSorts {
   /**
+   * Sorts passengers from front to back.
+   * And Out (windows) to In (aisles).
+   * @param a passenger
+   * @param b passenger
+   * @returns -1 if a < b; 1 if a > b; otherwise, 0.
+   */
+  public static frontToBack(a: Passenger, b: Passenger) {
+    const aTicket = a.getTicket();
+    const bTicket = b.getTicket();
+
+    if (aTicket.aisle == bTicket.aisle) {
+      if (aTicket.number == bTicket.number) throw new Error("bad comparator");
+
+      //A + F < B + E < C + D
+      const aTicketNumber = PassengerSorts.backToFrontAssignNumber(
+        aTicket.number
+      );
+      const bTicketNumber = PassengerSorts.backToFrontAssignNumber(
+        bTicket.number
+      );
+
+      return aTicketNumber - bTicketNumber;
+    }
+
+    //aisle 1 < aisle 2
+    return aTicket.aisle - bTicket.aisle;
+  }
+
+  /**
    * Sorts passengers from back to front.
-   * And Out (windwos) to In (aisles).
+   * And Out (windows) to In (aisles).
    * @param a passenger
    * @param b passenger
    * @returns -1 if a < b; 1 if a > b; otherwise, 0.
@@ -116,5 +145,59 @@ export default class PassengerSorts {
     //then aisle 2 < aisle 1
 
     return bTicket.aisle - aTicket.aisle;
+  }
+
+  /**
+   * sorts passengers to maximize slow shuffling.
+   * front to back.
+   * then aisle first, then window.
+   * @param a -
+   * @param b -
+   * @returns
+   */
+  public static slothSort(a: Passenger, b: Passenger) {
+    const aTicket = a.getTicket();
+    const bTicket = b.getTicket();
+
+    if (aTicket.aisle == bTicket.aisle) {
+      if (aTicket.number == bTicket.number) throw new Error("bad comparator");
+
+      //aisle then window
+      const aTicketNumber = PassengerSorts.slothSortAssignNumber(
+        aTicket.number,
+        aTicket.aisle
+      );
+      const bTicketNumber = PassengerSorts.slothSortAssignNumber(
+        bTicket.number,
+        aTicket.aisle
+      );
+
+      return aTicketNumber - bTicketNumber;
+    }
+
+    //aisle 1 < aisle 2
+    return aTicket.aisle - bTicket.aisle;
+  }
+
+  /**
+   * Turns seatNumber into an actual number for comparison.
+   * A+F < B+E < C+D
+   * @param seatNumber
+   * @returns
+   */
+  private static slothSortAssignNumber(
+    seatNumber: string,
+    aisleNumber: number
+  ): number {
+    //first class
+    if (aisleNumber <= 2) {
+      if (seatNumber == "B" || seatNumber == "C") return 0;
+      if (seatNumber == "A" || seatNumber == "D") return 1;
+    }
+
+    //coach
+    if (seatNumber == "C" || seatNumber == "D") return 0;
+    if (seatNumber == "B" || seatNumber == "E") return 1;
+    if (seatNumber == "A" || seatNumber == "F") return 2;
   }
 }

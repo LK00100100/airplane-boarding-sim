@@ -11,9 +11,13 @@ import { SpriteUtils } from "../util/SpriteUtils";
 import { SceneNames } from "./SceneNames";
 import { Baggage } from "../data/Baggage";
 import PassengerSorts from "../algo/PassengerSorts";
+import PlaneSearch from "../algo/PlaneSearch";
+import { BlockerSpaces } from "../data/Types";
+import { PassengerSemaphore } from "../util/PassengerSemaphore";
 
 //TODO: use const
-//TODO: refactor methods by moving them.
+//TODO: refactor methods by moving them. and everything...
+//TODO: unit tests
 export default class GameScene extends Phaser.Scene {
   private simulateTimer!: Phaser.Time.TimerEvent; //runs every frame. simulates passengers.
 
@@ -31,15 +35,27 @@ export default class GameScene extends Phaser.Scene {
   //passengerId is not moving in nodeId. key is removed if passenger is moving.
   private passengerToNodeMap!: Map<number, number>;
 
+  //TODO: a big node manager class. and use node instead of id.
+
   //used when passenger is entering and/or exiting.
   //when occupied, no one is allowed to enter except the passenger. used as a lock.
   //no node key means no passenger.
   private nodeToPassengerMap!: Map<number, number>; //<nodeId, passengerId in this nodeId>
 
+  //<nodeId, passengersId>
+  private nodeToMultiPassengerMap!: Map<number, Set<number>>; //same as above but with multiple passengers. used ONLY for seat shuffling
+  private shufflersSet: Set<Passenger>; //people who are actively shuffling.
+
+  //TODO: move into Passenger classes
+  //TODO: rename to passengerToPath
   //no passenger means no path. Need to calculate.
-  //an empty array means we have arrived.
+  //an empty array means we have arrived. the first node is the next step to take.
   private passengerToSeatPath!: Map<number, Array<number>>; //<passengerId, list of nodeIds to our seat
 
+  //used by shufflers. events are fired when subsets of shufflers are done moving.
+  private passengerSemaphore: PassengerSemaphore;
+
+  //TODO: move to some plane manager
   private enterNodesMap!: Map<number, PlaneNode>; //<enterId, nodeid>, plane entrance nodes
 
   //waiting to be placed on a PlaneNode
@@ -49,6 +65,11 @@ export default class GameScene extends Phaser.Scene {
 
   private currentPlane: any; //JSON TODO: json -> class converter thing
 
+  private readonly BAGGAGE_LOAD_SPEED_DEFAULT = 3000;
+  private readonly PASSENGER_SPEED_DEFAULT = 400; //400 is good
+
+  //TODO: variable baggage loading speed
+
   /**
    * subscenes
    */
@@ -56,8 +77,8 @@ export default class GameScene extends Phaser.Scene {
   /**
    * constants
    */
-  private FPS = 100 / 3; //30 FPS in terms of milliseconds
-  private IS_DEBUG_MODE = true;
+  private readonly FPS = 100 / 3; //30 Frames Per Second, in terms of milliseconds
+  private readonly IS_DEBUG_MODE = true; //turn on to see more information
 
   constructor() {
     super(SceneNames.GAME_SCENE);
@@ -125,7 +146,10 @@ export default class GameScene extends Phaser.Scene {
 
     this.passengerToNodeMap = new Map();
     this.nodeToPassengerMap = new Map();
+    this.nodeToMultiPassengerMap = new Map();
     this.passengerToSeatPath = new Map();
+    this.passengerSemaphore = new PassengerSemaphore();
+    this.shufflersSet = new Set();
 
     this.enterNodesMap = new Map();
 
@@ -140,9 +164,12 @@ export default class GameScene extends Phaser.Scene {
     this.createPassengers();
 
     //TODO: test sort passengers here. remove later
+    //this.passengerInPortQueue.sort(PassengerSorts.frontToBack);
     //this.passengerInPortQueue.sort(PassengerSorts.backToFront);
-    this.passengerInPortQueue.sort(PassengerSorts.outToIn);
+    //this.passengerInPortQueue.sort(PassengerSorts.outToIn);
     //this.passengerInPortQueue.sort(PassengerSorts.steffanMethod);
+    this.passengerInPortQueue.sort(PassengerSorts.slothSort);
+    //TODO: random sort
   }
 
   /**
@@ -200,6 +227,7 @@ export default class GameScene extends Phaser.Scene {
     //make nodes
     //TODO: use interface to read json, verify, and spit out a class
     this.currentPlane.nodes.forEach((nodeJson: any) => {
+      //TODO: rewire to default to multi-directional node.
       if (!this.nodeMap.has(nodeJson.id))
         this.nodeMap.set(nodeJson.id, new PlaneNode(nodeJson.id));
 
@@ -213,6 +241,7 @@ export default class GameScene extends Phaser.Scene {
         nodeData.addOutNode(outNodeId);
 
         this.nodeMap.get(outNodeId)!.addInNode(nodeJson.id);
+        this.nodeMap.get(outNodeId)!.addOutNode(nodeJson.id); //HACK:
       });
 
       let sprite: Phaser.GameObjects.Sprite;
@@ -430,6 +459,7 @@ export default class GameScene extends Phaser.Scene {
     this.gameText.text = newText2;
   }
 
+  //TODO: refactor to submethods
   //TODO: just move to update, no simulate timer
   /**
    * This actually simulates passenger thinking and then orders them to move.
@@ -449,27 +479,24 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
+    //TODO: no timers. just for-loop, reuse this
     //simulate passengers
     while (this.passengerOnMove.length > 0) {
-      let passengerId = this.passengerOnMove.pop()!;
-      let passenger = this.passengerMap.get(passengerId)!;
-      let passengerNodeId = this.passengerToNodeMap.get(passengerId);
+      const passengerId = this.passengerOnMove.pop()!;
+      const passenger = this.passengerMap.get(passengerId)!;
+      const passengerNodeId = this.passengerToNodeMap.get(passengerId);
+      const passengerTicket = passenger.getTicket();
 
-      let startNode = this.nodeMap.get(passengerNodeId!)!;
+      const startNode = this.nodeMap.get(passengerNodeId!)!;
 
       //need to calc path
+      //TODO: refactor to put it in the passenger.
       if (!this.passengerToSeatPath.has(passengerId)) {
-        let path = this.calculateMinPassengerSeatPath(
-          passenger.getTicket(),
-          passengerNodeId!
-        );
-
-        if (path == null) throw Error("all target seats should exist");
-
-        this.passengerToSeatPath.set(passengerId, path);
+        this.setPassengerToTicketPath(passenger, startNode);
       }
 
-      let pathToSeat = this.passengerToSeatPath.get(passengerId)!;
+      //TODO: rename pathToTarget
+      const pathToSeat = this.passengerToSeatPath.get(passengerId)!;
 
       //do we store our baggage here?
       if (passenger.hasBaggage()) {
@@ -498,7 +525,7 @@ export default class GameScene extends Phaser.Scene {
           passenger.tween = this.tweens.add({
             targets: passenger.sprites.getChildren(),
             angle: newAngle, //TODO: hard code
-            duration: 3000, //TODO: hard code
+            duration: this.BAGGAGE_LOAD_SPEED_DEFAULT,
             ease: "Power2",
             onComplete: function () {
               //throw in baggage
@@ -521,60 +548,207 @@ export default class GameScene extends Phaser.Scene {
         }
       }
 
-      //are we at our seat? sit down
-      if (startNode.seatInfo?.isTicketSeat(passenger.getTicket())) {
-        //TODO: set direction
+      //no more walking
+      if (pathToSeat.length == 0) {
+        this.passengerSemaphore.release(passenger);
 
-        let newAngle = SpriteUtils.shortestAngle(
-          passenger.getSpriteAngle(),
-          90 * startNode.seatInfo.direction
-        );
+        //are we at our seat? sit down
+        if (startNode.seatInfo?.isTicketSeat(passengerTicket)) {
+          //TODO: set direction
+          //TODO: sat down counter
 
-        //face the seat
-        passenger.tween = this.tweens.add({
-          targets: passenger.sprites.getChildren(),
-          angle: newAngle,
-          duration: 400, //TODO: hard code
-          ease: "Power2",
-          onComplete: function () {},
-        });
+          let newAngle = SpriteUtils.shortestAngle(
+            passenger.getSpriteAngle(),
+            90 * startNode.seatInfo.direction
+          );
+
+          //face the seat
+          passenger.tween = this.tweens.add({
+            targets: passenger.sprites.getChildren(),
+            angle: newAngle,
+            duration: this.PASSENGER_SPEED_DEFAULT,
+            ease: "Power2",
+            onComplete: function () {},
+          });
+        }
 
         continue;
       }
 
-      if (pathToSeat.length == 0)
-        throw Error(
-          "shouldn't be 0. This passenger is sitting down yet still being calculated."
-        );
-
-      //else move to step closer (if we can)
+      //can we move one step closer?
       let nextNodeId = pathToSeat[0];
-
-      //next space occupied
-      if (this.nodeToPassengerMap.has(nextNodeId)) {
-        //try moving there a bit later
-        let timer = this.time.addEvent({
-          delay: 150, //TODO: hard code
-          loop: false,
-          callback: () => {
-            this.passengerOnMove.push(passengerId);
-            timer.destroy();
-
-            this.timers.delete(timer);
-          },
-          callbackScope: this,
-        });
-
-        this.timers.add(timer);
-        continue;
-      }
-
-      pathToSeat.shift();
-
       let nextNode = this.nodeMap.get(nextNodeId)!;
 
-      this.nodeToPassengerMap.set(nextNode.id, passengerId); //occupy start and next node
+      //we are in front of our aisle (but not in)
+      //are we blocked? shuffle everyone so you can get in.
+      if (
+        startNode.seatInfo?.aisle != passengerTicket.aisle &&
+        nextNode.seatInfo?.aisle == passengerTicket.aisle &&
+        !this.shufflersSet.has(passenger)
+      ) {
+        const blockers = this.getPassengersBlockingTicketSeat(
+          passengerTicket,
+          nextNode
+        );
 
+        //TODO: helper method
+        const blockersCsv = blockers.map((b) => b.id).join(",");
+        console.log(`p ${passengerId}, blockers: ${blockersCsv}`);
+
+        //blockers present, do the shuffle
+        if (blockers.length > 0) {
+          const blockerIds = blockers.map((b) => b.id);
+
+          const freeSpaces = this.getFreeSpaceForBlockers(
+            pathToSeat,
+            startNode,
+            blockers.length
+          );
+
+          if (!freeSpaces.hasFreeSpaces) {
+            this.addToPassengersToMoveQueueLater(passengerId);
+            continue;
+          }
+
+          const shufflerIds = new Set([passengerId, ...blockerIds]);
+
+          //1) lock all needed nodes
+          //1a) can we lock all needed nodes?
+          //TODO: simplify all below
+          if (this.nodeToMultiPassengerMap.has(startNode.id)) continue;
+
+          let cannotLock = false;
+          for (const node of freeSpaces.tickerholderSpaces) {
+            if (this.nodeToMultiPassengerMap.has(node.id)) {
+              cannotLock = true;
+              break;
+            }
+          }
+
+          for (const node of freeSpaces.blockerSpaces) {
+            if (this.nodeToMultiPassengerMap.has(node.id)) {
+              cannotLock = true;
+              break;
+            }
+          }
+
+          if (cannotLock) {
+            this.addToPassengersToMoveQueueLater(passengerId);
+            continue;
+          }
+
+          //1b) actually lock
+          this.nodeToMultiPassengerMap.set(startNode.id, shufflerIds);
+          freeSpaces.tickerholderSpaces.forEach((node) =>
+            this.nodeToMultiPassengerMap.set(node.id, shufflerIds)
+          );
+
+          freeSpaces.blockerSpaces.forEach((node) =>
+            this.nodeToMultiPassengerMap.set(node.id, shufflerIds)
+          );
+
+          //2) shuffle passenger out and blockers out
+          this.shufflersSet.add(passenger);
+          blockers.forEach((blocker) => this.shufflersSet.add(blocker));
+
+          this.passengerToSeatPath.delete(passengerId);
+
+          //2a) shuffle passenger out
+          this.passengerToSeatPath.set(
+            passengerId,
+            freeSpaces.tickerholderSpaces.map((node) => node.id)
+          );
+
+          //TODO: i should loop on "passengers that haven't sat". instead of
+          //timers and passengerOnMove
+          this.passengerOnMove.push(passengerId);
+
+          //2b) shuffle blockers out
+          const blockerSpacesClone = [...freeSpaces.blockerSpaces];
+
+          //TODO: remove debug
+          const ticketholderSpacesStr = freeSpaces.tickerholderSpaces
+            .map((b) => b.id)
+            .join(",");
+          const blockerSpacesStr = blockerSpacesClone
+            .map((b) => b.id)
+            .join(",");
+          console.log(
+            `passenger ${passengerId}; ticketSpots: ${ticketholderSpacesStr};  blockerSpaces: ${blockerSpacesStr}`
+          );
+
+          blockers.forEach((blocker) => {
+            this.setPassengerToNodePathAndMove(
+              blocker,
+              blockerSpacesClone.pop()
+            );
+          });
+
+          //3) after blockers are out...
+          this.passengerSemaphore.addEvent(blockers, () => {
+            //TODO: ugh, should have to just have one thing to get people moving
+            //passenger goes to seat and stops
+
+            //TODO: refactor to just use node
+            const passengerNodeId = this.passengerToNodeMap.get(passenger.id);
+            const passengerNode = this.nodeMap.get(passengerNodeId);
+            this.setPassengerToTicketPath(passenger, passengerNode);
+            this.passengerOnMove.push(passenger.id);
+
+            //after passenger is in seat...
+            this.passengerSemaphore.addEvent([passenger], () => {
+              this.shufflersSet.delete(passenger);
+
+              freeSpaces.tickerholderSpaces.forEach((node) =>
+                this.nodeToMultiPassengerMap.delete(node.id)
+              );
+
+              //4) blockers go to their seat
+              blockers.forEach((blocker) => {
+                const blockerNodeId = this.passengerToNodeMap.get(blocker.id);
+                const blockerNode = this.nodeMap.get(blockerNodeId);
+                this.setPassengerToTicketPath(blocker, blockerNode);
+                this.passengerOnMove.push(blocker.id);
+              });
+
+              //5) blockers (and passenger is in the seat).
+              this.passengerSemaphore.addEvent(blockers, () => {
+                //unlock shuffle spaces
+                blockers.forEach((blocker) => {
+                  this.shufflersSet.delete(blocker);
+                });
+
+                freeSpaces.blockerSpaces.forEach((node) =>
+                  this.nodeToMultiPassengerMap.delete(node.id)
+                );
+
+                this.nodeToMultiPassengerMap.delete(startNode.id);
+              });
+            });
+          });
+
+          continue;
+        }
+      } //end shuffle
+
+      //next space occupied with person
+      if (this.nodeToPassengerMap.has(nextNodeId)) {
+        this.addToPassengersToMoveQueueLater(passengerId);
+        continue;
+      }
+
+      //next space occupied by seat shufflers
+      if (this.nodeToMultiPassengerMap.has(nextNodeId)) {
+        if (!this.nodeToMultiPassengerMap.get(nextNodeId).has(passengerId)) {
+          this.addToPassengersToMoveQueueLater(passengerId);
+
+          continue;
+        }
+      }
+
+      //move one step closer
+      pathToSeat.shift();
+      this.nodeToPassengerMap.set(nextNode.id, passengerId); //occupy start and next node
       this.setFacingDirection(passenger, startNode, nextNode);
 
       let newAngle = SpriteUtils.shortestAngle(
@@ -589,7 +763,7 @@ export default class GameScene extends Phaser.Scene {
         x: nextNode.sprite?.x,
         y: nextNode.sprite?.y,
         angle: newAngle, //TODO: hard code
-        duration: 400, //TODO: hard code
+        duration: this.PASSENGER_SPEED_DEFAULT,
         ease: "Power2",
         onComplete: function () {
           this.nodeToPassengerMap.delete(startNode.id);
@@ -603,6 +777,56 @@ export default class GameScene extends Phaser.Scene {
 
       this.activeTweens.add(passenger.tween);
     } //end simulate loop
+  }
+
+  private addToPassengersToMoveQueueLater(passengerId: number) {
+    let timer = this.time.addEvent({
+      delay: 150, //TODO: hard code
+      loop: false,
+      callback: () => {
+        this.passengerOnMove.push(passengerId);
+        timer.destroy();
+
+        //TODO: use one timer for a bundle of passengers...
+        this.timers.delete(timer);
+      },
+      callbackScope: this,
+    });
+    this.timers.add(timer);
+  }
+
+  //TODO: simplify
+  private setPassengerToTicketPath(
+    passenger: Passenger,
+    currentNode: PlaneNode
+  ): void {
+    let path = PlaneSearch.calculateMinPassengerSeatPath(
+      this.nodeMap,
+      currentNode.id,
+      passenger.getTicket()
+    );
+
+    if (path == null) throw Error("all target seats should exist");
+
+    this.passengerToSeatPath.set(passenger.id, path);
+  }
+
+  private setPassengerToNodePathAndMove(
+    passenger: Passenger,
+    targetNode: PlaneNode
+  ): void {
+    const passengerNodeId = this.passengerToNodeMap.get(passenger.id);
+
+    let path = PlaneSearch.calculateMinPassengerTargetPath(
+      this.nodeMap,
+      passengerNodeId,
+      targetNode
+    );
+
+    if (path == null) throw Error("all target seats should exist");
+
+    this.passengerToSeatPath.set(passenger.id, path);
+    this.passengerOnMove.push(passenger.id);
   }
 
   /**
@@ -654,86 +878,220 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
-   * calculate the min path from currentNodeId to passengerId's ticket.
-   * @param passengerId
-   * @param currentNodeId
-   * @returns a list of node ids from you to the seat. Does not include currentNode. first node is the next node.
-   * an empty array means we're already there. returns null on no path.
+   * Gets everyone in the aisle blocking the ticket seat.
+   * If people move slowly to their window seat, they may be caught by this method.
+   * You may have to use this only on sitting people.
+   * @param ticket passenger's ticket that they are trying to get to.
+   * @param startNode start of the aisle
+   * @returns an ordered list of passengers. First one is closest to the startNode.
    */
-  private calculateMinPassengerSeatPath(
+  private getPassengersBlockingTicketSeat(
     ticket: Ticket,
-    startNodeId: number
-  ): Array<number> | null {
-    let distMap: Map<number, number> = new Map(); //nodeId, distance
-    let startNode = this.nodeMap.get(startNodeId)!;
+    startNode: PlaneNode
+  ): Array<Passenger> {
+    return this.getPassengersBlockingTicketSeatHelper(
+      ticket,
+      startNode,
+      new Set()
+    );
+  }
 
-    //we're already there
-    if (startNode.seatInfo?.isTicketSeat(ticket)) {
-      return [];
+  private getPassengersBlockingTicketSeatHelper(
+    ticket: Ticket,
+    node: PlaneNode,
+    visited: Set<PlaneNode>
+  ): Array<Passenger> {
+    let blockers: Array<Passenger> = [];
+
+    if (visited.has(node)) return blockers;
+
+    visited.add(node);
+
+    //at ticket seat
+    if (node.seatInfo?.isTicketSeat(ticket)) return blockers;
+
+    //not at ticket aisle
+    if (node.seatInfo?.aisle != ticket.aisle) return blockers;
+
+    //blocker found
+    if (this.nodeToPassengerMap.has(node.id)) {
+      const passengerId = this.nodeToPassengerMap.get(node.id);
+      blockers.push(this.passengerMap.get(passengerId));
     }
 
-    //calc min distance to goal (BFS)
-    let queue = Array.from(startNode.outNodes);
-    let level = 1;
-    let goalNode = null;
+    for (const nodeId of node.outNodes) {
+      const neighborNode = this.nodeMap.get(nodeId);
+      blockers = blockers.concat(
+        this.getPassengersBlockingTicketSeatHelper(
+          ticket,
+          neighborNode,
+          visited
+        )
+      );
+    }
 
-    let visited: Set<number> = new Set();
+    return blockers;
+  }
 
-    while (queue.length > 0) {
-      let levelSize = queue.length;
+  /**
+   * Gets spaces next to the startNode.
+   * Assumes the ticket holder is standing in startNode.
+   * Returns two lists of spaces: one for the blocker, the other for the tickerholder. For shuffling.
+   * These two paths may have some intersection. These lists start from startNode and extend
+   * away from the aisle.
+   * @param pathToSeat we have to see what the tickerholder's path is
+   * @param startNode where the tickerholder is standing. next to the seat's aisle.
+   * @param maxNeeded maximum number of spaces needed in one direction from startNode/
+   * @returns two lists of PlaneNode. The first list is for the ticket holder. The other list is for blockers.
+   */
+  private getFreeSpaceForBlockers(
+    pathToSeat: Array<number>, //TODO: use nodes
+    startNode: PlaneNode,
+    maxNeeded: number
+  ): BlockerSpaces {
+    return this.getFreeSpaceForBlockersHelper(
+      pathToSeat,
+      startNode,
+      maxNeeded,
+      new Set()
+    );
+  }
 
-      for (let i = 0; i < levelSize; i++) {
-        let currentNodeId = queue.shift()!;
+  private getFreeSpaceForBlockersHelper(
+    pathToSeat: Array<number>, //TODO: use nodes
+    currentNode: PlaneNode,
+    maxNeeded: number,
+    visited: Set<PlaneNode>
+  ): BlockerSpaces {
+    if (visited.has(currentNode)) {
+      return {
+        tickerholderSpaces: null,
+        blockerSpaces: null,
+        hasFreeSpaces: false,
+      };
+    }
 
-        if (visited.has(currentNodeId)) continue;
+    visited.add(currentNode);
 
-        visited.add(currentNodeId);
+    //get free paths
+    let ticketholderPath: Array<PlaneNode> = null; //only need one node
+    let maxNeededPath: Array<PlaneNode> = null;
 
-        distMap.set(currentNodeId, level);
+    for (let outNodeId of currentNode.outNodes) {
+      //we're done
+      if (ticketholderPath != null && maxNeededPath != null) break;
 
-        let currentNode = this.nodeMap.get(currentNodeId)!;
+      const outNode = this.nodeMap.get(outNodeId);
 
-        if (currentNode.seatInfo?.isTicketSeat(ticket)) {
-          goalNode = currentNode;
-          break;
-        }
+      //assumed that the long-path doesn't eventually loop back into the blocking aisle
+      if (outNode.id == pathToSeat[0]) continue;
 
-        queue = queue.concat(Array.from(currentNode.outNodes));
+      const path = this.longestFreeMaxLengthPathHelper(
+        outNode,
+        maxNeeded,
+        visited
+      );
+
+      if (maxNeededPath == null && path.length >= maxNeeded) {
+        maxNeededPath = path;
+        continue;
       }
 
-      if (goalNode) break;
-
-      levelSize = queue.length;
-      level++;
+      if (ticketholderPath == null && path.length >= 1) {
+        ticketholderPath = [path[0]];
+        continue;
+      }
     }
 
-    //no path found
-    if (!goalNode) {
-      return null;
-    }
+    //not enough free space at all.
+    if (ticketholderPath == null || maxNeededPath == null) {
+      //go deeper and see if there's space
+      for (let nodeId of currentNode.outNodes) {
+        const nextNode = this.nodeMap.get(nodeId);
+        const results = this.getFreeSpaceForBlockersHelper(
+          pathToSeat,
+          nextNode,
+          maxNeeded,
+          visited
+        );
 
-    //get the path from start to end
-    let path: Array<number> = [goalNode.id];
-
-    visited.clear();
-
-    let currentNode = goalNode;
-    while (level > 0) {
-      currentNode.inNodes.forEach((prevId) => {
-        let prevDist = distMap.get(prevId) ?? level;
-
-        //go back a node
-        if (prevDist == level - 1) {
-          currentNode = this.nodeMap.get(prevId)!;
-          path.unshift(prevId);
-          return;
+        if (results.hasFreeSpaces) {
+          return {
+            tickerholderSpaces: [nextNode, ...results.tickerholderSpaces],
+            blockerSpaces: [nextNode, ...results.blockerSpaces],
+            hasFreeSpaces: true,
+          };
         }
-      });
+      }
 
-      level--;
+      return {
+        tickerholderSpaces: null,
+        blockerSpaces: null,
+        hasFreeSpaces: false,
+      };
     }
 
-    return path;
+    return {
+      tickerholderSpaces: ticketholderPath,
+      blockerSpaces: maxNeededPath,
+      hasFreeSpaces: true,
+    };
+  }
+
+  /**
+   * Finds a new startNode which will allow for the tickerholder and the blocker
+   * to shuffle around each other.
+   * @param startNode
+   * @returns the new startNode that allows for room for swapping groups.
+   */
+  private getFreeSpaceForBlockersNewStartNode(startNode: PlaneNode): PlaneNode {
+    return null; //TODO:
+  }
+
+  /**
+   * Will return a path of empty nodes of maxLength starting at startNode.
+   * @param startNode the first node in the path.
+   * @param maxLength
+   * @returns An array of in-order free nodes. Otherwise, empty array.
+   */
+  private longestFreeMaxLengthPath(
+    startNode: PlaneNode,
+    maxLength: number
+  ): Array<PlaneNode> {
+    if (maxLength <= 0) return [];
+
+    return this.longestFreeMaxLengthPathHelper(startNode, maxLength, new Set());
+  }
+
+  private longestFreeMaxLengthPathHelper(
+    node: PlaneNode,
+    maxLength: number,
+    visited: Set<PlaneNode>
+  ): Array<PlaneNode> {
+    if (maxLength == 0 || visited.has(node)) return [];
+
+    //occupied
+    if (this.nodeToPassengerMap.has(node.id)) return [];
+
+    visited.add(node);
+
+    //try paths
+    let maxSubpath = [];
+    node.outNodes.forEach((outnodeId) => {
+      const outNode = this.nodeMap.get(outnodeId);
+
+      const subPath = this.longestFreeMaxLengthPathHelper(
+        outNode,
+        maxLength - 1,
+        visited
+      );
+
+      if (subPath.length > maxSubpath.length) maxSubpath = subPath;
+    });
+
+    visited.delete(node);
+
+    return [node, ...maxSubpath];
   }
 
   update() {
@@ -754,9 +1112,14 @@ export default class GameScene extends Phaser.Scene {
       node.sprite?.clearTint();
     }
 
+    for (let [nodeId, _] of this.nodeToMultiPassengerMap) {
+      let node = this.nodeMap.get(nodeId)!;
+      node.sprite!.tint = 0xf0f000;
+    }
+
     for (let [nodeId, _] of this.nodeToPassengerMap) {
       let node = this.nodeMap.get(nodeId)!;
-      node.sprite!.tint = 0x900000;
+      node.sprite!.tint = 0xf00000;
     }
   }
 }
