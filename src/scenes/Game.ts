@@ -65,8 +65,8 @@ export default class GameScene extends Phaser.Scene {
 
   private currentPlane: any; //JSON TODO: json -> class converter thing
 
-  private readonly BAGGAGE_LOAD_SPEED_DEFAULT = 3000;
-  private readonly PASSENGER_SPEED_DEFAULT = 400; //400 is good
+  private readonly BAGGAGE_LOAD_SPEED_DEFAULT = 40;
+  private readonly PASSENGER_SPEED_DEFAULT = 40; //400 is good
 
   //TODO: variable baggage loading speed
 
@@ -692,6 +692,14 @@ export default class GameScene extends Phaser.Scene {
             `passenger ${passengerId}; ticketSpots: ${ticketholderSpacesStr};  blockerSpaces: ${blockerSpacesStr}`
           );
 
+          blockerSpacesClone.forEach((b) => {
+            console.log(
+              `just got B: node ${
+                b.id
+              } is blocked: ${this.nodeToPassengerMap.has(b.id)}`
+            );
+          });
+
           blockers.forEach((blocker) => {
             this.setPassengerToNodePathAndMove(
               blocker,
@@ -1007,6 +1015,9 @@ export default class GameScene extends Phaser.Scene {
         visited
       );
 
+      const pathCsv = path.map((n) => n.id).join(",");
+      console.log(`pathCsv: ${pathCsv}`);
+
       if (maxNeededPath == null && path.length >= maxNeeded) {
         maxNeededPath = path;
         continue;
@@ -1086,7 +1097,10 @@ export default class GameScene extends Phaser.Scene {
     if (maxLength == 0 || visited.has(node)) return [];
 
     //occupied
-    if (this.nodeToPassengerMap.has(node.id)) return [];
+    if (this.nodeToPassengerMap.has(node.id)) {
+      console.log(`occupied here: ${node.id}`);
+      return [];
+    }
 
     visited.add(node);
 
@@ -1134,7 +1148,7 @@ export default class GameScene extends Phaser.Scene {
 
     for (let [nodeId, _] of this.nodeToPassengerMap) {
       let node = this.nodeMap.get(nodeId)!;
-      node.sprite!.tint = 0xf00000;
+      //node.sprite!.tint = 0xf00000;
     }
   }
 }
