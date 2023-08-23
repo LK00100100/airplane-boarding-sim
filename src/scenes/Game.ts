@@ -65,7 +65,7 @@ export default class GameScene extends Phaser.Scene {
 
   private currentPlane: any; //JSON TODO: json -> class converter thing
 
-  private readonly BAGGAGE_LOAD_SPEED_DEFAULT = 50;
+  private readonly BAGGAGE_LOAD_SPEED_DEFAULT = 3000;
   private readonly PASSENGER_SPEED_DEFAULT = 400; //400 is good
 
   //TODO: variable baggage loading speed
