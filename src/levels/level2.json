@@ -1,6 +1,6 @@
 {
     "name": "gcp-plane",
-    "planeOffsetX": 10,
+    "planeOffsetX": -10,
     "planeOffSetY": 30,
     "nodes": [
         {
@@ -388,7 +388,8 @@
             "id": 22,
             "out": [
                 123,
-                124
+                124,
+                127
             ],
             "compartments": [
                 {
@@ -1786,6 +1787,35 @@
                 "class": "coach",
                 "direction": "W"
             }
+        },
+        {
+            "id": 127,
+            "out": [
+                128,
+                130
+            ],
+            "x": 810,
+            "y": 180
+        },
+        {
+            "id": 128,
+            "out": [
+                129
+            ],
+            "x": 850,
+            "y": 180
+        },
+        {
+            "id": 129,
+            "out": [],
+            "x": 890,
+            "y": 180
+        },
+        {
+            "id": 130,
+            "out": [],
+            "x": 810,
+            "y": 140
         }
     ],
     "passengers": [

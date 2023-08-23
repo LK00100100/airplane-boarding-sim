@@ -593,7 +593,7 @@ export default class GameScene extends Phaser.Scene {
 
         //TODO: helper method
         const blockersCsv = blockers.map((b) => b.id).join(",");
-        console.log(`${passengerId}, blockers: ${blockersCsv}`);
+        console.log(`p ${passengerId}, blockers: ${blockersCsv}`);
 
         //blockers present, do the shuffle
         if (blockers.length > 0) {
@@ -986,7 +986,11 @@ export default class GameScene extends Phaser.Scene {
       //assumed that the long-path doesn't eventually loop back into the blocking aisle
       if (outNode.id == pathToSeat[0]) continue;
 
-      const path = this.longestFreeMaxLengthPath(outNode, maxNeeded);
+      const path = this.longestFreeMaxLengthPathHelper(
+        outNode,
+        maxNeeded,
+        visited
+      );
 
       if (maxNeededPath == null && path.length >= maxNeeded) {
         maxNeededPath = path;
