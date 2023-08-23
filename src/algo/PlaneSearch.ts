@@ -26,11 +26,50 @@ export default class PlaneSearch {
     startNodeId: number,
     ticket: Ticket
   ): Array<number> | null {
+    return PlaneSearch.calculateMinPassengerTargetPathHelper(
+      nodeMap,
+      startNodeId,
+      null,
+      ticket
+    );
+  }
+
+  public static calculateMinPassengerTargetPath(
+    nodeMap: Map<number, PlaneNode>,
+    startNodeId: number,
+    targetNode: PlaneNode
+  ): Array<number> | null {
+    return PlaneSearch.calculateMinPassengerTargetPathHelper(
+      nodeMap,
+      startNodeId,
+      targetNode,
+      null
+    );
+  }
+
+  /**
+   *
+   * @param nodeMap
+   * @param startNodeId
+   * @param targetNode trying to get to this node. supercedes ticket
+   * @param ticket trying to get to this node. superceded by Node
+   * @returns
+   */
+  private static calculateMinPassengerTargetPathHelper(
+    nodeMap: Map<number, PlaneNode>,
+    startNodeId: number,
+    targetNode: PlaneNode | null,
+    ticket: Ticket
+  ): Array<number> | null {
     let distMap: Map<number, number> = new Map(); //nodeId, distance
     let startNode = nodeMap.get(startNodeId)!;
 
-    //we're already there
-    if (startNode.seatInfo?.isTicketSeat(ticket)) {
+    //we're at the ticket seat (ignored if targetNode exists)
+    if (targetNode == null && startNode.seatInfo?.isTicketSeat(ticket)) {
+      return [];
+    }
+    //we're at the targetNode
+    else if (targetNode != null && startNode == targetNode) {
       return [];
     }
 
@@ -55,7 +94,13 @@ export default class PlaneSearch {
 
         let currentNode = nodeMap.get(currentNodeId)!;
 
-        if (currentNode.seatInfo?.isTicketSeat(ticket)) {
+        //at ticket (ignored if targetNode exists)
+        if (targetNode == null && currentNode.seatInfo?.isTicketSeat(ticket)) {
+          goalNode = currentNode;
+          break;
+        }
+        //at targetNode
+        else if (targetNode != null && currentNode == targetNode) {
           goalNode = currentNode;
           break;
         }
