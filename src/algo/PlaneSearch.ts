@@ -119,6 +119,8 @@ export default class PlaneSearch {
       return null;
     }
 
+    //TODO: can probably simplify this by having some A -> B graph and backtracing
+
     //get the path from start to end
     let path: Array<number> = [goalNode.id];
 
@@ -126,7 +128,7 @@ export default class PlaneSearch {
 
     let currentNode = goalNode;
     while (level > 0) {
-      currentNode.inNodes.forEach((prevId) => {
+      currentNode.outNodes.forEach((prevId) => {
         let prevDist = distMap.get(prevId) ?? level;
 
         //go back a node

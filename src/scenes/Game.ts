@@ -65,8 +65,8 @@ export default class GameScene extends Phaser.Scene {
 
   private currentPlane: any; //JSON TODO: json -> class converter thing
 
-  private readonly BAGGAGE_LOAD_SPEED_DEFAULT = 5;
-  private readonly PASSENGER_SPEED_DEFAULT = 5; //400 is good
+  private readonly BAGGAGE_LOAD_SPEED_DEFAULT = 50;
+  private readonly PASSENGER_SPEED_DEFAULT = 400; //400 is good
 
   //TODO: variable baggage loading speed
 
@@ -164,10 +164,12 @@ export default class GameScene extends Phaser.Scene {
     this.createPassengers();
 
     //TODO: test sort passengers here. remove later
+    //this.passengerInPortQueue.sort(PassengerSorts.frontToBack);
     //this.passengerInPortQueue.sort(PassengerSorts.backToFront);
     //this.passengerInPortQueue.sort(PassengerSorts.outToIn);
     //this.passengerInPortQueue.sort(PassengerSorts.steffanMethod);
     this.passengerInPortQueue.sort(PassengerSorts.slothSort);
+    //TODO: random sort
   }
 
   /**
@@ -577,8 +579,10 @@ export default class GameScene extends Phaser.Scene {
       let nextNodeId = pathToSeat[0];
       let nextNode = this.nodeMap.get(nextNodeId)!;
 
-      //we are in front of our aisle. are we blocked? shuffle everyone so you can get in.
+      //we are in front of our aisle (but not in)
+      //are we blocked? shuffle everyone so you can get in.
       if (
+        startNode.seatInfo?.aisle != passengerTicket.aisle &&
         nextNode.seatInfo?.aisle == passengerTicket.aisle &&
         !this.shufflersSet.has(passenger)
       ) {
@@ -586,6 +590,9 @@ export default class GameScene extends Phaser.Scene {
           passengerTicket,
           nextNode
         );
+
+        const blockersCsv = blockers.map((b) => b.id).join(",");
+        console.log(`${passengerId}, blockers: ${blockersCsv}`);
 
         if (blockers.length > 0) {
           const blockerIds = blockers.map((b) => b.id);
@@ -603,7 +610,32 @@ export default class GameScene extends Phaser.Scene {
 
           const shufflerIds = new Set([passengerId, ...blockerIds]);
 
-          //1) lock all needed seats
+          //1) lock all needed nodes
+          //1a) can we lock all needed nodes?
+          //TODO: simplify
+          if (this.nodeToMultiPassengerMap.has(startNode.id)) continue;
+
+          let cannotLock = false;
+          for (const node of freeSpaces.tickerholderSpaces) {
+            if (this.nodeToMultiPassengerMap.has(node.id)) {
+              cannotLock = true;
+              break;
+            }
+          }
+
+          for (const node of freeSpaces.blockerSpaces) {
+            if (this.nodeToMultiPassengerMap.has(node.id)) {
+              cannotLock = true;
+              break;
+            }
+          }
+
+          if (cannotLock) {
+            this.addToPassengersToMoveQueueLater(passengerId);
+            continue;
+          }
+
+          //1b) actually lock
           this.nodeToMultiPassengerMap.set(startNode.id, shufflerIds);
           freeSpaces.tickerholderSpaces.forEach((node) =>
             this.nodeToMultiPassengerMap.set(node.id, shufflerIds)
@@ -612,8 +644,6 @@ export default class GameScene extends Phaser.Scene {
           freeSpaces.blockerSpaces.forEach((node) =>
             this.nodeToMultiPassengerMap.set(node.id, shufflerIds)
           );
-
-          this.nodeToMultiPassengerMap.set(startNode.id, shufflerIds);
 
           //2) shuffle passenger out and blockers out
           this.shufflersSet.add(passenger);
@@ -633,6 +663,18 @@ export default class GameScene extends Phaser.Scene {
 
           //2b) shuffle blockers out
           const blockerSpacesClone = [...freeSpaces.blockerSpaces];
+
+          //TODO: remove debug
+          const ticketholderSpacesStr = freeSpaces.tickerholderSpaces
+            .map((b) => b.id)
+            .join(",");
+          const blockerSpacesStr = blockerSpacesClone
+            .map((b) => b.id)
+            .join(",");
+          console.log(
+            `passenger ${passengerId}; ticketSpots: ${ticketholderSpacesStr};  blockerSpaces: ${blockerSpacesStr}`
+          );
+
           blockers.forEach((blocker) => {
             this.setPassengerToNodePathAndMove(
               blocker,
@@ -934,10 +976,13 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    if (maxNeededPath.length != maxNeeded) {
-      throw new Error(
-        "this is a problem for future me. I'd hate to be that guy."
-      );
+    //not enough of anything. i suggest you try again later
+    if (maxNeededPath == null || maxNeededPath.length < maxNeeded) {
+      return {
+        tickerholderSpaces: null,
+        blockerSpaces: null,
+        hasFreeSpaces: false,
+      };
     }
 
     //we only have one long path from startNode.
@@ -1050,12 +1095,12 @@ export default class GameScene extends Phaser.Scene {
 
     for (let [nodeId, _] of this.nodeToMultiPassengerMap) {
       let node = this.nodeMap.get(nodeId)!;
-      node.sprite!.tint = 0xffbf00;
+      node.sprite!.tint = 0xf0f000;
     }
 
     for (let [nodeId, _] of this.nodeToPassengerMap) {
       let node = this.nodeMap.get(nodeId)!;
-      node.sprite!.tint = 0x900000;
+      node.sprite!.tint = 0xf00000;
     }
   }
 }
