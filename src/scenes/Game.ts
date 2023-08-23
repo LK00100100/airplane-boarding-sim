@@ -628,20 +628,14 @@ export default class GameScene extends Phaser.Scene {
           }
 
           for (const node of freeSpaces.tickerholderSpaces) {
-            if (
-              this.nodeToMultiPassengerMap.has(node.id) ||
-              this.nodeToPassengerMap.has(node.id)
-            ) {
+            if (this.nodeToMultiPassengerMap.has(node.id)) {
               cannotLock = true;
               break;
             }
           }
 
           for (const node of freeSpaces.blockerSpaces) {
-            if (
-              this.nodeToMultiPassengerMap.has(node.id) ||
-              this.nodeToPassengerMap.has(node.id)
-            ) {
+            if (this.nodeToMultiPassengerMap.has(node.id)) {
               cannotLock = true;
               break;
             }
@@ -691,14 +685,6 @@ export default class GameScene extends Phaser.Scene {
           console.log(
             `passenger ${passengerId}; ticketSpots: ${ticketholderSpacesStr};  blockerSpaces: ${blockerSpacesStr}`
           );
-
-          blockerSpacesClone.forEach((b) => {
-            console.log(
-              `just got B: node ${
-                b.id
-              } is blocked: ${this.nodeToPassengerMap.has(b.id)}`
-            );
-          });
 
           blockers.forEach((blocker) => {
             this.setPassengerToNodePathAndMove(
@@ -1015,9 +1001,6 @@ export default class GameScene extends Phaser.Scene {
         visited
       );
 
-      const pathCsv = path.map((n) => n.id).join(",");
-      console.log(`pathCsv: ${pathCsv}`);
-
       if (maxNeededPath == null && path.length >= maxNeeded) {
         maxNeededPath = path;
         continue;
@@ -1034,6 +1017,10 @@ export default class GameScene extends Phaser.Scene {
       //go deeper and see if there's space
       for (let nodeId of currentNode.outNodes) {
         const nextNode = this.nodeMap.get(nodeId);
+
+        //next is occupied
+        if (this.nodeToPassengerMap.has(nextNode.id)) continue;
+
         const results = this.getFreeSpaceForBlockersHelper(
           pathToSeat,
           nextNode,
@@ -1098,7 +1085,6 @@ export default class GameScene extends Phaser.Scene {
 
     //occupied
     if (this.nodeToPassengerMap.has(node.id)) {
-      console.log(`occupied here: ${node.id}`);
       return [];
     }
 
@@ -1148,7 +1134,7 @@ export default class GameScene extends Phaser.Scene {
 
     for (let [nodeId, _] of this.nodeToPassengerMap) {
       let node = this.nodeMap.get(nodeId)!;
-      //node.sprite!.tint = 0xf00000;
+      node.sprite!.tint = 0xf00000;
     }
   }
 }
