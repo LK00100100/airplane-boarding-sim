@@ -495,7 +495,7 @@ export default class GameScene extends Phaser.Scene {
         this.setPassengerToTicketPath(passenger, startNode);
       }
 
-      //TODO: pathToTarget
+      //TODO: rename pathToTarget
       const pathToSeat = this.passengerToSeatPath.get(passengerId)!;
 
       //do we store our baggage here?
@@ -575,7 +575,7 @@ export default class GameScene extends Phaser.Scene {
         continue;
       }
 
-      //else move to step closer (if we can)
+      //can we move one step closer?
       let nextNodeId = pathToSeat[0];
       let nextNode = this.nodeMap.get(nextNodeId)!;
 
@@ -591,9 +591,11 @@ export default class GameScene extends Phaser.Scene {
           nextNode
         );
 
+        //TODO: helper method
         const blockersCsv = blockers.map((b) => b.id).join(",");
         console.log(`${passengerId}, blockers: ${blockersCsv}`);
 
+        //blockers present, do the shuffle
         if (blockers.length > 0) {
           const blockerIds = blockers.map((b) => b.id);
 
@@ -612,7 +614,7 @@ export default class GameScene extends Phaser.Scene {
 
           //1) lock all needed nodes
           //1a) can we lock all needed nodes?
-          //TODO: simplify
+          //TODO: simplify all below
           if (this.nodeToMultiPassengerMap.has(startNode.id)) continue;
 
           let cannotLock = false;
@@ -744,10 +746,9 @@ export default class GameScene extends Phaser.Scene {
         }
       }
 
+      //move one step closer
       pathToSeat.shift();
-
       this.nodeToPassengerMap.set(nextNode.id, passengerId); //occupy start and next node
-
       this.setFacingDirection(passenger, startNode, nextNode);
 
       let newAngle = SpriteUtils.shortestAngle(
@@ -938,7 +939,7 @@ export default class GameScene extends Phaser.Scene {
    * Returns two lists of spaces: one for the blocker, the other for the tickerholder. For shuffling.
    * These two paths may have some intersection. These lists start from startNode and extend
    * away from the aisle.
-   * @param passenger we have to see what their path is
+   * @param pathToSeat we have to see what the tickerholder's path is
    * @param startNode where the tickerholder is standing. next to the seat's aisle.
    * @param maxNeeded maximum number of spaces needed in one direction from startNode/
    * @returns two lists of PlaneNode. The first list is for the ticket holder. The other list is for blockers.
@@ -948,22 +949,44 @@ export default class GameScene extends Phaser.Scene {
     startNode: PlaneNode,
     maxNeeded: number
   ): BlockerSpaces {
+    return this.getFreeSpaceForBlockersHelper(
+      pathToSeat,
+      startNode,
+      maxNeeded,
+      new Set()
+    );
+  }
+
+  private getFreeSpaceForBlockersHelper(
+    pathToSeat: Array<number>, //TODO: use nodes
+    currentNode: PlaneNode,
+    maxNeeded: number,
+    visited: Set<PlaneNode>
+  ): BlockerSpaces {
+    if (visited.has(currentNode)) {
+      return {
+        tickerholderSpaces: null,
+        blockerSpaces: null,
+        hasFreeSpaces: false,
+      };
+    }
+
+    visited.add(currentNode);
+
     //get free paths
-    let ticketholderPath: Array<PlaneNode> = null;
+    let ticketholderPath: Array<PlaneNode> = null; //only need one node
     let maxNeededPath: Array<PlaneNode> = null;
-    for (let outNodeId of startNode.outNodes) {
+
+    for (let outNodeId of currentNode.outNodes) {
       //we're done
       if (ticketholderPath != null && maxNeededPath != null) break;
 
       const outNode = this.nodeMap.get(outNodeId);
 
-      //assumed that the long-path doesn't eventually back into the blocking aisle
+      //assumed that the long-path doesn't eventually loop back into the blocking aisle
       if (outNode.id == pathToSeat[0]) continue;
 
-      const path = this.longestMaxLengthPath(outNode, maxNeeded);
-
-      //can't use nothing
-      if (path.length == 0) continue;
+      const path = this.longestFreeMaxLengthPath(outNode, maxNeeded);
 
       if (maxNeededPath == null && path.length >= maxNeeded) {
         maxNeededPath = path;
@@ -976,45 +999,27 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    //not enough of anything. i suggest you try again later
-    if (maxNeededPath == null || maxNeededPath.length < maxNeeded) {
-      return {
-        tickerholderSpaces: null,
-        blockerSpaces: null,
-        hasFreeSpaces: false,
-      };
-    }
+    //not enough free space at all.
+    if (ticketholderPath == null || maxNeededPath == null) {
+      //go deeper and see if there's space
+      for (let nodeId of currentNode.outNodes) {
+        const nextNode = this.nodeMap.get(nodeId);
+        const results = this.getFreeSpaceForBlockersHelper(
+          pathToSeat,
+          nextNode,
+          maxNeeded,
+          visited
+        );
 
-    //we only have one long path from startNode.
-    //see if there's one node that splits off in it for our ticketholder
-    if (maxNeededPath != null && ticketholderPath == null) {
-      const visited: Set<PlaneNode> = new Set([startNode, ...maxNeededPath]);
-
-      const possiblePath = [];
-      for (const node of maxNeededPath) {
-        visited.add(node);
-        possiblePath.push(node);
-
-        //is there an offshoot of 1 node? if so, we'll go there
-        let offshootFound = false;
-        for (const childNodeId of node.outNodes) {
-          if (this.nodeToPassengerMap.has(childNodeId)) continue;
-
-          const childNode = this.nodeMap.get(childNodeId);
-          possiblePath.push(childNode);
-          ticketholderPath = possiblePath;
-          offshootFound = true;
-          break;
-        }
-
-        if (offshootFound) {
-          break;
+        if (results.hasFreeSpaces) {
+          return {
+            tickerholderSpaces: [nextNode, ...results.tickerholderSpaces],
+            blockerSpaces: [nextNode, ...results.blockerSpaces],
+            hasFreeSpaces: true,
+          };
         }
       }
-    }
 
-    //not enough free space at all
-    if (ticketholderPath == null || maxNeededPath == null) {
       return {
         tickerholderSpaces: null,
         blockerSpaces: null,
@@ -1030,21 +1035,31 @@ export default class GameScene extends Phaser.Scene {
   }
 
   /**
+   * Finds a new startNode which will allow for the tickerholder and the blocker
+   * to shuffle around each other.
+   * @param startNode
+   * @returns the new startNode that allows for room for swapping groups.
+   */
+  private getFreeSpaceForBlockersNewStartNode(startNode: PlaneNode): PlaneNode {
+    return null; //TODO:
+  }
+
+  /**
    * Will return a path of empty nodes of maxLength starting at startNode.
    * @param startNode the first node in the path.
    * @param maxLength
    * @returns An array of in-order free nodes. Otherwise, empty array.
    */
-  private longestMaxLengthPath(
+  private longestFreeMaxLengthPath(
     startNode: PlaneNode,
     maxLength: number
   ): Array<PlaneNode> {
     if (maxLength <= 0) return [];
 
-    return this.longestMaxLengthPathHelper(startNode, maxLength, new Set());
+    return this.longestFreeMaxLengthPathHelper(startNode, maxLength, new Set());
   }
 
-  private longestMaxLengthPathHelper(
+  private longestFreeMaxLengthPathHelper(
     node: PlaneNode,
     maxLength: number,
     visited: Set<PlaneNode>
@@ -1061,7 +1076,7 @@ export default class GameScene extends Phaser.Scene {
     node.outNodes.forEach((outnodeId) => {
       const outNode = this.nodeMap.get(outnodeId);
 
-      const subPath = this.longestMaxLengthPathHelper(
+      const subPath = this.longestFreeMaxLengthPathHelper(
         outNode,
         maxLength - 1,
         visited
