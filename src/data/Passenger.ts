@@ -1,5 +1,6 @@
 import { Baggage } from "./Baggage";
 import { Direction } from "./Direction";
+import { PlaneNode } from "./PlaneNode";
 import { Ticket } from "./Ticket";
 
 //TODO: hold path info
@@ -18,12 +19,16 @@ export class Passenger {
 
   tween?: Phaser.Tweens.Tween; //current animation
 
+  pathToTarget: Array<PlaneNode>; //the first node is the next step.
+
   constructor(id: number) {
     this.id = id;
     this.baggages = [];
     this.ticket = Ticket.createPlaceholderTicket();
 
     this.direction = Direction.NORTH;
+
+    this.pathToTarget = [];
   }
 
   //TODO: destroy()

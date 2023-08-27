@@ -28,7 +28,7 @@ export default class GameScene extends Phaser.Scene {
    * constants
    */
   private readonly FPS = 100 / 3; //30 Frames Per Second, in terms of milliseconds
-  private readonly IS_DEBUG_MODE = true; //turn on to see more information
+  public readonly IS_DEBUG_MODE = true; //turn on to see more information
 
   constructor() {
     super(SceneNames.GAME_SCENE);
