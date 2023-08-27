@@ -5,7 +5,7 @@ import { Passenger } from "../data/Passenger";
 import { PlaneNode } from "../data/PlaneNode";
 import { Seat } from "../data/Seat";
 import { Ticket } from "../data/Ticket";
-import GameScene from "../scenes/Game";
+import GameScene from "../scenes/GameScene";
 import { PassengerSemaphore } from "../util/PassengerSemaphore";
 import { SpriteUtils } from "../util/SpriteUtils";
 import PassengerSorts from "./PassengerSorts";
@@ -21,7 +21,9 @@ export default class PlaneManager {
   private passengerMap!: Map<number, Passenger>;
 
   //passengers here will be simulated.
-  private passengerOnMove!: Array<Passenger>; //<passenger ids>, a stack
+  //you can add on to this while simulating.
+  //only the old passengers will be processed per frame.
+  private passengerOnMove!: Array<Passenger>;
 
   //passengerId is not moving in nodeId. key is removed if passenger is moving.
   private passengerToNodeMap!: Map<Passenger, PlaneNode>;
@@ -259,7 +261,6 @@ export default class PlaneManager {
   }
 
   //TODO: refactor to submethods
-  //TODO: just move to update, no simulate timer
   /**
    * This actually simulates passenger thinking and then orders them to move.
    * simulateTimer calls this every frame.
@@ -268,7 +269,7 @@ export default class PlaneManager {
     //unqueue one passenger (if we can) onto a starting PlaneNode
     if (this.passengerInPortQueue.length > 0) {
       //for now, just get the first entrance
-      let enterNode = this.enterNodesMap.get(0)!;
+      let enterNode = this.enterNodesMap.get(0);
 
       if (!this.nodeToPassengerMap.has(enterNode)) {
         let passenger = this.passengerInPortQueue.shift()!;
@@ -278,9 +279,9 @@ export default class PlaneManager {
       }
     }
 
-    //TODO: no timers. just for-loop, reuse this
     //simulate passengers
-    while (this.passengerOnMove.length > 0) {
+    let processAmount = this.passengerOnMove.length;
+    while (processAmount--) {
       const passenger = this.passengerOnMove.pop()!;
       const startNode = this.passengerToNodeMap.get(passenger);
       const passengerTicket = passenger.getTicket();
@@ -405,7 +406,7 @@ export default class PlaneManager {
           );
 
           if (!freeSpaces.hasFreeSpaces) {
-            this.addToPassengersToMoveQueueLater(passenger);
+            this.passengerOnMove.unshift(passenger);
             continue;
           }
 
@@ -435,7 +436,7 @@ export default class PlaneManager {
           }
 
           if (cannotLock) {
-            this.addToPassengersToMoveQueueLater(passenger);
+            this.passengerOnMove.unshift(passenger);
             continue;
           }
 
@@ -532,14 +533,14 @@ export default class PlaneManager {
 
       //next space occupied with person
       if (this.nodeToPassengerMap.has(nextNode)) {
-        this.addToPassengersToMoveQueueLater(passenger);
+        this.passengerOnMove.unshift(passenger);
         continue;
       }
 
       //next space occupied by seat shufflers
       if (this.nodeToMultiPassengerMap.has(nextNode)) {
         if (!this.nodeToMultiPassengerMap.get(nextNode).has(passenger)) {
-          this.addToPassengersToMoveQueueLater(passenger);
+          this.passengerOnMove.unshift(passenger);
 
           continue;
         }
@@ -576,23 +577,6 @@ export default class PlaneManager {
 
       this.gameScene.activeTweens.add(passenger.tween);
     } //end simulate loop
-  }
-
-  //TODO: remove
-  private addToPassengersToMoveQueueLater(passenger: Passenger) {
-    let timer = this.gameScene.time.addEvent({
-      delay: 150, //TODO: hard code
-      loop: false,
-      callback: () => {
-        this.passengerOnMove.push(passenger);
-        timer.destroy();
-
-        //TODO: use one timer for a bundle of passengers...
-        this.gameScene.timers.delete(timer);
-      },
-      callbackScope: this,
-    });
-    this.gameScene.timers.add(timer);
   }
 
   private setPassengerToNodePathAndMove(

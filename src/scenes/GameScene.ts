@@ -10,8 +10,6 @@ import PlaneManager from "../algo/PlaneManager";
 //TODO: refactor methods by moving them. and everything...
 //TODO: unit tests
 export default class GameScene extends Phaser.Scene {
-  //TODO: update comments
-
   public timers!: Set<Phaser.Time.TimerEvent>; //all Phaser timers
   public activeTweens: Set<Phaser.Tweens.Tween>; //TODO: try to remove
 
