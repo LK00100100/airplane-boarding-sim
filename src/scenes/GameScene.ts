@@ -7,12 +7,15 @@ import PlaneManager from "../algo/PlaneManager";
 
 //TODO: refactor methods by moving them. and everything...
 //TODO: unit tests
+//TODO: lingering sprite bug
 export default class GameScene extends Phaser.Scene {
   private gameText!: Phaser.GameObjects.Text; //any messages for the player to read.
 
   private isSimulationOn: boolean; //simulation has begun
 
   private planeManager: PlaneManager;
+
+  private simulateSprite: Phaser.GameObjects.Sprite;
 
   //TODO: variable baggage loading speed
   //TODO: actual reader and validator for plane
@@ -60,29 +63,37 @@ export default class GameScene extends Phaser.Scene {
      * reset, part 2
      */
 
-    if (this.planeManager != null) this.planeManager.destroy();
+    this.planeManager?.destroy();
 
     this.planeManager = new PlaneManager(this, Level2);
 
     this.isSimulationOn = false;
+
+    this.simulateSprite?.setTexture("btn-simulate");
+    console.log("settex ");
+    console.log(this.simulateSprite);
   }
 
   private createButtons(): void {
-    const simulateSprite = this.add
+    this.simulateSprite = this.add
       .sprite(300, 500, "btn-simulate")
       .setInteractive();
 
     const simulateClickFunc = () => {
+      //pause the active simulate
       if (this.isSimulationOn) {
-        this.setGameText("simulation already running");
+        this.setGameText("pausing...");
+
+        this.isSimulationOn = false;
         return;
       }
 
       this.isSimulationOn = true;
       this.setGameText("simulation started");
+      this.simulateSprite.setTexture("btn-pause");
     };
 
-    ButtonUtils.dressUpButton(simulateSprite, simulateClickFunc);
+    ButtonUtils.dressUpButton(this.simulateSprite, simulateClickFunc);
 
     const resetClickFunc = () => {
       this.resetScene();
