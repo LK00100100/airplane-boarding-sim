@@ -28,6 +28,8 @@ export class PlaneNode {
   isEnterNode!: boolean; //plane entrance
   isExitNode!: boolean; //plane exit
 
+  //TODO: destroy()
+
   constructor(id: number) {
     this.id = id;
     this.inNodes = new Set();

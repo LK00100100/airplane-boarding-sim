@@ -26,6 +26,8 @@ export class Passenger {
     this.direction = Direction.NORTH;
   }
 
+  //TODO: destroy()
+
   public hasBaggage() {
     return this.baggages.length > 0;
   }

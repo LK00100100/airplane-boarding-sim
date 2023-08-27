@@ -23,12 +23,12 @@ export default class PlaneSearch {
    */
   public static calculateMinPassengerSeatPath(
     nodeMap: Map<number, PlaneNode>,
-    startNodeId: number,
+    startNode: PlaneNode,
     ticket: Ticket
-  ): Array<number> | null {
+  ): Array<PlaneNode> | null {
     return PlaneSearch.calculateMinPassengerTargetPathHelper(
       nodeMap,
-      startNodeId,
+      startNode,
       null,
       ticket
     );
@@ -36,12 +36,12 @@ export default class PlaneSearch {
 
   public static calculateMinPassengerTargetPath(
     nodeMap: Map<number, PlaneNode>,
-    startNodeId: number,
+    startNode: PlaneNode,
     targetNode: PlaneNode
-  ): Array<number> | null {
+  ): Array<PlaneNode> | null {
     return PlaneSearch.calculateMinPassengerTargetPathHelper(
       nodeMap,
-      startNodeId,
+      startNode,
       targetNode,
       null
     );
@@ -50,19 +50,18 @@ export default class PlaneSearch {
   /**
    *
    * @param nodeMap
-   * @param startNodeId
+   * @param startNode
    * @param targetNode trying to get to this node. supercedes ticket
    * @param ticket trying to get to this node. superceded by Node
    * @returns
    */
   private static calculateMinPassengerTargetPathHelper(
     nodeMap: Map<number, PlaneNode>,
-    startNodeId: number,
+    startNode: PlaneNode,
     targetNode: PlaneNode | null,
     ticket: Ticket
-  ): Array<number> | null {
+  ): Array<PlaneNode> | null {
     let distMap: Map<number, number> = new Map(); //nodeId, distance
-    let startNode = nodeMap.get(startNodeId)!;
 
     //we're at the ticket seat (ignored if targetNode exists)
     if (targetNode == null && startNode.seatInfo?.isTicketSeat(ticket)) {
@@ -76,7 +75,7 @@ export default class PlaneSearch {
     //calc min distance to goal (BFS)
     let queue = Array.from(startNode.outNodes);
     let level = 1;
-    let goalNode = null;
+    let goalNode: PlaneNode = null;
 
     let visited: Set<number> = new Set();
 
@@ -119,10 +118,8 @@ export default class PlaneSearch {
       return null;
     }
 
-    //TODO: can probably simplify this by having some A -> B graph and backtracing
-
     //get the path from start to end
-    let path: Array<number> = [goalNode.id];
+    let path: Array<PlaneNode> = [goalNode];
 
     visited.clear();
 
@@ -134,7 +131,7 @@ export default class PlaneSearch {
         //go back a node
         if (prevDist == level - 1) {
           currentNode = nodeMap.get(prevId)!;
-          path.unshift(prevId);
+          path.unshift(currentNode);
           return;
         }
       });
