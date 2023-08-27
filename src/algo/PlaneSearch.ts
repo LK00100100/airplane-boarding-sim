@@ -103,6 +103,8 @@ export default class PlaneSearch {
       for (let i = 0; i < levelSize; i++) {
         let currentNodeId = queue.shift()!;
 
+        //TODO: remove node ids
+
         if (visited.has(currentNodeId)) continue;
 
         visited.add(currentNodeId);

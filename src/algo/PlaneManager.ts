@@ -86,8 +86,8 @@ export default class PlaneManager {
   }
 
   private createPlaneNodes(): void {
-    let planeXOffset = this.currentPlane.planeOffsetX ?? 0;
-    let planeYOffset = this.currentPlane.planeOffSetY ?? 0;
+    const planeXOffset = this.currentPlane.planeOffsetX ?? 0;
+    const planeYOffset = this.currentPlane.planeOffSetY ?? 0;
 
     //make nodes
     //TODO: use interface to read json, verify, and spit out a class
@@ -96,7 +96,7 @@ export default class PlaneManager {
       if (!this.nodeMap.has(nodeJson.id))
         this.nodeMap.set(nodeJson.id, new PlaneNode(nodeJson.id));
 
-      let nodeData = this.nodeMap.get(nodeJson.id)!;
+      const nodeData = this.nodeMap.get(nodeJson.id)!;
 
       //connect in/out nodes
       nodeJson.out.forEach((outNodeId: number) => {
@@ -113,7 +113,7 @@ export default class PlaneManager {
 
       //start node
       if ("enter" in nodeJson) {
-        let enterId: number = nodeJson["enter"] as number;
+        const enterId: number = nodeJson["enter"] as number;
         this.enterNodesMap.set(enterId, nodeData);
         nodeData.isEnterNode = true;
       }
@@ -121,7 +121,7 @@ export default class PlaneManager {
       //seat node
       let imageName = "plane-floor"; //walking node
       if (nodeJson.seat) {
-        let seat = nodeJson.seat;
+        const seat = nodeJson.seat;
         nodeData.seatInfo = new Seat(
           seat.class,
           seat.aisle,
@@ -171,7 +171,7 @@ export default class PlaneManager {
     //make passengers
     //TODO: use interface that reads and validates json.
     this.currentPlane.passengers.forEach((passengerJson: any) => {
-      let passenger = new Passenger(passengerJson.id);
+      const passenger = new Passenger(passengerJson.id);
 
       this.passengerMap.set(passenger.id, passenger);
 
@@ -187,7 +187,7 @@ export default class PlaneManager {
       //build passenger sprite
       const shape = new Phaser.Geom.Rectangle(2, 10, 26, 12);
 
-      let passengerSprite = passengerSpriteGroup
+      const passengerSprite = passengerSpriteGroup
         .create(-100, -100, "passenger")
         .setInteractive(shape, Phaser.Geom.Rectangle.Contains);
 
@@ -234,7 +234,7 @@ export default class PlaneManager {
       //TODO: can remove this later and set
       //set direction if specified
       if ("direction" in passengerJson) {
-        let directionStr: string = passengerJson["direction"] as string;
+        const directionStr: string = passengerJson["direction"] as string;
         passenger.direction = toDirection(directionStr);
         passengerSpriteGroup.angle(90 * toDirection(directionStr));
       } else {
@@ -244,7 +244,7 @@ export default class PlaneManager {
 
       //set on starting node in plane
       if ("node" in passengerJson) {
-        let nodeId: number = passengerJson["node"] as number;
+        const nodeId: number = passengerJson["node"] as number;
         this.putPassengerOnNode(passenger, this.nodeMap.get(nodeId));
         this.passengerOnMove.push(passenger);
       } else {
@@ -269,10 +269,10 @@ export default class PlaneManager {
     //unqueue one passenger (if we can) onto a starting PlaneNode
     if (this.passengerInPortQueue.length > 0) {
       //for now, just get the first entrance
-      let enterNode = this.enterNodesMap.get(0);
+      const enterNode = this.enterNodesMap.get(0);
 
       if (!this.nodeToPassengerMap.has(enterNode)) {
-        let passenger = this.passengerInPortQueue.shift()!;
+        const passenger = this.passengerInPortQueue.shift()!;
 
         this.putPassengerOnNode(passenger, enterNode);
         this.passengerOnMove.push(passenger);
@@ -300,8 +300,8 @@ export default class PlaneManager {
 
       //do we store our baggage here?
       if (passenger.hasBaggage()) {
-        let baggageSize: number = passenger.baggages[0].size; //TODO: multiple baggage support
-        let targetBaggageNode = PlaneSearch.getClosestBaggageNodeToSeat(
+        const baggageSize: number = passenger.baggages[0].size; //TODO: multiple baggage support
+        const targetBaggageNode = PlaneSearch.getClosestBaggageNodeToSeat(
           passenger.pathToTarget,
           baggageSize
         );
@@ -315,7 +315,7 @@ export default class PlaneManager {
 
           this.setFacingDirection(passenger, startNode, nextNode);
 
-          let newAngle = SpriteUtils.shortestAngle(
+          const newAngle = SpriteUtils.shortestAngle(
             passenger.getSpriteAngle(),
             90 * passenger.direction
           );
@@ -326,7 +326,7 @@ export default class PlaneManager {
             angle: newAngle,
             duration: this.baggageLoadSpeed,
             ease: "Power2",
-            onComplete: function () {
+            onComplete: () => {
               //throw in baggage
               //TODO: better animation here
               //TODO: just throws the baggage where ever
@@ -337,11 +337,9 @@ export default class PlaneManager {
 
               //keep on truckin'
               this.passengerOnMove.push(passenger);
-              this.gameScene.activeTweens.delete(passenger.tween);
             },
             callbackScope: this,
           });
-          this.gameScene.activeTweens.add(passenger.tween);
 
           continue;
         }
@@ -356,7 +354,7 @@ export default class PlaneManager {
           //TODO: set direction
           //TODO: sat down counter
 
-          let newAngle = SpriteUtils.shortestAngle(
+          const newAngle = SpriteUtils.shortestAngle(
             passenger.getSpriteAngle(),
             90 * startNode.seatInfo.direction
           );
@@ -375,7 +373,7 @@ export default class PlaneManager {
       }
 
       //can we move one step closer?
-      let nextNode = passenger.pathToTarget[0];
+      const nextNode = passenger.pathToTarget[0];
 
       //we are in front of our aisle (but not in)
       //are we blocked? shuffle everyone so you can get in.
@@ -551,7 +549,7 @@ export default class PlaneManager {
       this.nodeToPassengerMap.set(nextNode, passenger); //occupy start and next node
       this.setFacingDirection(passenger, startNode, nextNode);
 
-      let newAngle = SpriteUtils.shortestAngle(
+      const newAngle = SpriteUtils.shortestAngle(
         passenger.getSpriteAngle(),
         90 * passenger.direction
       );
@@ -565,17 +563,13 @@ export default class PlaneManager {
         angle: newAngle, //TODO: hard code
         duration: this.passengerSpeed,
         ease: "Power2",
-        onComplete: function () {
+        onComplete: () => {
           this.nodeToPassengerMap.delete(startNode);
           this.passengerToNodeMap.set(passenger, nextNode);
           this.passengerOnMove.push(passenger);
-
-          this.gameScene.activeTweens.delete(passenger.tween);
         },
         callbackScope: this,
       });
-
-      this.gameScene.activeTweens.add(passenger.tween);
     } //end simulate loop
   }
 
@@ -585,7 +579,7 @@ export default class PlaneManager {
   ): void {
     const passengerNode = this.passengerToNodeMap.get(passenger);
 
-    let path = PlaneSearch.calculateMinPassengerTargetPath(
+    const path = PlaneSearch.calculateMinPassengerTargetPath(
       this.nodeMap,
       passengerNode,
       targetNode
@@ -606,8 +600,8 @@ export default class PlaneManager {
     startNode: PlaneNode,
     nextNode: PlaneNode
   ) {
-    let nextX = nextNode.sprite!.x - startNode.sprite!.x;
-    let nextY = nextNode.sprite!.y - startNode.sprite!.y;
+    const nextX = nextNode.sprite!.x - startNode.sprite!.x;
+    const nextY = nextNode.sprite!.y - startNode.sprite!.y;
 
     //horizontal is more powerful
     if (Math.abs(nextX) > Math.abs(nextY)) {
