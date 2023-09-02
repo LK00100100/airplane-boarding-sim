@@ -1,6 +1,5 @@
 import { Direction } from "./Direction";
 import { Ticket } from "./Ticket";
-import { isEqual } from "lodash-es";
 
 export class Seat {
   seatClass: string;
@@ -26,7 +25,11 @@ export class Seat {
   }
 
   public isTicketSeat(ticket: Ticket): boolean {
-    return isEqual(this.toTicket(), ticket);
+    if (this.aisle != ticket.aisle) return false;
+
+    if (this.number != ticket.number) return false;
+
+    return this.seatClass == ticket.seatClass;
   }
 
   public toString() {

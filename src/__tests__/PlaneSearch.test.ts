@@ -15,7 +15,7 @@ describe("PlaneSearch", () => {
     passengerToNodeMap.clear();
 
     //make nodes
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 6; i++) {
       nodeMap.set(i, new PlaneNode(i));
     }
 
@@ -40,12 +40,13 @@ describe("PlaneSearch", () => {
     nodeMap.get(4).addOutNode(5);
     nodeMap.get(5).addOutNode(4);
 
+    //make seats
     nodeMap.get(3).seatInfo = new Seat("coach", 1, "C", Direction.WEST);
     nodeMap.get(4).seatInfo = new Seat("coach", 1, "B", Direction.WEST);
     nodeMap.get(5).seatInfo = new Seat("coach", 1, "A", Direction.WEST);
   });
 
-  test("should add 2", () => {
+  test("should set passenger ticket path", () => {
     //give ticket to passenger
     const ticket = new Ticket("coach", 1, "A");
     const passenger = new Passenger(0);
@@ -63,5 +64,8 @@ describe("PlaneSearch", () => {
     //assert
     const path = passenger.pathToTarget;
     expect(path[0]).toBe(nodeMap.get(1));
+    expect(path[1]).toBe(nodeMap.get(2));
+    expect(path[2]).toBe(nodeMap.get(4));
+    expect(path[3]).toBe(nodeMap.get(5));
   });
 });
