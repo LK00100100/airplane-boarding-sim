@@ -1,7 +1,6 @@
 import { Passenger } from "../data/Passenger";
 import { PlaneNode } from "../data/PlaneNode";
 import { Ticket } from "../data/Ticket";
-import { BlockerSpaces } from "../data/Types";
 
 /**
  * Contains various methods for pathfinding or searching in a Plane.
@@ -406,3 +405,14 @@ export default class PlaneSearch {
     return null;
   }
 }
+
+/**
+ * @param tickerholderSpaces a space for the person trying to get to their seat
+ * @param blockerSpaces spaces for the blockers in the ticketholder's aisle. Does not need to be everyone in the aisle.
+ * @param hasFreeSpaces
+ */
+type BlockerSpaces = {
+  tickerholderSpaces: Array<PlaneNode>;
+  blockerSpaces: Array<PlaneNode>;
+  hasFreeSpaces: boolean;
+};

@@ -617,6 +617,10 @@ export default class PlaneManager {
     }
   }
 
+  isEveryoneSeated(): boolean {
+    return false;
+  }
+
   /**
    * Deletes old sprites
    */

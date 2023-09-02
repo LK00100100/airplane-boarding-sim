@@ -1,13 +1,9 @@
 import * as Phaser from "phaser";
-//import * as Level1 from "../levels/level1.json";
 import * as Level2 from "../levels/level2.json";
 import { ButtonUtils } from "../util/ButtonUtils";
 import { SceneNames } from "./SceneNames";
 import PlaneManager from "../algo/PlaneManager";
 
-//TODO: refactor methods by moving them. and everything...
-//TODO: unit tests
-//TODO: lingering sprite bug
 export default class GameScene extends Phaser.Scene {
   private gameText!: Phaser.GameObjects.Text; //any messages for the player to read.
 
@@ -17,13 +13,11 @@ export default class GameScene extends Phaser.Scene {
 
   private simulateSprite: Phaser.GameObjects.Sprite;
 
-  //TODO: variable baggage loading speed
   //TODO: actual reader and validator for plane
 
   /**
    * constants
    */
-  private readonly FPS = 100 / 3; //30 Frames Per Second, in terms of milliseconds
   public readonly IS_DEBUG_MODE = true; //turn on to see more information
 
   constructor() {
@@ -59,10 +53,6 @@ export default class GameScene extends Phaser.Scene {
    * Move back the passengers and other metadata to before "simulate".
    */
   private resetScene() {
-    /**
-     * reset, part 2
-     */
-
     this.planeManager?.destroy();
 
     this.planeManager = new PlaneManager(this, Level2);
@@ -70,8 +60,6 @@ export default class GameScene extends Phaser.Scene {
     this.isSimulationOn = false;
 
     this.simulateSprite?.setTexture("btn-simulate");
-    console.log("settex ");
-    console.log(this.simulateSprite);
   }
 
   private createButtons(): void {
@@ -101,23 +89,13 @@ export default class GameScene extends Phaser.Scene {
 
     const resetSprite = this.add.sprite(500, 500, "btn-reset").setInteractive();
     ButtonUtils.dressUpButton(resetSprite, resetClickFunc);
-
-    // let completeResetSprite = this.add
-    //   .sprite(740, 500, "btn-complete-reset")
-    //   .setInteractive();
-    // ButtonUtils.dressUpButton(completeResetSprite, this.restart.bind(this));
   }
 
   /**
    * restarts scene
    */
   restart() {
-    //TODO: try to figure this out
-    this.scene.restart(); //doesnt destroy everything
-  }
-
-  isEveryoneSeated(): boolean {
-    return false;
+    this.scene.restart(); //doesnt destroy everything for some reason 🤔
   }
 
   /**

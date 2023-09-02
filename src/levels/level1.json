@@ -63,6 +63,16 @@
                 10,
                 11
             ],
+            "compartments": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
+            ],
             "x": 140,
             "y": 100
         },
@@ -71,6 +81,16 @@
             "out": [
                 13,
                 14
+            ],
+            "compartments": [
+                {
+                    "direction": "N",
+                    "size": 10
+                },
+                {
+                    "direction": "S",
+                    "size": 10
+                }
             ],
             "x": 180,
             "y": 100
