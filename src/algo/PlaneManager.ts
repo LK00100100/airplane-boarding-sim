@@ -146,10 +146,15 @@ export default class PlaneManager {
       //  Input Event listeners
       sprite.on("pointerover", () => {
         sprite.setTint(0x00bb00);
-        const nodeOccupied = `; occupied by: ${this.nodeToPassengerMap.get(
-          planeNode
-        )};`;
-        this.gameScene.setGameText(planeNode.toString() + nodeOccupied);
+        const occupier = this.nodeToPassengerMap.get(planeNode);
+        const nodeOccupied = `; occupied by: ${occupier};`;
+
+        let debugStr = planeNode.toString();
+        if (occupier) {
+          debugStr += nodeOccupied;
+        }
+
+        this.gameScene.setGameText(debugStr);
       });
 
       sprite.on("pointerout", () => {

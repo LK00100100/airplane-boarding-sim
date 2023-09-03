@@ -67,19 +67,27 @@ export class PlaneNode {
   }
 
   public toString() {
-    //TODO: fix this filth. doesnt work :)
     let baggageStr = "";
     for (const [direction, compartment] of this.baggageCompartments) {
       baggageStr += `{dir: ${direction} : cap: ${compartment.current}/${compartment.max}}`;
     }
 
-    const neighborsStr = Array.from(this.neighbors.values()).join(",");
+    const neighborsArr = Array.from(this.neighbors.values()).map((n) => n.id);
+    const neighborsStr = neighborsArr.join(",");
+
+    const ticket = this.seatInfo?.toTicket();
+    const ticketStr = ticket
+      ? `${ticket?.seatClass}:${ticket?.aisle}${ticket.number}`
+      : undefined;
 
     const objWithout = {
       ...this,
       sprite: undefined,
-      outs: neighborsStr, //TODO: using outNodes doesn't overwrite?
-      baggageCompartments: `[${baggageStr}]`, //TODO: using baggageCompartments doesn't overwrite?
+      neighbors: neighborsStr,
+      seatInfo: ticketStr,
+      isEnterNode: this.isEnterNode ? "yes" : undefined,
+      isExitNode: this.isExitNode ? "yes" : undefined,
+      baggageCompartments: `[${baggageStr}]`,
     };
 
     return JSON.stringify(objWithout);

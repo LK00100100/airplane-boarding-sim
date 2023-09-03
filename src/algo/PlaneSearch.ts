@@ -29,10 +29,8 @@ export default class PlaneSearch {
     passenger.pathToTarget = path;
   }
 
-  //TODO: could just do (nodeMap + passenger)
   /**
    * calculate the min path from startNodeId to passengerId's ticket.
-   * @param nodeMap
    * @param startNodeId
    * @param ticket
    * @returns a list of node ids from you to the seat. Does not include the start node.
@@ -45,7 +43,6 @@ export default class PlaneSearch {
     ticket: Ticket
   ): Array<PlaneNode> | null {
     return PlaneSearch.calculateMinPassengerTargetPathHelper(
-      nodeMap,
       startNode,
       null,
       ticket
@@ -53,29 +50,24 @@ export default class PlaneSearch {
   }
 
   public static calculateMinPassengerTargetPath(
-    nodeMap: Map<number, PlaneNode>,
     startNode: PlaneNode,
     targetNode: PlaneNode
   ): Array<PlaneNode> | null {
     return PlaneSearch.calculateMinPassengerTargetPathHelper(
-      nodeMap,
       startNode,
       targetNode,
       null
     );
   }
 
-  //TODO: remove nodeMap
   /**
    *
-   * @param nodeMap
    * @param startNode
    * @param targetNode trying to get to this node. supercedes ticket
    * @param ticket trying to get to this node. superceded by Node
    * @returns
    */
   private static calculateMinPassengerTargetPathHelper(
-    nodeMap: Map<number, PlaneNode>,
     startNode: PlaneNode,
     targetNode: PlaneNode | null,
     ticket: Ticket
