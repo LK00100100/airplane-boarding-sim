@@ -25,7 +25,11 @@ export class Seat {
   }
 
   public isTicketSeat(ticket: Ticket): boolean {
-    return _.isEqual(this.toTicket(), ticket);
+    if (this.aisle != ticket.aisle) return false;
+
+    if (this.number != ticket.number) return false;
+
+    return this.seatClass == ticket.seatClass;
   }
 
   public toString() {
