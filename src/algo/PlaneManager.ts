@@ -260,6 +260,7 @@ export default class PlaneManager {
     passenger.sprites!.setXY(planeNode.sprite!.x, planeNode.sprite!.y);
   }
 
+  //TODO: refactor to submethods
   /**
    * This actually simulates passenger thinking and then orders them to move.
    * simulateTimer calls this every frame.
@@ -317,7 +318,6 @@ export default class PlaneManager {
             onComplete: () => {
               //throw in baggage
               //TODO: better animation here
-              //TODO: better sprite group code
               const baggage = passenger.baggages.pop();
               startNode.addBaggage(Direction.NORTH, baggage);
               passenger.sprites.getChildren()[1].destroy(); //HACK:
@@ -590,8 +590,28 @@ export default class PlaneManager {
     }
   }
 
+  /**
+   *
+   * @returns true if everyone is seated. False, otherwise.
+   */
   isEveryoneSeated(): boolean {
-    return false;
+    if (this.passengerOnMove.length > 0) return false;
+
+    //are all passengers really seated?
+    for (let [_, passenger] of this.passengerMap) {
+      //passenger not on plane
+      if (!this.passengerToNodeMap.has(passenger)) {
+        return false;
+      }
+
+      //passenger not in seat
+      const passengerNode = this.passengerToNodeMap.get(passenger);
+      if (!passengerNode.seatInfo?.isTicketSeat(passenger.getTicket())) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**

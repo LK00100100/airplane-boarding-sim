@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 import * as Level2 from "../levels/level2.json";
-import { ButtonUtils } from "../util/ButtonUtils";
+import { ButtonUtil } from "../util/ButtonUtil";
 import { SceneNames } from "./SceneNames";
 import PlaneManager from "../algo/PlaneManager";
 
@@ -58,6 +58,8 @@ export default class GameScene extends Phaser.Scene {
     this.isSimulationOn = false;
 
     this.simulateSprite?.setTexture("btn-simulate");
+
+    this.setGameText("silverbacksnakes.io");
   }
 
   private createButtons(): void {
@@ -79,14 +81,14 @@ export default class GameScene extends Phaser.Scene {
       this.simulateSprite.setTexture("btn-pause");
     };
 
-    ButtonUtils.dressUpButton(this.simulateSprite, simulateClickFunc);
+    ButtonUtil.dressUpButton(this.simulateSprite, simulateClickFunc);
 
     const resetClickFunc = () => {
       this.resetScene();
     };
 
     const resetSprite = this.add.sprite(500, 500, "btn-reset").setInteractive();
-    ButtonUtils.dressUpButton(resetSprite, resetClickFunc);
+    ButtonUtil.dressUpButton(resetSprite, resetClickFunc);
   }
 
   /**
@@ -121,6 +123,7 @@ export default class GameScene extends Phaser.Scene {
   update() {
     if (this.isSimulationOn) {
       this.planeManager.simulateFrame();
+      console.log("is everyone seated:" + this.planeManager.isEveryoneSeated());
     }
 
     if (this.IS_DEBUG_MODE) {
