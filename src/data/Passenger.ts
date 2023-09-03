@@ -14,7 +14,7 @@ export class Passenger {
   direction: Direction;
 
   //TODO: sprite's angle and this.direction should be in sync
-  sprites?: Phaser.GameObjects.Group; //group of sprites. Passenger and baggage
+  sprites?: Phaser.GameObjects.Group; //group of sprites. Passenger and baggage. [0] passenger; [1] baggage
 
   tween?: Phaser.Tweens.Tween; //current animation
 
@@ -29,8 +29,6 @@ export class Passenger {
 
     this.pathToTarget = [];
   }
-
-  //TODO: destroy()
 
   public hasBaggage() {
     return this.baggages.length > 0;
@@ -81,5 +79,10 @@ export class Passenger {
 
   toString(): string {
     return `id: ${this.id}, ticket: ${this.ticket.toString()}`;
+  }
+
+  destroy() {
+    this.sprites?.destroy(true, true);
+    this.tween?.destroy();
   }
 }

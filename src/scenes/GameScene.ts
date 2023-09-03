@@ -13,8 +13,6 @@ export default class GameScene extends Phaser.Scene {
 
   private simulateSprite: Phaser.GameObjects.Sprite;
 
-  //TODO: actual reader and validator for plane
-
   /**
    * constants
    */

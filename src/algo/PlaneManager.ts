@@ -10,6 +10,8 @@ import { PassengerSemaphore } from "../util/PassengerSemaphore";
 import { SpriteUtils } from "../util/SpriteUtils";
 import PassengerSorts from "./PassengerSorts";
 import PlaneSearch from "./PlaneSearch";
+import { PlaneData, PlaneJsonReader } from "../data/PlaneJsonReader";
+import StringUtil from "../util/StringUtil";
 
 /**
  * Manages the spaces on the Plane and the Passengers in it
@@ -45,7 +47,7 @@ export default class PlaneManager {
   //waiting to be placed on a PlaneNode
   public passengerInPortQueue!: Array<Passenger>;
 
-  private currentPlane: any; //JSON TODO: json -> class converter thing
+  private currentPlane: any;
 
   private baggageLoadSpeed: number = 40;
   private passengerSpeed: number = 40; //400 is good
@@ -87,12 +89,10 @@ export default class PlaneManager {
 
   private createPlaneNodes(): void {
     const planeXOffset = this.currentPlane.planeOffsetX ?? 0;
-    const planeYOffset = this.currentPlane.planeOffSetY ?? 0;
+    const planeYOffset = this.currentPlane.planeOffsetY ?? 0;
 
     //make nodes
-    //TODO: use interface to read json, verify, and spit out a class
     this.currentPlane.nodes.forEach((nodeJson: any) => {
-      //TODO: rewire to default to multi-directional node.
       if (!this.nodeMap.has(nodeJson.id))
         this.nodeMap.set(nodeJson.id, new PlaneNode(nodeJson.id));
 
@@ -171,7 +171,6 @@ export default class PlaneManager {
    */
   private createPassengers(): void {
     //make passengers
-    //TODO: use interface that reads and validates json.
     this.currentPlane.passengers.forEach((passengerJson: any) => {
       const passenger = new Passenger(passengerJson.id);
 
@@ -331,7 +330,6 @@ export default class PlaneManager {
             onComplete: () => {
               //throw in baggage
               //TODO: better animation here
-              //TODO: just throws the baggage where ever
               //TODO: better sprite group code
               const baggage = passenger.baggages.pop();
               startNode.addBaggage(Direction.NORTH, baggage);
@@ -354,7 +352,6 @@ export default class PlaneManager {
         //are we at our seat? sit down
         if (startNode.seatInfo?.isTicketSeat(passengerTicket)) {
           //TODO: set direction
-          //TODO: sat down counter
 
           const newAngle = SpriteUtils.shortestAngle(
             passenger.getSpriteAngle(),
@@ -391,9 +388,10 @@ export default class PlaneManager {
           this.nodeToPassengerMap
         );
 
-        //TODO: helper method
-        const blockersCsv = blockers.map((b) => b.id).join(",");
-        console.log(`p ${passenger.id}, blockers: ${blockersCsv}`);
+        if (this.gameScene.IS_DEBUG_MODE) {
+          const blockersCsv = StringUtil.listOfObjWithIdToCsv(blockers);
+          console.log(`p ${passenger.id}, blockers: ${blockersCsv}`);
+        }
 
         //blockers present, do the shuffle
         if (blockers.length > 0) {
@@ -457,20 +455,17 @@ export default class PlaneManager {
           //2a) shuffle passenger out
           passenger.pathToTarget = [...freeSpaces.tickerholderSpaces];
 
-          //TODO: i should loop on "passengers that haven't sat". instead of
-          //timers and passengerOnMove
           this.passengerOnMove.push(passenger);
 
           //2b) shuffle blockers out
           const blockerSpacesClone = [...freeSpaces.blockerSpaces];
 
           if (this.gameScene.IS_DEBUG_MODE) {
-            const ticketholderSpacesStr = freeSpaces.tickerholderSpaces
-              .map((b) => b.id)
-              .join(",");
-            const blockerSpacesStr = blockerSpacesClone
-              .map((b) => b.id)
-              .join(",");
+            const ticketholderSpacesStr = StringUtil.listOfObjWithIdToCsv(
+              freeSpaces.tickerholderSpaces
+            );
+            const blockerSpacesStr =
+              StringUtil.listOfObjWithIdToCsv(blockerSpacesClone);
             console.log(
               `passenger ${passenger.id}; ticketSpots: ${ticketholderSpacesStr};  blockerSpaces: ${blockerSpacesStr}`
             );
@@ -582,7 +577,6 @@ export default class PlaneManager {
     const passengerNode = this.passengerToNodeMap.get(passenger);
 
     const path = PlaneSearch.calculateMinPassengerTargetPath(
-      this.nodeMap,
       passengerNode,
       targetNode
     );
@@ -630,14 +624,13 @@ export default class PlaneManager {
     if (!this.nodeMap && !this.passengerMap) return;
 
     //delete plane sprites
-
     for (let [_, planeNode] of this.nodeMap) {
-      planeNode.sprite.destroy();
+      planeNode.destroy();
     }
 
     //delete passenger sprites
     for (let [_, passenger] of this.passengerMap) {
-      passenger.sprites.destroy();
+      passenger.destroy();
     }
   }
 

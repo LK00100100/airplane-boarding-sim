@@ -25,8 +25,6 @@ export class PlaneNode {
   isEnterNode!: boolean; //plane entrance
   isExitNode!: boolean; //plane exit
 
-  //TODO: destroy()
-
   constructor(id: number) {
     this.id = id;
     this.neighbors = new Set();
@@ -91,5 +89,9 @@ export class PlaneNode {
     };
 
     return JSON.stringify(objWithout);
+  }
+
+  destroy() {
+    this.sprite?.destroy();
   }
 }
