@@ -65,6 +65,7 @@ export default class PlaneSearch {
     );
   }
 
+  //TODO: remove nodeMap
   /**
    *
    * @param nodeMap
@@ -79,7 +80,7 @@ export default class PlaneSearch {
     targetNode: PlaneNode | null,
     ticket: Ticket
   ): Array<PlaneNode> | null {
-    let distMap: Map<number, number> = new Map(); //nodeId, distance
+    let distMap: Map<PlaneNode, number> = new Map(); //nodeId, distance
 
     //we're at the ticket seat (ignored if targetNode exists)
     if (targetNode == null && startNode.seatInfo?.isTicketSeat(ticket)) {
@@ -91,27 +92,23 @@ export default class PlaneSearch {
     }
 
     //calc min distance to goal (BFS)
-    let queue = Array.from(startNode.outNodes);
+    let queue = Array.from(startNode.neighbors);
     let level = 1;
     let goalNode: PlaneNode = null;
 
-    let visited: Set<number> = new Set();
+    let visited: Set<PlaneNode> = new Set();
 
     while (queue.length > 0) {
       let levelSize = queue.length;
 
       for (let i = 0; i < levelSize; i++) {
-        let currentNodeId = queue.shift()!;
+        let currentNode = queue.shift()!;
 
-        //TODO: remove node ids
+        if (visited.has(currentNode)) continue;
 
-        if (visited.has(currentNodeId)) continue;
+        visited.add(currentNode);
 
-        visited.add(currentNodeId);
-
-        distMap.set(currentNodeId, level);
-
-        let currentNode = nodeMap.get(currentNodeId)!;
+        distMap.set(currentNode, level);
 
         //at ticket (ignored if targetNode exists)
         if (targetNode == null && currentNode.seatInfo?.isTicketSeat(ticket)) {
@@ -124,7 +121,7 @@ export default class PlaneSearch {
           break;
         }
 
-        queue = queue.concat(Array.from(currentNode.outNodes));
+        queue = queue.concat(Array.from(currentNode.neighbors));
       }
 
       if (goalNode) break;
@@ -145,13 +142,13 @@ export default class PlaneSearch {
 
     let currentNode = goalNode;
     while (level > 0) {
-      currentNode.outNodes.forEach((prevId) => {
-        let prevDist = distMap.get(prevId) ?? level;
+      currentNode.neighbors.forEach((prevNode) => {
+        let prevDist = distMap.get(prevNode) ?? level;
 
         //go back a node
         if (prevDist == level - 1) {
-          currentNode = nodeMap.get(prevId)!;
-          path.unshift(currentNode);
+          path.unshift(prevNode);
+          currentNode = prevNode;
           return;
         }
       });
@@ -212,8 +209,7 @@ export default class PlaneSearch {
       blockers.push(passenger);
     }
 
-    for (const nodeId of node.outNodes) {
-      const neighborNode = nodeMap.get(nodeId);
+    for (const neighborNode of node.neighbors) {
       blockers = blockers.concat(
         this.getPassengersBlockingTicketSeatHelper(
           ticket,
@@ -280,17 +276,15 @@ export default class PlaneSearch {
     let ticketholderPath: Array<PlaneNode> = null; //only need one node
     let maxNeededPath: Array<PlaneNode> = null;
 
-    for (let outNodeId of currentNode.outNodes) {
+    for (let neighbor of currentNode.neighbors) {
       //we're done
       if (ticketholderPath != null && maxNeededPath != null) break;
 
-      const outNode = nodeMap.get(outNodeId);
-
       //assumed that the long-path doesn't eventually loop back into the blocking aisle
-      if (outNode == pathToSeat[0]) continue;
+      if (neighbor == pathToSeat[0]) continue;
 
       const path = PlaneSearch.longestFreeMaxLengthPathHelper(
-        outNode,
+        neighbor,
         maxNeeded,
         visited,
         nodeMap,
@@ -311,9 +305,7 @@ export default class PlaneSearch {
     //not enough free space at all.
     if (ticketholderPath == null || maxNeededPath == null) {
       //go deeper and see if there's space
-      for (let nodeId of currentNode.outNodes) {
-        const nextNode = nodeMap.get(nodeId);
-
+      for (const nextNode of currentNode.neighbors) {
         //next is occupied
         if (nodeToPassengerMap.has(nextNode)) continue;
 
@@ -367,11 +359,9 @@ export default class PlaneSearch {
 
     //try paths
     let maxSubpath = [];
-    node.outNodes.forEach((outnodeId) => {
-      const outNode = nodeMap.get(outnodeId);
-
+    node.neighbors.forEach((neighbor) => {
       const subPath = this.longestFreeMaxLengthPathHelper(
-        outNode,
+        neighbor,
         maxLength - 1,
         visited,
         nodeMap,

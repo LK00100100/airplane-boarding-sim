@@ -96,17 +96,14 @@ export default class PlaneManager {
       if (!this.nodeMap.has(nodeJson.id))
         this.nodeMap.set(nodeJson.id, new PlaneNode(nodeJson.id));
 
-      const nodeData = this.nodeMap.get(nodeJson.id)!;
+      const planeNode = this.nodeMap.get(nodeJson.id)!;
 
       //connect in/out nodes
       nodeJson.out.forEach((outNodeId: number) => {
         if (!this.nodeMap.has(outNodeId))
           this.nodeMap.set(outNodeId, new PlaneNode(outNodeId));
 
-        nodeData.addOutNode(outNodeId);
-
-        this.nodeMap.get(outNodeId)!.addInNode(nodeJson.id);
-        this.nodeMap.get(outNodeId)!.addOutNode(nodeJson.id); //HACK:
+        planeNode.addNeighbor(this.nodeMap.get(outNodeId));
       });
 
       let sprite: Phaser.GameObjects.Sprite;
@@ -114,15 +111,15 @@ export default class PlaneManager {
       //start node
       if ("enter" in nodeJson) {
         const enterId: number = nodeJson["enter"] as number;
-        this.enterNodesMap.set(enterId, nodeData);
-        nodeData.isEnterNode = true;
+        this.enterNodesMap.set(enterId, planeNode);
+        planeNode.isEnterNode = true;
       }
 
       //seat node
       let imageName = "plane-floor"; //walking node
       if (nodeJson.seat) {
         const seat = nodeJson.seat;
-        nodeData.seatInfo = new Seat(
+        planeNode.seatInfo = new Seat(
           seat.class,
           seat.aisle,
           seat.number,
@@ -138,7 +135,7 @@ export default class PlaneManager {
 
         for (const compartment of compartments) {
           const direction = toDirection(compartment.direction);
-          nodeData.setBaggageComparment(direction, compartment.size);
+          planeNode.setBaggageComparment(direction, compartment.size);
         }
       }
 
@@ -150,9 +147,9 @@ export default class PlaneManager {
       sprite.on("pointerover", () => {
         sprite.setTint(0x00bb00);
         const nodeOccupied = `; occupied by: ${this.nodeToPassengerMap.get(
-          nodeData
+          planeNode
         )};`;
-        this.gameScene.setGameText(nodeData.toString() + nodeOccupied);
+        this.gameScene.setGameText(planeNode.toString() + nodeOccupied);
       });
 
       sprite.on("pointerout", () => {
@@ -160,7 +157,7 @@ export default class PlaneManager {
         sprite.clearTint();
       });
 
-      nodeData.sprite = sprite;
+      planeNode.sprite = sprite;
     });
   }
 

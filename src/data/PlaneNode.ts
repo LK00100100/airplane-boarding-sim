@@ -14,10 +14,7 @@ import { Seat } from "./Seat";
 export class PlaneNode {
   id: number; // unique id
 
-  //TODO: overengineering for now. just use two-way
-  //TODO: just use Node
-  inNodes: Set<number>; //node ids going in
-  outNodes: Set<number>; //node ids going out
+  neighbors: Set<PlaneNode>; //neighboring nodes
 
   private baggageCompartments: Map<Direction, BaggageCompartment>;
 
@@ -32,21 +29,20 @@ export class PlaneNode {
 
   constructor(id: number) {
     this.id = id;
-    this.inNodes = new Set();
-    this.outNodes = new Set();
+    this.neighbors = new Set();
     this.baggageCompartments = new Map();
 
     this.isEnterNode = false;
     this.isExitNode = false;
   }
 
-  addInNode(newNodeId: number) {
-    this.inNodes.add(newNodeId);
-  }
-
-  //TODO: add node goes both ways
-  addOutNode(newNodeId: number) {
-    this.outNodes.add(newNodeId);
+  /**
+   * add node to neighbors. Goes both ways.
+   * @param newNode -
+   */
+  addNeighbor(newNode: PlaneNode) {
+    this.neighbors.add(newNode);
+    newNode.neighbors.add(this);
   }
 
   /**
@@ -77,12 +73,12 @@ export class PlaneNode {
       baggageStr += `{dir: ${direction} : cap: ${compartment.current}/${compartment.max}}`;
     }
 
-    const outNodeStr = Array.from(this.outNodes.values()).join(",");
+    const neighborsStr = Array.from(this.neighbors.values()).join(",");
 
     const objWithout = {
       ...this,
       sprite: undefined,
-      outs: outNodeStr, //TODO: using outNodes doesn't overwrite?
+      outs: neighborsStr, //TODO: using outNodes doesn't overwrite?
       baggageCompartments: `[${baggageStr}]`, //TODO: using baggageCompartments doesn't overwrite?
     };
 

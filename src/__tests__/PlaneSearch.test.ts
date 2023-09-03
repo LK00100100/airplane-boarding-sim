@@ -29,16 +29,11 @@ describe("PlaneSearch", () => {
      *         |
      *         5
      */
-    nodeMap.get(0).addOutNode(1);
-    nodeMap.get(1).addOutNode(0);
-    nodeMap.get(1).addOutNode(2);
-    nodeMap.get(2).addOutNode(1);
-    nodeMap.get(2).addOutNode(3);
-    nodeMap.get(2).addOutNode(4);
-    nodeMap.get(3).addOutNode(2);
-    nodeMap.get(4).addOutNode(2);
-    nodeMap.get(4).addOutNode(5);
-    nodeMap.get(5).addOutNode(4);
+    nodeMap.get(0).addNeighbor(nodeMap.get(1));
+    nodeMap.get(1).addNeighbor(nodeMap.get(2));
+    nodeMap.get(2).addNeighbor(nodeMap.get(3));
+    nodeMap.get(2).addNeighbor(nodeMap.get(4));
+    nodeMap.get(4).addNeighbor(nodeMap.get(5));
 
     //make seats
     nodeMap.get(3).seatInfo = new Seat("coach", 1, "C", Direction.WEST);
