@@ -5,7 +5,7 @@ import { Ticket } from "../data/Ticket";
 /**
  * Contains various methods for pathfinding or searching in a Plane.
  */
-export default class PlaneSearch {
+export class PlaneSearch {
   /**
    * Set the passenger's movement path toward the Ticket.
    * @param passenger
@@ -394,7 +394,7 @@ export default class PlaneSearch {
  * @param blockerSpaces spaces for the blockers in the ticketholder's aisle. Does not need to be everyone in the aisle.
  * @param hasFreeSpaces
  */
-type BlockerSpaces = {
+export type BlockerSpaces = {
   tickerholderSpaces: Array<PlaneNode>;
   blockerSpaces: Array<PlaneNode>;
   hasFreeSpaces: boolean;

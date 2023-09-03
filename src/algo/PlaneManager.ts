@@ -7,11 +7,10 @@ import { Seat } from "../data/Seat";
 import { Ticket } from "../data/Ticket";
 import GameScene from "../scenes/GameScene";
 import { PassengerSemaphore } from "../util/PassengerSemaphore";
-import { SpriteUtils } from "../util/SpriteUtils";
+import { SpriteUtil } from "../util/SpriteUtil";
 import PassengerSorts from "./PassengerSorts";
-import PlaneSearch from "./PlaneSearch";
-import { PlaneData, PlaneJsonReader } from "../data/PlaneJsonReader";
 import StringUtil from "../util/StringUtil";
+import { BlockerSpaces, PlaneSearch } from "./PlaneSearch";
 
 /**
  * Manages the spaces on the Plane and the Passengers in it
@@ -261,24 +260,12 @@ export default class PlaneManager {
     passenger.sprites!.setXY(planeNode.sprite!.x, planeNode.sprite!.y);
   }
 
-  //TODO: refactor to submethods
   /**
    * This actually simulates passenger thinking and then orders them to move.
    * simulateTimer calls this every frame.
    */
   public simulateFrame(): void {
-    //unqueue one passenger (if we can) onto a starting PlaneNode
-    if (this.passengerInPortQueue.length > 0) {
-      //for now, just get the first entrance
-      const enterNode = this.enterNodesMap.get(0);
-
-      if (!this.nodeToPassengerMap.has(enterNode)) {
-        const passenger = this.passengerInPortQueue.shift()!;
-
-        this.putPassengerOnNode(passenger, enterNode);
-        this.passengerOnMove.push(passenger);
-      }
-    }
+    this.unqueuePortToPlane();
 
     //simulate passengers
     let processAmount = this.passengerOnMove.length;
@@ -316,7 +303,7 @@ export default class PlaneManager {
 
           this.setFacingDirection(passenger, startNode, nextNode);
 
-          const newAngle = SpriteUtils.shortestAngle(
+          const newAngle = SpriteUtil.shortestAngle(
             passenger.getSpriteAngle(),
             90 * passenger.direction
           );
@@ -333,7 +320,7 @@ export default class PlaneManager {
               //TODO: better sprite group code
               const baggage = passenger.baggages.pop();
               startNode.addBaggage(Direction.NORTH, baggage);
-              passenger.sprites.getChildren()[1].destroy(); //TODO: jank
+              passenger.sprites.getChildren()[1].destroy(); //HACK:
 
               //keep on truckin'
               this.passengerOnMove.push(passenger);
@@ -353,7 +340,7 @@ export default class PlaneManager {
         if (startNode.seatInfo?.isTicketSeat(passengerTicket)) {
           //TODO: set direction
 
-          const newAngle = SpriteUtils.shortestAngle(
+          const newAngle = SpriteUtil.shortestAngle(
             passenger.getSpriteAngle(),
             90 * startNode.seatInfo.direction
           );
@@ -410,43 +397,16 @@ export default class PlaneManager {
 
           const shufflers = new Set([passenger, ...blockers]);
 
-          //1) lock all needed nodes
-          //1a) can we lock all needed nodes?
-          //TODO: simplify all below.
-          //note: i shouldn't need to nodeToPassengerMap check since freeSpaces should be free, yet...
-          let cannotLock = false;
-          if (this.nodeToMultiPassengerMap.has(startNode)) {
-            cannotLock = true;
-          }
+          //1) lock all needed nodes (check first)
+          let canLock = this.canLockForShufflers(startNode, freeSpaces);
 
-          for (const node of freeSpaces.tickerholderSpaces) {
-            if (this.nodeToMultiPassengerMap.has(node)) {
-              cannotLock = true;
-              break;
-            }
-          }
-
-          for (const node of freeSpaces.blockerSpaces) {
-            if (this.nodeToMultiPassengerMap.has(node)) {
-              cannotLock = true;
-              break;
-            }
-          }
-
-          if (cannotLock) {
-            this.passengerOnMove.unshift(passenger);
+          if (!canLock) {
+            this.passengerOnMove.push(passenger);
             continue;
           }
 
           //1b) actually lock
-          this.nodeToMultiPassengerMap.set(startNode, shufflers);
-          freeSpaces.tickerholderSpaces.forEach((node) =>
-            this.nodeToMultiPassengerMap.set(node, shufflers)
-          );
-
-          freeSpaces.blockerSpaces.forEach((node) =>
-            this.nodeToMultiPassengerMap.set(node, shufflers)
-          );
+          this.lockForShufflers(startNode, freeSpaces, shufflers);
 
           //2) shuffle passenger out and blockers out
           this.shufflersSet.add(passenger);
@@ -546,7 +506,7 @@ export default class PlaneManager {
       this.nodeToPassengerMap.set(nextNode, passenger); //occupy start and next node
       this.setFacingDirection(passenger, startNode, nextNode);
 
-      const newAngle = SpriteUtils.shortestAngle(
+      const newAngle = SpriteUtil.shortestAngle(
         passenger.getSpriteAngle(),
         90 * passenger.direction
       );
@@ -568,6 +528,23 @@ export default class PlaneManager {
         callbackScope: this,
       });
     } //end simulate loop
+  }
+
+  /**
+   * if there is space, unqueue one passenger from the port to the plane.
+   */
+  public unqueuePortToPlane(): void {
+    if (this.passengerInPortQueue.length > 0) {
+      //for now, just get the first entrance
+      const enterNode = this.enterNodesMap.get(0);
+
+      if (!this.nodeToPassengerMap.has(enterNode)) {
+        const passenger = this.passengerInPortQueue.shift()!;
+
+        this.putPassengerOnNode(passenger, enterNode);
+        this.passengerOnMove.push(passenger);
+      }
+    }
   }
 
   private setPassengerToNodePathAndMove(
@@ -615,6 +592,59 @@ export default class PlaneManager {
 
   isEveryoneSeated(): boolean {
     return false;
+  }
+
+  /**
+   * Can we lock the spaces needed for shuffling?
+   * @param startNode the node where the tickerholder is standing. in front of aisle.
+   * @param freeSpaces the node
+   * @returns true if we can lock. Otherwise, false.
+   */
+  canLockForShufflers(
+    startNode: PlaneNode,
+    freeSpaces: BlockerSpaces
+  ): boolean {
+    let canLock = true;
+    if (this.nodeToMultiPassengerMap.has(startNode)) {
+      canLock = false;
+    }
+
+    for (const node of freeSpaces.tickerholderSpaces) {
+      if (this.nodeToMultiPassengerMap.has(node)) {
+        canLock = false;
+        break;
+      }
+    }
+
+    for (const node of freeSpaces.blockerSpaces) {
+      if (this.nodeToMultiPassengerMap.has(node)) {
+        canLock = false;
+        break;
+      }
+    }
+
+    return canLock;
+  }
+
+  /**
+   * Lock all spaces needed for shuffling.
+   * @param startNode the place where the tickerholder is standing. Front of aisle.
+   * @param freeSpaces required shuffling spaces.
+   * @param shufflers the people we are locking
+   */
+  lockForShufflers(
+    startNode: PlaneNode,
+    freeSpaces: BlockerSpaces,
+    shufflers: Set<Passenger>
+  ): void {
+    this.nodeToMultiPassengerMap.set(startNode, shufflers);
+    freeSpaces.tickerholderSpaces.forEach((node) =>
+      this.nodeToMultiPassengerMap.set(node, shufflers)
+    );
+
+    freeSpaces.blockerSpaces.forEach((node) =>
+      this.nodeToMultiPassengerMap.set(node, shufflers)
+    );
   }
 
   /**

@@ -1,4 +1,4 @@
-export class ButtonUtils {
+export class ButtonUtil {
   /**
    * add standardized functionality to a game button.
    * @param sprite
