@@ -232,7 +232,7 @@ export default class PlaneSearch {
    * away from the aisle.
    * @param pathToSeat we have to see what the tickerholder's path is
    * @param startNode where the tickerholder is standing. next to the seat's aisle.
-   * @param maxNeeded maximum number of spaces needed in one direction from startNode/
+   * @param maxNeeded maximum number of spaces needed in one direction from startNode. Typically num blockers.
    * @param nodeMap -
    * @param nodeToPassengerMap -
    * @returns two lists of PlaneNode. The first list is for the ticket holder. The other list is for blockers.

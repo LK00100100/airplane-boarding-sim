@@ -58,7 +58,7 @@ export class PlaneNode {
     return false;
   }
 
-  setBaggageComparment(direction: Direction, size: number) {
+  setBaggageCompartment(direction: Direction, size: number) {
     this.baggageCompartments.set(direction, new BaggageCompartment(size));
   }
 

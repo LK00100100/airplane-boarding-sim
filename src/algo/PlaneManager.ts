@@ -135,7 +135,7 @@ export default class PlaneManager {
 
         for (const compartment of compartments) {
           const direction = toDirection(compartment.direction);
-          planeNode.setBaggageComparment(direction, compartment.size);
+          planeNode.setBaggageCompartment(direction, compartment.size);
         }
       }
 
