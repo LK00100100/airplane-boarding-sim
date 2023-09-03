@@ -3,7 +3,6 @@ import { Direction } from "./Direction";
 import { PlaneNode } from "./PlaneNode";
 import { Ticket } from "./Ticket";
 
-//TODO: hold path info
 /**
  * Holds information about a passenger
  */

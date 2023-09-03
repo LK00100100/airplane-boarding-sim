@@ -18,6 +18,11 @@ export class BaggageCompartment {
     this.baggageList = new Map();
   }
 
+  /**
+   * Add baggage into compartments
+   * WIP: add math and errors
+   * @param baggage
+   */
   addBaggage(baggage: Baggage) {
     const passengerId = baggage.ownerId;
 
@@ -25,8 +30,6 @@ export class BaggageCompartment {
       this.baggageList.set(passengerId, []);
 
     this.baggageList.get(passengerId).push(baggage);
-
-    //TODO: add math and errors
   }
 
   /**
@@ -41,6 +44,7 @@ export class BaggageCompartment {
   /**
    * Remove one piece of baggage owned by you. Order not-enforced.
    * throws error if nothing is found.
+   * WIP: add math and errors
    */
   removeBaggage(passengerId: number) {
     if (!this.baggageList.has(passengerId))
@@ -51,8 +55,6 @@ export class BaggageCompartment {
     //no more baggage for passengerId
     if (this.baggageList.get(passengerId).length == 0)
       this.baggageList.delete(passengerId);
-
-    //TODO: add math and errors
 
     return baggage;
   }

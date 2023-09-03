@@ -68,4 +68,26 @@ describe("PlaneSearch", () => {
     expect(path[2]).toBe(nodeMap.get(4));
     expect(path[3]).toBe(nodeMap.get(5));
   });
+
+  test("should set passenger ticket path", () => {
+    //give ticket to passenger
+    const ticket = new Ticket("coach", 1, "A");
+    const passenger = new Passenger(0);
+    passenger.setTicket(ticket);
+
+    //put passenger on first node
+    passengerToNodeMap.set(passenger, nodeMap.get(0));
+
+    let path = PlaneSearch.calculateMinPassengerSeatPath(
+      nodeMap,
+      nodeMap.get(0),
+      passenger.getTicket()
+    );
+
+    //assert
+    expect(path[0]).toBe(nodeMap.get(1));
+    expect(path[1]).toBe(nodeMap.get(2));
+    expect(path[2]).toBe(nodeMap.get(4));
+    expect(path[3]).toBe(nodeMap.get(5));
+  });
 });

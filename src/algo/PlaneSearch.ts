@@ -29,6 +29,7 @@ export default class PlaneSearch {
     passenger.pathToTarget = path;
   }
 
+  //TODO: could just do (nodeMap + passenger)
   /**
    * calculate the min path from startNodeId to passengerId's ticket.
    * @param nodeMap

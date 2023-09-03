@@ -44,6 +44,7 @@ export class PlaneNode {
     this.inNodes.add(newNodeId);
   }
 
+  //TODO: add node goes both ways
   addOutNode(newNodeId: number) {
     this.outNodes.add(newNodeId);
   }
