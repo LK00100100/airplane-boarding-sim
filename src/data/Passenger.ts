@@ -1,8 +1,10 @@
+import GameScene from "../scenes/GameScene";
+import { SpriteUtil } from "../util/SpriteUtil";
 import { Baggage } from "./Baggage";
 import { Direction } from "./Direction";
+import { PlaneNode } from "./PlaneNode";
 import { Ticket } from "./Ticket";
 
-//TODO: hold path info
 /**
  * Holds information about a passenger
  */
@@ -11,12 +13,13 @@ export class Passenger {
   private ticket: Ticket; //all passengers have a ticket
   baggages: Baggage[]; //should be at most 1 large piece.
 
-  direction: Direction;
+  direction: Direction; //where passenger is heading
 
-  //TODO: sprite's angle and this.direction should be in sync
-  sprites?: Phaser.GameObjects.Group; //group of sprites. Passenger and baggage
+  sprites?: Phaser.GameObjects.Group; //group of sprites. Passenger and baggage. [0] passenger; [1] baggage
 
   tween?: Phaser.Tweens.Tween; //current animation
+
+  pathToTarget: Array<PlaneNode>; //the first node is the next step.
 
   constructor(id: number) {
     this.id = id;
@@ -24,6 +27,8 @@ export class Passenger {
     this.ticket = Ticket.createPlaceholderTicket();
 
     this.direction = Direction.NORTH;
+
+    this.pathToTarget = [];
   }
 
   public hasBaggage() {
@@ -48,14 +53,6 @@ export class Passenger {
   }
 
   /**
-   * sets the sprite angle and passenger's direction.
-   * @param newAngle new angle
-   */
-  setAngleAndDirection(newAngle: number) {
-    //TODO: replace code with "90 *"
-  }
-
-  /**
    * gets the ticket.
    * @returns
    */
@@ -73,7 +70,75 @@ export class Passenger {
     return sprite.angle;
   }
 
+  /**
+   * Gets the facing direction of the passenger to where they are going.
+   * @param startNode
+   * @param nextNode
+   */
+  public static getFacingDirection(startNode: PlaneNode, nextNode: PlaneNode) {
+    const nextX = nextNode.sprite!.x - startNode.sprite!.x;
+    const nextY = nextNode.sprite!.y - startNode.sprite!.y;
+
+    //horizontal is more powerful
+    if (Math.abs(nextX) > Math.abs(nextY)) {
+      if (startNode.sprite!.x < nextNode.sprite!.x) {
+        return Direction.EAST;
+      }
+      return Direction.WEST;
+    }
+    //vertical is more powerful
+    else {
+      if (startNode.sprite!.y < nextNode.sprite!.y) {
+        return Direction.SOUTH;
+      }
+      return Direction.NORTH;
+    }
+  }
+
+  /**
+   * sets the sprite angle and passenger's direction.
+   * Then sets the passenger to move
+   * @param gameScene used to add passenger tween.
+   * @param speed passenger speed
+   * @param newDirection new direction to face
+   */
+  setDirectionAndMove(
+    gameScene: GameScene,
+    speed: number,
+    newDirection: Direction,
+    x?: number,
+    y?: number,
+    onComplete: any = () => {},
+    callbackScope?: any
+  ) {
+    this.direction = newDirection;
+
+    const newAngle = SpriteUtil.shortestAngle(
+      this.getSpriteAngle(),
+      90 * newDirection
+    );
+
+    const tweenConfig = {
+      targets: this.sprites.getChildren(),
+      angle: newAngle,
+      duration: speed,
+      ease: "Power2",
+      ...(x && { x }),
+      ...(y && { y }),
+      ...(onComplete && { onComplete }),
+      ...(callbackScope && { callbackScope }),
+    };
+
+    //face the seat
+    this.tween = gameScene.tweens.add(tweenConfig);
+  }
+
   toString(): string {
     return `id: ${this.id}, ticket: ${this.ticket.toString()}`;
+  }
+
+  destroy() {
+    this.sprites?.destroy(true, true);
+    this.tween?.destroy();
   }
 }

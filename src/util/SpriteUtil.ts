@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 
-export class SpriteUtils {
+export class SpriteUtil {
   /**
    * Used so your sprite doesn't spin too many degrees.
    * So tweening 90 degrees clockwise may cause your sprite to spin 270 counter-clockwise.

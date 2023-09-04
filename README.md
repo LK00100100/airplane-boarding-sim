@@ -26,6 +26,13 @@ To build the static files:
 npm run build
 ```
 
+To run tests:
+
+```
+npm run test
+```
+In VSCode, I set breakpoints and run tests through the "Javascript Debug Terminal."
+
 ## notes
 
 Phaser starter template: https://github.com/photonstorm/phaser3-typescript-project-template

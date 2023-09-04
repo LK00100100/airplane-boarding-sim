@@ -14,10 +14,7 @@ import { Seat } from "./Seat";
 export class PlaneNode {
   id: number; // unique id
 
-  //TODO: overengineering for now. just use two-way
-  //TODO: just use Node
-  inNodes: Set<number>; //node ids going in
-  outNodes: Set<number>; //node ids going out
+  neighbors: Set<PlaneNode>; //neighboring nodes
 
   private baggageCompartments: Map<Direction, BaggageCompartment>;
 
@@ -30,20 +27,20 @@ export class PlaneNode {
 
   constructor(id: number) {
     this.id = id;
-    this.inNodes = new Set();
-    this.outNodes = new Set();
+    this.neighbors = new Set();
     this.baggageCompartments = new Map();
 
     this.isEnterNode = false;
     this.isExitNode = false;
   }
 
-  addInNode(newNodeId: number) {
-    this.inNodes.add(newNodeId);
-  }
-
-  addOutNode(newNodeId: number) {
-    this.outNodes.add(newNodeId);
+  /**
+   * add node to neighbors. Goes both ways.
+   * @param newNode -
+   */
+  addNeighbor(newNode: PlaneNode) {
+    this.neighbors.add(newNode);
+    newNode.neighbors.add(this);
   }
 
   /**
@@ -59,7 +56,7 @@ export class PlaneNode {
     return false;
   }
 
-  setBaggageComparment(direction: Direction, size: number) {
+  setBaggageCompartment(direction: Direction, size: number) {
     this.baggageCompartments.set(direction, new BaggageCompartment(size));
   }
 
@@ -68,21 +65,33 @@ export class PlaneNode {
   }
 
   public toString() {
-    //TODO: fix this filth. doesnt work :)
     let baggageStr = "";
     for (const [direction, compartment] of this.baggageCompartments) {
       baggageStr += `{dir: ${direction} : cap: ${compartment.current}/${compartment.max}}`;
     }
 
-    const outNodeStr = Array.from(this.outNodes.values()).join(",");
+    const neighborsArr = Array.from(this.neighbors.values()).map((n) => n.id);
+    const neighborsStr = neighborsArr.join(",");
+
+    const ticket = this.seatInfo?.toTicket();
+    const ticketStr = ticket
+      ? `${ticket?.seatClass}:${ticket?.aisle}${ticket.number}`
+      : undefined;
 
     const objWithout = {
       ...this,
       sprite: undefined,
-      outs: outNodeStr, //TODO: using outNodes doesn't overwrite?
-      baggageCompartments: `[${baggageStr}]`, //TODO: using baggageCompartments doesn't overwrite?
+      neighbors: neighborsStr,
+      seatInfo: ticketStr,
+      isEnterNode: this.isEnterNode ? "yes" : undefined,
+      isExitNode: this.isExitNode ? "yes" : undefined,
+      baggageCompartments: `[${baggageStr}]`,
     };
 
     return JSON.stringify(objWithout);
+  }
+
+  destroy() {
+    this.sprite?.destroy();
   }
 }
