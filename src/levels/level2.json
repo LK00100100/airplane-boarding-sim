@@ -1,7 +1,7 @@
 {
     "name": "gcp-plane",
     "planeOffsetX": -10,
-    "planeOffSetY": 30,
+    "planeOffsetY": 30,
     "nodes": [
         {
             "id": 0,

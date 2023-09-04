@@ -1,6 +1,7 @@
 export class ButtonUtil {
   /**
    * add standardized functionality to a game button.
+   * Such as tinting.
    * @param sprite
    * @param onUpFunc function to do stuff. when clicked up. "this" is the button
    */

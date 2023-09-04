@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 import { PlaneNode } from "../data/PlaneNode";
 import { Passenger } from "../data/Passenger";
-import PlaneSearch from "../algo/PlaneSearch";
+import { PlaneSearch } from "../algo/PlaneSearch";
 import { Seat } from "../data/Seat";
 import { Direction } from "../data/Direction";
 import { Ticket } from "../data/Ticket";

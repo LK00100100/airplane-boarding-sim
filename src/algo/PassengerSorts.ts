@@ -5,7 +5,7 @@ import { Passenger } from "../data/Passenger";
  * Only been tested with one plane.
  * WILL goof with other planes.
  */
-export default class PassengerSorts {
+export class PassengerSorts {
   /**
    * Sorts passengers from front to back.
    * And Out (windows) to In (aisles).
@@ -13,7 +13,7 @@ export default class PassengerSorts {
    * @param b passenger
    * @returns -1 if a < b; 1 if a > b; otherwise, 0.
    */
-  public static frontToBack(a: Passenger, b: Passenger) {
+  public static frontToBack(a: Passenger, b: Passenger): number {
     const aTicket = a.getTicket();
     const bTicket = b.getTicket();
 
@@ -42,7 +42,7 @@ export default class PassengerSorts {
    * @param b passenger
    * @returns -1 if a < b; 1 if a > b; otherwise, 0.
    */
-  public static backToFront(a: Passenger, b: Passenger) {
+  public static backToFront(a: Passenger, b: Passenger): number {
     const aTicket = a.getTicket();
     const bTicket = b.getTicket();
 
@@ -124,7 +124,7 @@ export default class PassengerSorts {
    * @param b -
    * @returns
    */
-  public static steffanMethod(a: Passenger, b: Passenger) {
+  public static steffanMethod(a: Passenger, b: Passenger): number {
     const aTicket = a.getTicket();
     const bTicket = b.getTicket();
 
@@ -155,7 +155,7 @@ export default class PassengerSorts {
    * @param b -
    * @returns
    */
-  public static slothSort(a: Passenger, b: Passenger) {
+  public static slothSort(a: Passenger, b: Passenger): number {
     const aTicket = a.getTicket();
     const bTicket = b.getTicket();
 
@@ -224,3 +224,8 @@ export default class PassengerSorts {
     }
   }
 }
+
+/**
+ * Compares two passengers. if a < b, then -1. 0 if same. otherwise, 1.
+ */
+export type PassengerComparator = (a: Passenger, b: Passenger) => number;

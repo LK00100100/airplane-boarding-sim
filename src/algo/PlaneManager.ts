@@ -8,9 +8,9 @@ import { Ticket } from "../data/Ticket";
 import GameScene from "../scenes/GameScene";
 import { PassengerSemaphore } from "../util/PassengerSemaphore";
 import { SpriteUtil } from "../util/SpriteUtil";
-import PassengerSorts from "./PassengerSorts";
 import StringUtil from "../util/StringUtil";
 import { BlockerSpaces, PlaneSearch } from "./PlaneSearch";
+import { PassengerSorts, PassengerComparator } from "./PassengerSorts";
 
 /**
  * Manages the spaces on the Plane and the Passengers in it
@@ -73,17 +73,18 @@ export default class PlaneManager {
 
     this.createPassengers();
 
-    //TODO: test sort passengers here. remove later
-    //this.passengerInPortQueue.sort(PassengerSorts.frontToBack);
-    //this.passengerInPortQueue.sort(PassengerSorts.backToFront);
-    //this.passengerInPortQueue.sort(PassengerSorts.outToIn);
-    //this.passengerInPortQueue.sort(PassengerSorts.steffanMethod);
     PassengerSorts.randomize(
       this.passengerInPortQueue,
       this.passengerInPortQueue.length * 100
     );
+  }
 
-    //this.passengerInPortQueue.sort(PassengerSorts.slothSort);
+  /**
+   * Sort passengers using the given passengerComparator.
+   * @param passengerComparator -
+   */
+  public sortPassengers(passengerComparator: PassengerComparator): void {
+    this.passengerInPortQueue.sort(passengerComparator);
   }
 
   private createPlaneNodes(): void {
