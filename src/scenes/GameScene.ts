@@ -269,6 +269,11 @@ export default class GameScene extends Phaser.Scene {
 
     this.statsText.text = `Time: ${timeStr}`;
     this.statsText.text += `\nShuffles: ${this.planeManager.getNumShuffles()}`;
+
+    //calc total steps
+    let totalSteps = this.planeManager.getTotalSteps();
+
+    this.statsText.text += `\nStep count: ${totalSteps}`;
   }
 
   update() {

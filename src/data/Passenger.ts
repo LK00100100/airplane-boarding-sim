@@ -21,6 +21,8 @@ export class Passenger {
 
   pathToTarget: Array<PlaneNode>; //the first node is the next step.
 
+  numSteps: number; //number of steps taken
+
   constructor(id: number) {
     this.id = id;
     this.baggages = [];
@@ -29,6 +31,8 @@ export class Passenger {
     this.direction = Direction.NORTH;
 
     this.pathToTarget = [];
+
+    this.numSteps = 0;
   }
 
   public hasBaggage() {
@@ -56,8 +60,16 @@ export class Passenger {
    * gets the ticket.
    * @returns
    */
-  getTicket(): Ticket {
+  public getTicket(): Ticket {
     return this.ticket;
+  }
+
+  public getNumSteps() {
+    return this.numSteps;
+  }
+
+  public incrmentStep() {
+    this.numSteps++;
   }
 
   /**

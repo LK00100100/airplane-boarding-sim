@@ -48,6 +48,7 @@ export default class PlaneManager {
 
   private currentPlane: any;
 
+  //in milliseconds
   private baggageLoadSpeed: number = 40;
   private passengerSpeed: number = 40; //400 is good
 
@@ -328,13 +329,13 @@ export default class PlaneManager {
               let directionY =
                 passenger.direction == Direction.NORTH ? -15 : 15;
 
-              let newAngle = passenger.direction == Direction.NORTH ? 180 : 90;
+              let newAngle = passenger.direction == Direction.NORTH ? 180 : 0;
 
               const tweenConfig = {
                 targets: baggageSprite, //baggage
                 angle: newAngle,
                 duration: this.baggageLoadSpeed,
-                ease: "Power2",
+                ease: "Linear",
                 y: baggageSprite.y + directionY,
                 onComplete: () => {
                   //throw in baggage
@@ -380,6 +381,8 @@ export default class PlaneManager {
 
       //can we move one step closer?
       const nextNode = passenger.pathToTarget[0];
+
+      let passengerShuffledOutStep = -1;
 
       //we are in front of our aisle (but not in)
       //are we blocked? shuffle everyone so you can get in.
@@ -460,6 +463,8 @@ export default class PlaneManager {
 
           //3) after blockers are out...
           this.passengerSemaphore.addEvent(blockers, () => {
+            passengerShuffledOutStep = passenger.getNumSteps();
+
             //passenger goes to seat and stops
             PlaneSearch.setPassengerToTicketPath(
               passenger,
@@ -539,6 +544,9 @@ export default class PlaneManager {
           this.nodeToPassengerMap.delete(startNode);
           this.passengerToNodeMap.set(passenger, nextNode);
           this.passengerOnMove.push(passenger);
+          passenger.incrmentStep();
+
+          //actions on specific steps
         }
       );
     } //end simulate loop
@@ -658,6 +666,18 @@ export default class PlaneManager {
     freeSpaces.blockerSpaces.forEach((node) =>
       this.nodeToMultiPassengerMap.set(node, shufflers)
     );
+  }
+
+  /**
+   *
+   * @returns the total number of steps for all passengers
+   */
+  public getTotalSteps(): number {
+    let totalSteps = 0;
+
+    this.passengerMap.forEach((p) => (totalSteps += p.getNumSteps()));
+
+    return totalSteps;
   }
 
   /**
