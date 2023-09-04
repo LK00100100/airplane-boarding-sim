@@ -27,7 +27,6 @@ export default class GameScene extends Phaser.Scene {
     this.load.image("btn-simulate", "assets/btn-simulate.png");
     this.load.image("btn-pause", "assets/btn-pause.png");
     this.load.image("btn-reset", "assets/btn-reset.png");
-    this.load.image("btn-complete-reset", "assets/btn-complete-reset.png");
 
     //algo buttons
     this.load.image(
@@ -75,7 +74,9 @@ export default class GameScene extends Phaser.Scene {
 
     this.simulateSprite?.setTexture("btn-simulate");
 
-    this.setGameText("brought to you by: silverbacksnakes.io");
+    this.setGameText(
+      "brought to you by: silverbacksnakes.io.\nalgo done: random"
+    );
   }
 
   private createButtons(): void {
@@ -186,9 +187,9 @@ export default class GameScene extends Phaser.Scene {
       this.planeManager.simulateFrame();
 
       if (this.IS_DEBUG_MODE) {
-        console.log(
-          "is everyone seated: " + this.planeManager.isEveryoneSeated()
-        );
+        // console.log(
+        //   "is everyone seated: " + this.planeManager.isEveryoneSeated()
+        // );
       }
     }
 

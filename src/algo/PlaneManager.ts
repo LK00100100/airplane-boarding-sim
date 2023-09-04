@@ -7,7 +7,6 @@ import { Seat } from "../data/Seat";
 import { Ticket } from "../data/Ticket";
 import GameScene from "../scenes/GameScene";
 import { PassengerSemaphore } from "../util/PassengerSemaphore";
-import { SpriteUtil } from "../util/SpriteUtil";
 import StringUtil from "../util/StringUtil";
 import { BlockerSpaces, PlaneSearch } from "./PlaneSearch";
 import { PassengerSorts, PassengerComparator } from "./PassengerSorts";
@@ -24,6 +23,7 @@ export default class PlaneManager {
   //passengers here will be simulated.
   //you can add on to this while simulating.
   //only the old passengers will be processed per frame.
+  //new passengers are pop()'d. Add to the end with unshift()
   private passengerOnMove!: Array<Passenger>;
 
   //passengerId is not moving in nodeId. key is removed if passenger is moving.
@@ -232,7 +232,6 @@ export default class PlaneManager {
 
       passenger.sprites = passengerSpriteGroup;
 
-      //TODO: can remove this later and set
       //set direction if specified
       if ("direction" in passengerJson) {
         const directionStr: string = passengerJson["direction"] as string;
@@ -261,7 +260,6 @@ export default class PlaneManager {
     passenger.sprites!.setXY(planeNode.sprite!.x, planeNode.sprite!.y);
   }
 
-  //TODO: refactor to submethods
   /**
    * This actually simulates passenger thinking and then orders them to move.
    * simulateTimer calls this every frame.
@@ -303,20 +301,19 @@ export default class PlaneManager {
 
           const nextNode = passenger.pathToTarget[0];
 
-          this.setFacingDirection(passenger, startNode, nextNode);
-
-          const newAngle = SpriteUtil.shortestAngle(
-            passenger.getSpriteAngle(),
-            90 * passenger.direction
+          const newDirection = Passenger.getFacingDirection(
+            startNode,
+            nextNode
           );
 
           //face toward your seat
-          passenger.tween = this.gameScene.tweens.add({
-            targets: passenger.sprites.getChildren(),
-            angle: newAngle,
-            duration: this.baggageLoadSpeed,
-            ease: "Power2",
-            onComplete: () => {
+          passenger.setDirectionAndMove(
+            this.gameScene,
+            this.baggageLoadSpeed,
+            newDirection,
+            undefined,
+            undefined,
+            () => {
               //throw in baggage
               //TODO: better animation here
               const baggage = passenger.baggages.pop();
@@ -325,9 +322,8 @@ export default class PlaneManager {
 
               //keep on truckin'
               this.passengerOnMove.push(passenger);
-            },
-            callbackScope: this,
-          });
+            }
+          );
 
           continue;
         }
@@ -339,21 +335,17 @@ export default class PlaneManager {
 
         //are we at our seat? sit down
         if (startNode.seatInfo?.isTicketSeat(passengerTicket)) {
-          //TODO: set direction
-
-          const newAngle = SpriteUtil.shortestAngle(
-            passenger.getSpriteAngle(),
-            90 * startNode.seatInfo.direction
+          //face toward your seat
+          passenger.setDirectionAndMove(
+            this.gameScene,
+            this.passengerSpeed,
+            startNode.seatInfo.direction,
+            undefined,
+            undefined,
+            () => {
+              console.log(`p ${passenger.id} seated`);
+            }
           );
-
-          //face the seat
-          passenger.tween = this.gameScene.tweens.add({
-            targets: passenger.sprites.getChildren(),
-            angle: newAngle,
-            duration: this.passengerSpeed,
-            ease: "Power2",
-            onComplete: function () {},
-          });
         }
 
         continue;
@@ -378,7 +370,7 @@ export default class PlaneManager {
 
         if (this.gameScene.IS_DEBUG_MODE) {
           const blockersCsv = StringUtil.listOfObjWithIdToCsv(blockers);
-          console.log(`p ${passenger.id}, blockers: ${blockersCsv}`);
+          console.log(`p ${passenger.id} blocked! blockers: ${blockersCsv}`);
         }
 
         //blockers present, do the shuffle
@@ -392,7 +384,7 @@ export default class PlaneManager {
           );
 
           if (!freeSpaces.hasFreeSpaces) {
-            this.passengerOnMove.unshift(passenger);
+            this.passengerOnMove.unshift(passenger); //move to end of line
             continue;
           }
 
@@ -402,7 +394,7 @@ export default class PlaneManager {
           let canLock = this.canLockForShufflers(startNode, freeSpaces);
 
           if (!canLock) {
-            this.passengerOnMove.push(passenger);
+            this.passengerOnMove.unshift(passenger);
             continue;
           }
 
@@ -505,29 +497,21 @@ export default class PlaneManager {
       //move one step closer
       passenger.pathToTarget.shift();
       this.nodeToPassengerMap.set(nextNode, passenger); //occupy start and next node
-      this.setFacingDirection(passenger, startNode, nextNode);
+      const newDirection = Passenger.getFacingDirection(startNode, nextNode);
 
-      const newAngle = SpriteUtil.shortestAngle(
-        passenger.getSpriteAngle(),
-        90 * passenger.direction
-      );
-
-      //TODO: set direction
       //move to next spot
-      passenger.tween = this.gameScene.tweens.add({
-        targets: passenger.sprites.getChildren(),
-        x: nextNode.sprite?.x,
-        y: nextNode.sprite?.y,
-        angle: newAngle, //TODO: hard code
-        duration: this.passengerSpeed,
-        ease: "Power2",
-        onComplete: () => {
+      passenger.setDirectionAndMove(
+        this.gameScene,
+        this.passengerSpeed,
+        newDirection,
+        nextNode.sprite?.x,
+        nextNode.sprite?.y,
+        () => {
           this.nodeToPassengerMap.delete(startNode);
           this.passengerToNodeMap.set(passenger, nextNode);
           this.passengerOnMove.push(passenger);
-        },
-        callbackScope: this,
-      });
+        }
+      );
     } //end simulate loop
   }
 
@@ -565,32 +549,6 @@ export default class PlaneManager {
     this.passengerOnMove.push(passenger);
   }
 
-  //TODO: also set the sprite angle
-  /**
-   * Sets the facing direction of the passenger to where they are going.
-   */
-  private setFacingDirection(
-    passenger: Passenger,
-    startNode: PlaneNode,
-    nextNode: PlaneNode
-  ) {
-    const nextX = nextNode.sprite!.x - startNode.sprite!.x;
-    const nextY = nextNode.sprite!.y - startNode.sprite!.y;
-
-    //horizontal is more powerful
-    if (Math.abs(nextX) > Math.abs(nextY)) {
-      passenger.direction = Direction.WEST;
-      if (startNode.sprite!.x < nextNode.sprite!.x)
-        passenger.direction = Direction.EAST;
-    }
-    //vertical is more powerful
-    else {
-      passenger.direction = Direction.NORTH;
-      if (startNode.sprite!.y < nextNode.sprite!.y)
-        passenger.direction = Direction.SOUTH;
-    }
-  }
-
   /**
    *
    * @returns true if everyone is seated. False, otherwise.
@@ -625,26 +583,23 @@ export default class PlaneManager {
     startNode: PlaneNode,
     freeSpaces: BlockerSpaces
   ): boolean {
-    let canLock = true;
     if (this.nodeToMultiPassengerMap.has(startNode)) {
-      canLock = false;
+      return false;
     }
 
     for (const node of freeSpaces.tickerholderSpaces) {
       if (this.nodeToMultiPassengerMap.has(node)) {
-        canLock = false;
-        break;
+        return false;
       }
     }
 
     for (const node of freeSpaces.blockerSpaces) {
       if (this.nodeToMultiPassengerMap.has(node)) {
-        canLock = false;
-        break;
+        return false;
       }
     }
 
-    return canLock;
+    return true;
   }
 
   /**
