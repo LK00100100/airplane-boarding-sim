@@ -51,6 +51,8 @@ export default class PlaneManager {
   private baggageLoadSpeed: number = 40;
   private passengerSpeed: number = 40; //400 is good
 
+  private numShuffles: number; //number of passenger shuffles completed.
+
   constructor(gameScene: GameScene, planeJson: any) {
     this.gameScene = gameScene;
     this.currentPlane = planeJson;
@@ -68,6 +70,8 @@ export default class PlaneManager {
     this.enterNodesMap = new Map();
 
     this.passengerInPortQueue = [];
+
+    this.numShuffles = 0;
 
     this.createPlaneNodes();
 
@@ -306,22 +310,45 @@ export default class PlaneManager {
             nextNode
           );
 
+          //TODO: move to submethod
           //face toward your seat
           passenger.setDirectionAndMove(
             this.gameScene,
-            this.baggageLoadSpeed,
+            this.passengerSpeed,
             newDirection,
             undefined,
             undefined,
             () => {
-              //throw in baggage
-              //TODO: better animation here
-              const baggage = passenger.baggages.pop();
-              startNode.addBaggage(Direction.NORTH, baggage);
-              passenger.sprites.getChildren()[1].destroy(); //HACK:
+              //load the baggage slowly and face the seat
+              //HACK: everywhere
+              let baggageSprite =
+                passenger.sprites.getChildren()[1] as Phaser.GameObjects.Sprite;
 
-              //keep on truckin'
-              this.passengerOnMove.push(passenger);
+              //no support for west/east.
+              let directionY =
+                passenger.direction == Direction.NORTH ? -15 : 15;
+
+              let newAngle = passenger.direction == Direction.NORTH ? 180 : 90;
+
+              const tweenConfig = {
+                targets: baggageSprite, //baggage
+                angle: newAngle,
+                duration: this.baggageLoadSpeed,
+                ease: "Power2",
+                y: baggageSprite.y + directionY,
+                onComplete: () => {
+                  //throw in baggage
+                  const baggage = passenger.baggages.pop();
+                  startNode.addBaggage(Direction.NORTH, baggage);
+                  passenger.sprites.getChildren()[1].destroy(); //HACK:
+
+                  //keep on truckin'
+                  this.passengerOnMove.push(passenger);
+                },
+                callbackScope: this,
+              };
+
+              passenger.tween = this.gameScene.tweens.add(tweenConfig);
             }
           );
 
@@ -472,6 +499,8 @@ export default class PlaneManager {
 
                 this.nodeToMultiPassengerMap.delete(startNode);
               });
+
+              this.numShuffles++;
             });
           });
 
@@ -518,7 +547,7 @@ export default class PlaneManager {
   /**
    * if there is space, unqueue one passenger from the port to the plane.
    */
-  public unqueuePortToPlane(): void {
+  private unqueuePortToPlane(): void {
     if (this.passengerInPortQueue.length > 0) {
       //for now, just get the first entrance
       const enterNode = this.enterNodesMap.get(0);
@@ -551,9 +580,17 @@ export default class PlaneManager {
 
   /**
    *
+   * @returns number of passengers who have completed shuffling.
+   */
+  public getNumShuffles() {
+    return this.numShuffles;
+  }
+
+  /**
+   *
    * @returns true if everyone is seated. False, otherwise.
    */
-  isEveryoneSeated(): boolean {
+  public isEveryoneSeated(): boolean {
     if (this.passengerOnMove.length > 0) return false;
 
     //are all passengers really seated?
@@ -579,7 +616,7 @@ export default class PlaneManager {
    * @param freeSpaces the node
    * @returns true if we can lock. Otherwise, false.
    */
-  canLockForShufflers(
+  private canLockForShufflers(
     startNode: PlaneNode,
     freeSpaces: BlockerSpaces
   ): boolean {
@@ -608,7 +645,7 @@ export default class PlaneManager {
    * @param freeSpaces required shuffling spaces.
    * @param shufflers the people we are locking
    */
-  lockForShufflers(
+  private lockForShufflers(
     startNode: PlaneNode,
     freeSpaces: BlockerSpaces,
     shufflers: Set<Passenger>

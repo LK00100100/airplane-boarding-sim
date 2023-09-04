@@ -116,7 +116,7 @@ export default class GameScene extends Phaser.Scene {
         return;
       }
 
-      if (this.simulationStarted) {
+      if (!this.simulationStarted) {
         this.setGameText("simulation started");
       } else {
         this.setGameText("simulation unpaused");
@@ -268,6 +268,7 @@ export default class GameScene extends Phaser.Scene {
     const timeStr = `${minuteStr}:${secondStr}`;
 
     this.statsText.text = `Time: ${timeStr}`;
+    this.statsText.text += `\nShuffles: ${this.planeManager.getNumShuffles()}`;
   }
 
   update() {
