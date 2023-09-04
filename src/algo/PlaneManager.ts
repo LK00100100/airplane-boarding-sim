@@ -37,6 +37,8 @@ export default class PlaneManager {
   //<nodeId, passengersId>
   private nodeToMultiPassengerMap!: Map<PlaneNode, Set<Passenger>>; //same as above but with multiple passengers. used ONLY for seat shuffling
   private shufflersSet: Set<Passenger>; //people who are actively shuffling.
+  //TODO: could class it
+  private passengerStepEvent: Map<Passenger, Map<Number, Function>>; //call function on passenger's step count
 
   //used by shufflers. events are fired when subsets of shufflers are done moving.
   private passengerSemaphore: PassengerSemaphore;
@@ -50,7 +52,7 @@ export default class PlaneManager {
 
   //in milliseconds
   private baggageLoadSpeed: number = 40;
-  private passengerSpeed: number = 40; //400 is good
+  private passengerSpeed: number = 100; //400 is good
 
   private numShuffles: number; //number of passenger shuffles completed.
 
@@ -67,6 +69,7 @@ export default class PlaneManager {
     this.nodeToMultiPassengerMap = new Map();
     this.passengerSemaphore = new PassengerSemaphore();
     this.shufflersSet = new Set();
+    this.passengerStepEvent = new Map();
 
     this.enterNodesMap = new Map();
 
@@ -382,8 +385,6 @@ export default class PlaneManager {
       //can we move one step closer?
       const nextNode = passenger.pathToTarget[0];
 
-      let passengerShuffledOutStep = -1;
-
       //we are in front of our aisle (but not in)
       //are we blocked? shuffle everyone so you can get in.
       if (
@@ -463,24 +464,11 @@ export default class PlaneManager {
 
           //3) after blockers are out...
           this.passengerSemaphore.addEvent(blockers, () => {
-            passengerShuffledOutStep = passenger.getNumSteps();
+            const passengerShuffledOutStep = passenger.getNumSteps();
 
-            //passenger goes to seat and stops
-            PlaneSearch.setPassengerToTicketPath(
-              passenger,
-              this.nodeMap,
-              this.passengerToNodeMap
-            );
-            this.passengerOnMove.push(passenger);
-
-            //after passenger is in seat...
-            this.passengerSemaphore.addEvent([passenger], () => {
-              this.shufflersSet.delete(passenger);
-
-              freeSpaces.tickerholderSpaces.forEach((node) =>
-                this.nodeToMultiPassengerMap.delete(node)
-              );
-
+            //when passenger takes one step towards their seat...
+            const eventMap = new Map();
+            eventMap.set(passengerShuffledOutStep + 1, () => {
               //4) blockers go to their seat
               blockers.forEach((blocker) => {
                 PlaneSearch.setPassengerToTicketPath(
@@ -497,13 +485,29 @@ export default class PlaneManager {
                 blockers.forEach((blocker) => {
                   this.shufflersSet.delete(blocker);
                 });
-
                 freeSpaces.blockerSpaces.forEach((node) =>
                   this.nodeToMultiPassengerMap.delete(node)
                 );
-
                 this.nodeToMultiPassengerMap.delete(startNode);
-              });
+              }); //end 5)
+            });
+            this.passengerStepEvent.set(passenger, eventMap);
+
+            //passenger goes to seat and stops
+            PlaneSearch.setPassengerToTicketPath(
+              passenger,
+              this.nodeMap,
+              this.passengerToNodeMap
+            );
+            this.passengerOnMove.push(passenger);
+
+            //after passenger is in seat...
+            this.passengerSemaphore.addEvent([passenger], () => {
+              this.shufflersSet.delete(passenger);
+
+              freeSpaces.tickerholderSpaces.forEach((node) =>
+                this.nodeToMultiPassengerMap.delete(node)
+              );
 
               this.numShuffles++;
             });
@@ -547,6 +551,14 @@ export default class PlaneManager {
           passenger.incrmentStep();
 
           //actions on specific steps
+          if (this.passengerStepEvent.has(passenger)) {
+            const stepEvents = this.passengerStepEvent.get(passenger);
+            const passengerSteps = passenger.getNumSteps();
+            if (stepEvents.has(passengerSteps)) {
+              stepEvents.get(passengerSteps)();
+              this.passengerStepEvent.delete(passenger);
+            }
+          }
         }
       );
     } //end simulate loop

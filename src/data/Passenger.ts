@@ -107,6 +107,7 @@ export class Passenger {
     }
   }
 
+  //TODO: one parameter obj
   /**
    * sets the sprite angle and passenger's direction.
    * Then sets the passenger to move
