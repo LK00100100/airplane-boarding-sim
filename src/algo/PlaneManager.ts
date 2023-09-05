@@ -37,6 +37,8 @@ export default class PlaneManager {
   //<nodeId, passengersId>
   private nodeToMultiPassengerMap!: Map<PlaneNode, Set<Passenger>>; //same as above but with multiple passengers. used ONLY for seat shuffling
   private shufflersSet: Set<Passenger>; //people who are actively shuffling.
+  //TODO: could class it
+  private passengerStepEvent: Map<Passenger, Map<Number, Function>>; //call function on passenger's step count
 
   //used by shufflers. events are fired when subsets of shufflers are done moving.
   private passengerSemaphore: PassengerSemaphore;
@@ -48,8 +50,9 @@ export default class PlaneManager {
 
   private currentPlane: any;
 
-  private baggageLoadSpeed: number = 40;
-  private passengerSpeed: number = 40; //400 is good
+  //in milliseconds
+  private baggageLoadSpeed: number = 5000; //5000 is good
+  private passengerSpeed: number = 400; //400 is good
 
   private numShuffles: number; //number of passenger shuffles completed.
 
@@ -66,6 +69,7 @@ export default class PlaneManager {
     this.nodeToMultiPassengerMap = new Map();
     this.passengerSemaphore = new PassengerSemaphore();
     this.shufflersSet = new Set();
+    this.passengerStepEvent = new Map();
 
     this.enterNodesMap = new Map();
 
@@ -328,13 +332,13 @@ export default class PlaneManager {
               let directionY =
                 passenger.direction == Direction.NORTH ? -15 : 15;
 
-              let newAngle = passenger.direction == Direction.NORTH ? 180 : 90;
+              let newAngle = passenger.direction == Direction.NORTH ? 180 : 0;
 
               const tweenConfig = {
                 targets: baggageSprite, //baggage
                 angle: newAngle,
                 duration: this.baggageLoadSpeed,
-                ease: "Power2",
+                ease: "Linear",
                 y: baggageSprite.y + directionY,
                 onComplete: () => {
                   //throw in baggage
@@ -460,22 +464,11 @@ export default class PlaneManager {
 
           //3) after blockers are out...
           this.passengerSemaphore.addEvent(blockers, () => {
-            //passenger goes to seat and stops
-            PlaneSearch.setPassengerToTicketPath(
-              passenger,
-              this.nodeMap,
-              this.passengerToNodeMap
-            );
-            this.passengerOnMove.push(passenger);
+            const passengerShuffledOutStep = passenger.getNumSteps();
 
-            //after passenger is in seat...
-            this.passengerSemaphore.addEvent([passenger], () => {
-              this.shufflersSet.delete(passenger);
-
-              freeSpaces.tickerholderSpaces.forEach((node) =>
-                this.nodeToMultiPassengerMap.delete(node)
-              );
-
+            //when passenger takes one step towards their seat...
+            const eventMap = new Map();
+            eventMap.set(passengerShuffledOutStep + 1, () => {
               //4) blockers go to their seat
               blockers.forEach((blocker) => {
                 PlaneSearch.setPassengerToTicketPath(
@@ -492,13 +485,29 @@ export default class PlaneManager {
                 blockers.forEach((blocker) => {
                   this.shufflersSet.delete(blocker);
                 });
-
                 freeSpaces.blockerSpaces.forEach((node) =>
                   this.nodeToMultiPassengerMap.delete(node)
                 );
-
                 this.nodeToMultiPassengerMap.delete(startNode);
               });
+            });
+            this.passengerStepEvent.set(passenger, eventMap);
+
+            //passenger goes to seat and stops
+            PlaneSearch.setPassengerToTicketPath(
+              passenger,
+              this.nodeMap,
+              this.passengerToNodeMap
+            );
+            this.passengerOnMove.push(passenger);
+
+            //after passenger is in seat...
+            this.passengerSemaphore.addEvent([passenger], () => {
+              this.shufflersSet.delete(passenger);
+
+              freeSpaces.tickerholderSpaces.forEach((node) =>
+                this.nodeToMultiPassengerMap.delete(node)
+              );
 
               this.numShuffles++;
             });
@@ -539,6 +548,17 @@ export default class PlaneManager {
           this.nodeToPassengerMap.delete(startNode);
           this.passengerToNodeMap.set(passenger, nextNode);
           this.passengerOnMove.push(passenger);
+          passenger.incrmentStep();
+
+          //actions on specific steps
+          if (this.passengerStepEvent.has(passenger)) {
+            const stepEvents = this.passengerStepEvent.get(passenger);
+            const passengerSteps = passenger.getNumSteps();
+            if (stepEvents.has(passengerSteps)) {
+              stepEvents.get(passengerSteps)();
+              this.passengerStepEvent.delete(passenger);
+            }
+          }
         }
       );
     } //end simulate loop
@@ -658,6 +678,18 @@ export default class PlaneManager {
     freeSpaces.blockerSpaces.forEach((node) =>
       this.nodeToMultiPassengerMap.set(node, shufflers)
     );
+  }
+
+  /**
+   *
+   * @returns the total number of steps for all passengers
+   */
+  public getTotalSteps(): number {
+    let totalSteps = 0;
+
+    this.passengerMap.forEach((p) => (totalSteps += p.getNumSteps()));
+
+    return totalSteps;
   }
 
   /**

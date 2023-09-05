@@ -23,7 +23,7 @@ export default class GameScene extends Phaser.Scene {
   /**
    * constants
    */
-  public readonly IS_DEBUG_MODE = true; //turn on to see more information
+  public readonly IS_DEBUG_MODE = false; //turn on to see more information
 
   constructor() {
     super(SceneNames.GAME_SCENE);
@@ -269,6 +269,11 @@ export default class GameScene extends Phaser.Scene {
 
     this.statsText.text = `Time: ${timeStr}`;
     this.statsText.text += `\nShuffles: ${this.planeManager.getNumShuffles()}`;
+
+    //calc total steps
+    let totalSteps = this.planeManager.getTotalSteps();
+
+    this.statsText.text += `\nStep count: ${totalSteps}`;
   }
 
   update() {
@@ -292,7 +297,7 @@ export default class GameScene extends Phaser.Scene {
   simulationComplete() {
     this.isSimulationOn = false;
 
-    console.log("everyone is seated");
+    this.setGameText("everyone is seated");
     this.simulateTimer.paused = true;
   }
 }
