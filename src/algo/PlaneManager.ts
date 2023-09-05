@@ -51,8 +51,8 @@ export default class PlaneManager {
   private currentPlane: any;
 
   //in milliseconds
-  private baggageLoadSpeed: number = 40;
-  private passengerSpeed: number = 100; //400 is good
+  private baggageLoadSpeed: number = 5000; //5000 is good
+  private passengerSpeed: number = 400; //400 is good
 
   private numShuffles: number; //number of passenger shuffles completed.
 
@@ -489,7 +489,7 @@ export default class PlaneManager {
                   this.nodeToMultiPassengerMap.delete(node)
                 );
                 this.nodeToMultiPassengerMap.delete(startNode);
-              }); //end 5)
+              });
             });
             this.passengerStepEvent.set(passenger, eventMap);
 
