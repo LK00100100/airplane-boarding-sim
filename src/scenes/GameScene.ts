@@ -88,6 +88,7 @@ export default class GameScene extends Phaser.Scene {
       callbackScope: this,
       repeat: -1,
     });
+    this.simulateTimer.paused = true;
     this.simulateSeconds = 0;
 
     this.simulateSprite?.setTexture("btn-simulate");

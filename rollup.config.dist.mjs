@@ -1,5 +1,6 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
@@ -59,7 +60,8 @@ export default {
         typescript(),
 
         //  See https://github.com/rollup/plugins/tree/master/packages/terser for config options
-        terser()
+        terser(),
 
+        json()
     ]
 };
