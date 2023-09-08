@@ -289,7 +289,6 @@ export default class PlaneManager {
       ) {
         PlaneSearch.setPassengerToTicketPath(
           passenger,
-          this.nodeMap,
           this.passengerToNodeMap
         );
       }
@@ -473,7 +472,6 @@ export default class PlaneManager {
               blockers.forEach((blocker) => {
                 PlaneSearch.setPassengerToTicketPath(
                   blocker,
-                  this.nodeMap,
                   this.passengerToNodeMap
                 );
                 this.passengerOnMove.push(blocker);
@@ -496,7 +494,6 @@ export default class PlaneManager {
             //passenger goes to seat and stops
             PlaneSearch.setPassengerToTicketPath(
               passenger,
-              this.nodeMap,
               this.passengerToNodeMap
             );
             this.passengerOnMove.push(passenger);

@@ -9,17 +9,15 @@ export class PlaneSearch {
   /**
    * Set the passenger's movement path toward the Ticket.
    * @param passenger
-   * @param nodeMap
+   * @param passengerToNodeMap
    */
   public static setPassengerToTicketPath(
     passenger: Passenger,
-    nodeMap: Map<number, PlaneNode>,
     passengerToNodeMap: Map<Passenger, PlaneNode>
   ): void {
     const currentNode: PlaneNode = passengerToNodeMap.get(passenger);
 
     let path = PlaneSearch.calculateMinPassengerSeatPath(
-      nodeMap,
       currentNode,
       passenger.getTicket()
     );
@@ -38,7 +36,6 @@ export class PlaneSearch {
    * An empty array means we're already there. Returns null if no path exists.
    */
   public static calculateMinPassengerSeatPath(
-    nodeMap: Map<number, PlaneNode>,
     startNode: PlaneNode,
     ticket: Ticket
   ): Array<PlaneNode> | null {

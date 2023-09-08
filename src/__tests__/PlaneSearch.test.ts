@@ -58,11 +58,7 @@ describe("PlaneSearch", () => {
     //put passenger on first node
     passengerToNodeMap.set(passenger, nodeMap.get(0));
 
-    PlaneSearch.setPassengerToTicketPath(
-      passenger,
-      nodeMap,
-      passengerToNodeMap
-    );
+    PlaneSearch.setPassengerToTicketPath(passenger, passengerToNodeMap);
 
     //assert
     const path = passenger.pathToTarget;
@@ -82,7 +78,6 @@ describe("PlaneSearch", () => {
     passengerToNodeMap.set(passenger, nodeMap.get(0));
 
     let path = PlaneSearch.calculateMinPassengerSeatPath(
-      nodeMap,
       nodeMap.get(0),
       passenger.getTicket()
     );
@@ -151,11 +146,7 @@ describe("PlaneSearch", () => {
     nodeToPassenger.set(blockerNode1, blocker1);
     nodeToPassenger.set(blockerNode2, blocker2);
 
-    PlaneSearch.setPassengerToTicketPath(
-      passenger,
-      nodeMap,
-      passengerToNodeMap
-    );
+    PlaneSearch.setPassengerToTicketPath(passenger, passengerToNodeMap);
 
     //act
     const blockerSpaces = PlaneSearch.getFreeSpaceForBlockers(
@@ -185,11 +176,7 @@ describe("PlaneSearch", () => {
     //place passengers
     passengerToNodeMap.set(passenger, passengerNode);
 
-    PlaneSearch.setPassengerToTicketPath(
-      passenger,
-      nodeMap,
-      passengerToNodeMap
-    );
+    PlaneSearch.setPassengerToTicketPath(passenger, passengerToNodeMap);
 
     //act
     const baggageNode = PlaneSearch.getClosestBaggageNodeToSeat(
