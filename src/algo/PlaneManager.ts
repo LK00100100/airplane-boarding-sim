@@ -17,6 +17,8 @@ import { PassengerSorts, PassengerComparator } from "./PassengerSorts";
 export default class PlaneManager {
   private gameScene: GameScene;
 
+  public passengerWaitTimer!: Phaser.Time.TimerEvent; //simulates waiting for allowable movement. for non-robotic passenger movement
+
   private nodeMap!: Map<number, PlaneNode>; //<node id, PlaneNode>
   private passengerMap!: Map<number, Passenger>;
 
@@ -25,6 +27,7 @@ export default class PlaneManager {
   //only the old passengers will be processed per frame.
   //new passengers are pop()'d. Add to the end with unshift()
   private passengerOnMove!: Array<Passenger>;
+  private passengerOnMoveNext!: Array<Passenger>; //to be set to "passengerOnMove" a bit later on a loop. Prevents non-robotic passenger movement
 
   //passengerId is not moving in nodeId. key is removed if passenger is moving.
   private passengerToNodeMap!: Map<Passenger, PlaneNode>;
@@ -53,6 +56,7 @@ export default class PlaneManager {
   //in milliseconds
   private baggageLoadSpeed: number = 5000; //5000 is good
   private passengerSpeed: number = 400; //400 is good
+  private passengerWaitDelay: number = 150;
 
   private numShuffles: number; //number of passenger shuffles completed.
 
@@ -60,9 +64,18 @@ export default class PlaneManager {
     this.gameScene = gameScene;
     this.currentPlane = planeJson;
 
+    this.passengerWaitTimer = this.gameScene.time.addEvent({
+      delay: this.passengerWaitDelay,
+      loop: true,
+      paused: true,
+      callback: this.waitTimerCallBack,
+      callbackScope: this,
+    });
+
     this.nodeMap = new Map();
     this.passengerMap = new Map();
     this.passengerOnMove = [];
+    this.passengerOnMoveNext = [];
 
     this.passengerToNodeMap = new Map();
     this.nodeToPassengerMap = new Map();
@@ -85,6 +98,16 @@ export default class PlaneManager {
       this.passengerInPortQueue,
       this.passengerInPortQueue.length * 100
     );
+  }
+
+  private waitTimerCallBack() {
+    const oldPassengerOnMove = this.passengerOnMove;
+    this.passengerOnMove = this.passengerOnMoveNext;
+    this.passengerOnMoveNext = [];
+
+    while (oldPassengerOnMove.length > 0) {
+      this.passengerOnMove.push(oldPassengerOnMove.pop());
+    }
   }
 
   /**
@@ -270,7 +293,6 @@ export default class PlaneManager {
 
   /**
    * This actually simulates passenger thinking and then orders them to move.
-   * simulateTimer calls this every frame.
    */
   public simulateFrame(): void {
     this.unqueuePortToPlane();
@@ -414,7 +436,7 @@ export default class PlaneManager {
           );
 
           if (!freeSpaces.hasFreeSpaces) {
-            this.passengerOnMove.unshift(passenger); //move to end of line
+            this.passengerOnMoveNext.unshift(passenger); //move to end of line
             continue;
           }
 
@@ -424,7 +446,7 @@ export default class PlaneManager {
           let canLock = this.canLockForShufflers(startNode, freeSpaces);
 
           if (!canLock) {
-            this.passengerOnMove.unshift(passenger);
+            this.passengerOnMoveNext.unshift(passenger);
             continue;
           }
 
@@ -516,14 +538,14 @@ export default class PlaneManager {
 
       //next space occupied with person
       if (this.nodeToPassengerMap.has(nextNode)) {
-        this.passengerOnMove.unshift(passenger);
+        this.passengerOnMoveNext.unshift(passenger);
         continue;
       }
 
       //next space occupied by seat shufflers
       if (this.nodeToMultiPassengerMap.has(nextNode)) {
         if (!this.nodeToMultiPassengerMap.get(nextNode).has(passenger)) {
-          this.passengerOnMove.unshift(passenger);
+          this.passengerOnMoveNext.unshift(passenger);
 
           continue;
         }
@@ -704,6 +726,8 @@ export default class PlaneManager {
     for (let [_, passenger] of this.passengerMap) {
       passenger.destroy();
     }
+
+    this.passengerWaitTimer.destroy();
   }
 
   /**

@@ -10,7 +10,8 @@ export class SpriteUtil {
    * @returns the angle you want to input so when you tween, it doesn't spin 360 degrees.
    */
   static shortestAngle(oldAngle: number, newAngle: number): number {
-    //this causes tests to fail, due to phaser
+    //this causes tests to fail, due to phaser.
+    //TODO: figure it out someday :(
     //return oldAngle + Phaser.Math.Angle.ShortestBetween(oldAngle, newAngle);
 
     //calc shorter turning distance
