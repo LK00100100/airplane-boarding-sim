@@ -17,7 +17,7 @@ import { PassengerSorts, PassengerComparator } from "./PassengerSorts";
 export default class PlaneManager {
   private gameScene: GameScene;
 
-  public passengerWaitTimer!: Phaser.Time.TimerEvent; //simulates waiting for allowable movement. for non-robotic passenger movement
+  private passengerWaitTimer!: Phaser.Time.TimerEvent; //simulates waiting for allowable movement. for non-robotic passenger movement
 
   private nodeMap!: Map<number, PlaneNode>; //<node id, PlaneNode>
   private passengerMap!: Map<number, Passenger>;
@@ -49,7 +49,7 @@ export default class PlaneManager {
   private enterNodesMap!: Map<number, PlaneNode>; //<enterId, node>, plane entrance nodes
 
   //waiting to be placed on a PlaneNode
-  public passengerInPortQueue!: Array<Passenger>;
+  private passengerInPortQueue!: Array<Passenger>;
 
   private currentPlane: any;
 
@@ -108,6 +108,14 @@ export default class PlaneManager {
     while (oldPassengerOnMove.length > 0) {
       this.passengerOnMove.push(oldPassengerOnMove.pop());
     }
+  }
+
+  public pauseTimers() {
+    this.passengerWaitTimer.paused = true;
+  }
+
+  public unpauseTimers() {
+    this.passengerWaitTimer.paused = false;
   }
 
   /**

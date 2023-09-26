@@ -114,7 +114,7 @@ export default class GameScene extends Phaser.Scene {
 
         this.isSimulationOn = false;
         this.simulateTimer.paused = true;
-        this.planeManager.passengerWaitTimer.paused = true;
+        this.planeManager.pauseTimers();
         return;
       }
 
@@ -128,7 +128,7 @@ export default class GameScene extends Phaser.Scene {
       this.simulationStarted = true;
       this.isSimulationOn = true;
       this.simulateTimer.paused = false;
-      this.planeManager.passengerWaitTimer.paused = false;
+      this.planeManager.unpauseTimers();
 
       this.simulateSprite.setTexture("btn-pause");
 
