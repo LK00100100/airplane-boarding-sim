@@ -10,7 +10,13 @@
                 2
             ],
             "x": 50,
-            "y": 340
+            "y": 340,
+            "seat": {
+                "aisle": 1,
+                "number": "A",
+                "class": "first",
+                "direction": "W"
+            }
         },
         {
             "id": 2,
@@ -30,7 +36,13 @@
                 2
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 1,
+                "number": "J",
+                "class": "first",
+                "direction": "W"
+            }
         },
         {
             "id": 4,
@@ -38,7 +50,13 @@
                 5
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 2,
+                "number": "A",
+                "class": "first",
+                "direction": "W"
+            }
         },
         {
             "id": 5,
@@ -70,7 +88,13 @@
                 6
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 2,
+                "number": "J",
+                "class": "first",
+                "direction": "W"
+            }
         },
         {
             "id": 8,
@@ -78,7 +102,13 @@
                 9
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 3,
+                "number": "A",
+                "class": "first",
+                "direction": "W"
+            }
         },
         {
             "id": 9,
@@ -118,7 +148,13 @@
                 11
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 3,
+                "number": "J",
+                "class": "first",
+                "direction": "W"
+            }
         },
         {
             "id": 13,
@@ -243,7 +279,13 @@
                 26
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 7,
+                "number": "A",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 26,
@@ -253,7 +295,13 @@
                 27
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 7,
+                "number": "B",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 27,
@@ -274,7 +322,13 @@
                 29
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 7,
+                "number": "D",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 29,
@@ -284,7 +338,13 @@
                 30
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 7,
+                "number": "E",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 30,
@@ -305,7 +365,13 @@
                 32
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 7,
+                "number": "H",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 32,
@@ -314,7 +380,13 @@
                 31
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 7,
+                "number": "J",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 33,
@@ -403,7 +475,13 @@
                 42
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 8,
+                "number": "A",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 42,
@@ -413,7 +491,13 @@
                 43
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 8,
+                "number": "B",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 43,
@@ -434,7 +518,13 @@
                 45
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 8,
+                "number": "D",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 45,
@@ -444,7 +534,13 @@
                 46
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 8,
+                "number": "E",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 46,
@@ -465,7 +561,13 @@
                 48
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 8,
+                "number": "H",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 48,
@@ -474,7 +576,13 @@
                 47
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 8,
+                "number": "J",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 49,
@@ -562,7 +670,13 @@
                 58
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 9,
+                "number": "A",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 58,
@@ -572,7 +686,13 @@
                 59
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 9,
+                "number": "B",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 59,
@@ -593,7 +713,13 @@
                 61
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 9,
+                "number": "D",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 61,
@@ -603,7 +729,13 @@
                 62
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 9,
+                "number": "E",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 62,
@@ -624,7 +756,13 @@
                 64
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 9,
+                "number": "H",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 64,
@@ -633,7 +771,13 @@
                 63
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 9,
+                "number": "J",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 65,
@@ -722,7 +866,13 @@
                 74
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 10,
+                "number": "A",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 74,
@@ -732,7 +882,13 @@
                 75
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 10,
+                "number": "B",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 75,
@@ -753,7 +909,13 @@
                 77
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 10,
+                "number": "D",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 77,
@@ -763,7 +925,13 @@
                 78
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 10,
+                "number": "E",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 78,
@@ -784,7 +952,13 @@
                 80
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 10,
+                "number": "H",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 80,
@@ -793,7 +967,13 @@
                 79
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 10,
+                "number": "J",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 81,
@@ -912,7 +1092,13 @@
                 93
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 11,
+                "number": "D",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 93,
@@ -922,7 +1108,13 @@
                 94
             ],
             "x": 50,
-            "y": 300
+            "y": 300,
+            "seat": {
+                "aisle": 11,
+                "number": "E",
+                "class": "business",
+                "direction": "W"
+            }
         },
         {
             "id": 94,
