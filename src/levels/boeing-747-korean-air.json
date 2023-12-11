@@ -2798,7 +2798,13 @@
                 225
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 38,
+                "number": "A",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 225,
@@ -2808,7 +2814,13 @@
                 226
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 38,
+                "number": "B",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 226,
@@ -2818,7 +2830,13 @@
                 227
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 38,
+                "number": "C",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 227,
@@ -2839,7 +2857,13 @@
                 229
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 38,
+                "number": "D",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 229,
@@ -2849,7 +2873,13 @@
                 230
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 38,
+                "number": "E",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 230,
@@ -2859,7 +2889,13 @@
                 231
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 38,
+                "number": "F",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 231,
@@ -2869,7 +2905,13 @@
                 232
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 38,
+                "number": "G",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 232,
@@ -2890,7 +2932,13 @@
                 234
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 38,
+                "number": "H",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 234,
@@ -2900,7 +2948,13 @@
                 235
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 38,
+                "number": "J",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 235,
@@ -2909,7 +2963,13 @@
                 234
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 38,
+                "number": "K",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 236,
@@ -2917,7 +2977,13 @@
                 237
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 39,
+                "number": "A",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 237,
@@ -2926,7 +2992,13 @@
                 238
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 39,
+                "number": "B",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 238,
@@ -2935,7 +3007,13 @@
                 239
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 39,
+                "number": "C",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 239,
@@ -2955,7 +3033,13 @@
                 241
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 39,
+                "number": "D",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 241,
@@ -2964,7 +3048,13 @@
                 242
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 39,
+                "number": "E",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 242,
@@ -2973,7 +3063,13 @@
                 243
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 39,
+                "number": "F",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 243,
@@ -2982,7 +3078,13 @@
                 244
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 39,
+                "number": "G",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 244,
@@ -3002,7 +3104,13 @@
                 246
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 39,
+                "number": "H",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 246,
@@ -3011,7 +3119,13 @@
                 247
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 39,
+                "number": "J",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 247,
@@ -3019,7 +3133,13 @@
                 246
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 39,
+                "number": "K",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 248,
@@ -3027,7 +3147,13 @@
                 249
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 40,
+                "number": "A",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 249,
@@ -3036,7 +3162,13 @@
                 250
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 40,
+                "number": "B",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 250,
@@ -3045,7 +3177,13 @@
                 251
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 40,
+                "number": "C",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 251,
@@ -3065,7 +3203,13 @@
                 253
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 40,
+                "number": "D",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 253,
@@ -3074,7 +3218,13 @@
                 254
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 40,
+                "number": "E",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 254,
@@ -3083,7 +3233,13 @@
                 255
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 40,
+                "number": "F",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 255,
@@ -3092,7 +3248,13 @@
                 256
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 40,
+                "number": "G",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 256,
@@ -3112,7 +3274,13 @@
                 258
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 40,
+                "number": "H",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 258,
@@ -3121,7 +3289,13 @@
                 259
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 40,
+                "number": "J",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 259,
@@ -3129,7 +3303,13 @@
                 258
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 40,
+                "number": "K",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 260,
@@ -3137,7 +3317,13 @@
                 261
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 41,
+                "number": "A",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 261,
@@ -3146,7 +3332,13 @@
                 262
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 41,
+                "number": "B",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 262,
@@ -3155,7 +3347,13 @@
                 263
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 41,
+                "number": "C",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 263,
@@ -3175,7 +3373,13 @@
                 265
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 41,
+                "number": "D",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 265,
@@ -3184,7 +3388,13 @@
                 266
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 41,
+                "number": "E",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 266,
@@ -3193,7 +3403,13 @@
                 267
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 41,
+                "number": "F",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 267,
@@ -3202,7 +3418,13 @@
                 268
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 41,
+                "number": "G",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 268,
@@ -3222,7 +3444,13 @@
                 270
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 41,
+                "number": "H",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 270,
@@ -3231,7 +3459,13 @@
                 271
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 41,
+                "number": "J",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 271,
@@ -3239,7 +3473,13 @@
                 270
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 41,
+                "number": "K",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 272,
@@ -3247,7 +3487,13 @@
                 273
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 42,
+                "number": "A",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 273,
@@ -3256,7 +3502,13 @@
                 274
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 42,
+                "number": "B",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 274,
@@ -3265,7 +3517,13 @@
                 275
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 42,
+                "number": "C",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 275,
@@ -3285,7 +3543,13 @@
                 277
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 42,
+                "number": "D",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 277,
@@ -3294,7 +3558,13 @@
                 278
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 42,
+                "number": "E",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 278,
@@ -3303,7 +3573,13 @@
                 279
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 42,
+                "number": "F",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 279,
@@ -3312,7 +3588,13 @@
                 280
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 42,
+                "number": "G",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 280,
@@ -3332,7 +3614,13 @@
                 282
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 42,
+                "number": "H",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 282,
@@ -3341,7 +3629,13 @@
                 283
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 42,
+                "number": "J",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 283,
@@ -3349,7 +3643,13 @@
                 282
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 42,
+                "number": "K",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 284,
@@ -3357,7 +3657,13 @@
                 285
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 43,
+                "number": "A",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 285,
@@ -3366,7 +3672,13 @@
                 286
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 43,
+                "number": "B",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 286,
@@ -3375,7 +3687,13 @@
                 287
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 43,
+                "number": "C",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 287,
@@ -3395,7 +3713,13 @@
                 289
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 43,
+                "number": "D",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 289,
@@ -3404,7 +3728,13 @@
                 290
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 43,
+                "number": "E",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 290,
@@ -3413,7 +3743,13 @@
                 291
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 43,
+                "number": "F",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 291,
@@ -3422,7 +3758,13 @@
                 292
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 43,
+                "number": "G",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 292,
@@ -3442,7 +3784,13 @@
                 294
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 43,
+                "number": "H",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 294,
@@ -3451,7 +3799,13 @@
                 295
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 43,
+                "number": "J",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 295,
@@ -3459,7 +3813,13 @@
                 294
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 43,
+                "number": "K",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 296,
@@ -3467,7 +3827,13 @@
                 297
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 44,
+                "number": "A",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 297,
@@ -3476,7 +3842,13 @@
                 298
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 44,
+                "number": "B",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 298,
@@ -3485,7 +3857,13 @@
                 299
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 44,
+                "number": "C",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 299,
@@ -3505,7 +3883,13 @@
                 301
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 44,
+                "number": "D",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 301,
@@ -3514,7 +3898,13 @@
                 302
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 44,
+                "number": "E",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 302,
@@ -3523,7 +3913,13 @@
                 303
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 44,
+                "number": "F",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 303,
@@ -3532,7 +3928,13 @@
                 304
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 44,
+                "number": "G",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 304,
@@ -3552,7 +3954,13 @@
                 306
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 44,
+                "number": "H",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 306,
@@ -3561,7 +3969,13 @@
                 307
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 44,
+                "number": "J",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 307,
@@ -3569,7 +3983,13 @@
                 306
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 44,
+                "number": "K",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 308,
@@ -3577,7 +3997,13 @@
                 309
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 45,
+                "number": "A",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 309,
@@ -3586,7 +4012,13 @@
                 310
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 45,
+                "number": "B",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 310,
@@ -3595,7 +4027,13 @@
                 311
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 45,
+                "number": "C",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 311,
@@ -3615,7 +4053,13 @@
                 313
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 45,
+                "number": "D",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 313,
@@ -3624,7 +4068,13 @@
                 314
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 45,
+                "number": "E",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 314,
@@ -3633,7 +4083,13 @@
                 315
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 45,
+                "number": "F",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 315,
@@ -3642,7 +4098,13 @@
                 316
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 45,
+                "number": "G",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 316,
@@ -3662,7 +4124,13 @@
                 318
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 45,
+                "number": "H",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 318,
@@ -3671,7 +4139,13 @@
                 319
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 45,
+                "number": "J",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 319,
@@ -3679,7 +4153,13 @@
                 318
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 45,
+                "number": "K",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 320,
@@ -3687,7 +4167,13 @@
                 321
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 46,
+                "number": "A",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 321,
@@ -3696,7 +4182,13 @@
                 322
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 46,
+                "number": "B",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 322,
@@ -3705,7 +4197,13 @@
                 323
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 46,
+                "number": "C",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 323,
@@ -3734,7 +4232,13 @@
                 326
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 46,
+                "number": "H",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 326,
@@ -3743,7 +4247,13 @@
                 327
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 46,
+                "number": "J",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 327,
@@ -3751,7 +4261,13 @@
                 326
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 46,
+                "number": "K",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 328,
@@ -3759,7 +4275,13 @@
                 329
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 47,
+                "number": "A",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 329,
@@ -3768,7 +4290,13 @@
                 330
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 47,
+                "number": "B",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 330,
@@ -3777,7 +4305,13 @@
                 331
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 47,
+                "number": "C",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 331,
@@ -3806,7 +4340,13 @@
                 334
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 47,
+                "number": "H",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 334,
@@ -3815,7 +4355,13 @@
                 335
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 47,
+                "number": "J",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 335,
@@ -3823,7 +4369,13 @@
                 334
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 47,
+                "number": "K",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 336,
@@ -3831,7 +4383,13 @@
                 337
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 48,
+                "number": "A",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 337,
@@ -3840,7 +4398,13 @@
                 338
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 48,
+                "number": "B",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 338,
@@ -3849,7 +4413,13 @@
                 339
             ],
             "x": 99,
-            "y": 99
+            "y": 99,
+            "seat": {
+                "aisle": 48,
+                "number": "C",
+                "class": "coach",
+                "direction": "W"
+            }
         },
         {
             "id": 339,
