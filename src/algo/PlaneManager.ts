@@ -182,6 +182,8 @@ export default class PlaneManager {
         .sprite(nodeJson.x + planeXOffset, nodeJson.y + planeYOffset, imageName)
         .setInteractive();
 
+      const drawnLines: Array<Phaser.GameObjects.Line> = [];
+
       //  Input Event listeners
       sprite.on("pointerover", () => {
         sprite.setTint(0x00bb00);
@@ -194,11 +196,30 @@ export default class PlaneManager {
         }
 
         this.gameScene.setGameText(debugStr);
+
+        // set node neighbor lines
+        for (const planeNeighbor of planeNode.neighbors) {
+          const line = this.gameScene.add
+            .line(
+              0,
+              0,
+              planeNode.sprite.x,
+              planeNode.sprite.y,
+              planeNeighbor.sprite.x,
+              planeNeighbor.sprite.y,
+              0xff000d
+            )
+            .setOrigin(0);
+
+          drawnLines.push(line);
+        }
       });
 
       sprite.on("pointerout", () => {
         this.gameScene.setGameText("");
         sprite.clearTint();
+
+        drawnLines.forEach((line) => line.destroy());
       });
 
       planeNode.sprite = sprite;
