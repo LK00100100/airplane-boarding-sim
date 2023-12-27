@@ -13,6 +13,8 @@ export class ButtonUtil {
       return false;
     }
   ): void {
+    sprite.setDepth(1000).setScrollFactor(0); //don't move UI
+
     sprite.on("pointerdown", function (pointer: Phaser.Input.Pointer) {
       if (disableFunc()) return;
 

@@ -68,8 +68,11 @@ export default class GameScene extends Phaser.Scene {
    * one time Phaser scene setup.
    */
   create() {
-    this.gameText = this.add.text(10, 10, "");
-    this.statsText = this.add.text(10, 400, "");
+    this.gameText = this.add.text(10, 10, "").setDepth(1000).setScrollFactor(0); //don't move UI
+    this.statsText = this.add
+      .text(10, 400, "")
+      .setDepth(1000)
+      .setScrollFactor(0); //don't move UI
 
     this.createButtons();
 
@@ -111,7 +114,9 @@ export default class GameScene extends Phaser.Scene {
   private createButtons(): void {
     this.simulateSprite = this.add
       .sprite(100, 510, "btn-simulate")
+      .setScrollFactor(0) //don't move UI
       .setInteractive();
+
     const simulateClickFunc = () => {
       if (this.planeManager.isEveryoneSeated()) {
         this.setGameText("simulation is complete...");
