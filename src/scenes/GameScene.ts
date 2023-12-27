@@ -1,25 +1,17 @@
 import * as Phaser from "phaser";
-//import * as Level2 from "../levels/level2.json";
-import * as Level747 from "../levels/boeing-747-korean-air.json";
-import { ButtonUtil } from "../util/ButtonUtil";
+import * as TheLevel from "../levels/level2.json";
+//import * as TheLevel from "../levels/boeing-747-korean-air.json";
 import { SceneNames } from "./SceneNames";
 import PlaneManager from "../algo/PlaneManager";
-import { PassengerSorts } from "../algo/PassengerSorts";
+import InfoScene from "./ui/InfoScene";
 
 export default class GameScene extends Phaser.Scene {
-  private gameText!: Phaser.GameObjects.Text; //any messages for the player to read.
-  private statsText!: Phaser.GameObjects.Text; //stats messages
-
-  private simulationStarted: boolean; //stays true when simulation starts.
-  private isSimulationOn: boolean; //simulation is running or paused
-  private simulateTimer!: Phaser.Time.TimerEvent; //repeats every second
-  private simulateSeconds: number; //number of simulated seconds
+  public simulationStarted: boolean; //stays true once the simulation starts.
+  public isSimulationOn: boolean; //simulation is running or paused
+  public simulateTimer!: Phaser.Time.TimerEvent; //repeats every second
+  public simulateSeconds: number; //number of simulated seconds
 
   private planeManager: PlaneManager;
-
-  private simulateSprite: Phaser.GameObjects.Sprite;
-
-  private algoButtons: Array<Phaser.GameObjects.Sprite>;
 
   //for input and camera
   private controls: Phaser.Cameras.Controls.SmoothedKeyControl;
@@ -31,28 +23,16 @@ export default class GameScene extends Phaser.Scene {
    */
   public readonly IS_DEBUG_MODE = false; //turn on to see more information
 
+  /**
+   * UI
+   */
+  private infoScene: InfoScene;
+
   constructor() {
     super(SceneNames.GAME_SCENE);
   }
 
   preload() {
-    this.load.image("btn-simulate", "assets/btn-simulate.png");
-    this.load.image("btn-pause", "assets/btn-pause.png");
-    this.load.image("btn-reset", "assets/btn-reset.png");
-
-    //algo buttons
-    this.load.image(
-      "btn-algo-back-to-front",
-      "assets/btn-algo-back-to-front.png"
-    );
-    this.load.image(
-      "btn-algo-front-to-back",
-      "assets/btn-algo-front-to-back.png"
-    );
-    this.load.image("btn-algo-out-to-in", "assets/btn-algo-out-to-in.png");
-    this.load.image("btn-algo-sloth", "assets/btn-algo-sloth.png");
-    this.load.image("btn-algo-steffan", "assets/btn-algo-steffan.png");
-
     //passenger
     this.load.image("passenger", "assets/passenger.png");
     this.load.image("baggage", "assets/baggage.png");
@@ -68,28 +48,26 @@ export default class GameScene extends Phaser.Scene {
    * one time Phaser scene setup.
    */
   create() {
-    this.gameText = this.add.text(10, 10, "").setDepth(1000).setScrollFactor(0); //don't move UI
-    this.statsText = this.add
-      .text(10, 400, "")
-      .setDepth(1000)
-      .setScrollFactor(0); //don't move UI
-
-    this.createButtons();
+    //turn on this scene
+    this.infoScene = this.infoScene ?? new InfoScene(this);
+    this.scene.add(InfoScene.HANDLE, this.infoScene, false);
+    this.scene.launch(InfoScene.HANDLE);
 
     this.resetScene();
 
     this.initCamera();
+
+    this.infoScene.setPlaneManager(this.planeManager);
   }
 
   /**
    * Move back the passengers and other metadata to before "simulate".
    */
-  private resetScene() {
+  public resetScene() {
     this.planeManager?.destroy();
     this.simulateTimer?.destroy();
 
-    //this.planeManager = new PlaneManager(this, Level2);
-    this.planeManager = new PlaneManager(this, Level747);
+    this.planeManager = new PlaneManager(this, TheLevel);
 
     this.simulationStarted = false;
     this.isSimulationOn = false;
@@ -104,145 +82,8 @@ export default class GameScene extends Phaser.Scene {
     this.simulateTimer.paused = true;
     this.simulateSeconds = 0;
 
-    this.simulateSprite?.setTexture("btn-simulate");
-
     this.setGameText("algo done: random\nsilverbacksnakes.io");
     this.updateStatsText();
-    this.algoButtons.forEach((btn) => btn.clearTint());
-  }
-
-  private createButtons(): void {
-    this.simulateSprite = this.add
-      .sprite(100, 510, "btn-simulate")
-      .setScrollFactor(0) //don't move UI
-      .setInteractive();
-
-    const simulateClickFunc = () => {
-      if (this.planeManager.isEveryoneSeated()) {
-        this.setGameText("simulation is complete...");
-        return;
-      }
-
-      //pause the active simulate
-      if (this.isSimulationOn) {
-        this.setGameText("pausing...");
-
-        this.isSimulationOn = false;
-        this.simulateTimer.paused = true;
-        this.planeManager.pauseTimers();
-        return;
-      }
-
-      if (!this.simulationStarted) {
-        this.setGameText("simulation started");
-      } else {
-        this.setGameText("simulation unpaused");
-      }
-
-      //start simulation
-      this.simulationStarted = true;
-      this.isSimulationOn = true;
-      this.simulateTimer.paused = false;
-      this.planeManager.unpauseTimers();
-
-      this.simulateSprite.setTexture("btn-pause");
-
-      //grey out buttons
-      this.algoButtons.forEach((btn) => btn.setTint(0xaaaaaa));
-    };
-    ButtonUtil.dressUpButton(this.simulateSprite, simulateClickFunc);
-
-    const resetClickFunc = () => {
-      this.resetScene();
-    };
-    const resetSprite = this.add.sprite(300, 510, "btn-reset").setInteractive();
-    ButtonUtil.dressUpButton(resetSprite, resetClickFunc);
-
-    /**
-     * Algo buttons
-     */
-    const disableFunc = () => {
-      return this.simulationStarted;
-    };
-
-    const algoBackToFrontClickFunc = () => {
-      if (this.simulationStarted) return;
-
-      this.planeManager.sortPassengers(PassengerSorts.backToFront);
-      this.setGameText("algo done: back-to-front");
-    };
-    const algoBackToFrontSprite = this.add
-      .sprite(500, 470, "btn-algo-back-to-front")
-      .setInteractive();
-    ButtonUtil.dressUpButton(
-      algoBackToFrontSprite,
-      algoBackToFrontClickFunc,
-      disableFunc
-    );
-
-    const algoFrontToBackClickFunc = () => {
-      if (this.simulationStarted) return;
-
-      this.planeManager.sortPassengers(PassengerSorts.frontToBack);
-      this.setGameText("algo done: front-to-back");
-    };
-    const algoFrontToBackSprite = this.add
-      .sprite(500, 550, "btn-algo-front-to-back")
-      .setInteractive();
-    ButtonUtil.dressUpButton(
-      algoFrontToBackSprite,
-      algoFrontToBackClickFunc,
-      disableFunc
-    );
-
-    const algoOutToInClickFunc = () => {
-      if (this.simulationStarted) return;
-
-      this.planeManager.sortPassengers(PassengerSorts.outToIn);
-      this.setGameText("algo done: out-to-in");
-    };
-    const algoOutToInSprite = this.add
-      .sprite(700, 390, "btn-algo-out-to-in")
-      .setInteractive();
-    ButtonUtil.dressUpButton(
-      algoOutToInSprite,
-      algoOutToInClickFunc,
-      disableFunc
-    );
-
-    const algoSlothClickFunc = () => {
-      if (this.simulationStarted) return;
-
-      this.planeManager.sortPassengers(PassengerSorts.slothSort);
-      this.setGameText("algo done: sloth");
-    };
-    const algoSlothSprite = this.add
-      .sprite(700, 470, "btn-algo-sloth")
-      .setInteractive();
-    ButtonUtil.dressUpButton(algoSlothSprite, algoSlothClickFunc, disableFunc);
-
-    const algoSteffanClickFunc = () => {
-      if (this.simulationStarted) return;
-
-      this.planeManager.sortPassengers(PassengerSorts.steffanMethod);
-      this.setGameText("algo done: steffan sort");
-    };
-    const algoSteffanSprite = this.add
-      .sprite(700, 550, "btn-algo-steffan")
-      .setInteractive();
-    ButtonUtil.dressUpButton(
-      algoSteffanSprite,
-      algoSteffanClickFunc,
-      disableFunc
-    );
-
-    this.algoButtons = [
-      algoBackToFrontSprite,
-      algoFrontToBackSprite,
-      algoOutToInSprite,
-      algoSlothSprite,
-      algoSteffanSprite,
-    ];
   }
 
   private initCamera(): void {
@@ -296,7 +137,7 @@ export default class GameScene extends Phaser.Scene {
       newText = newText.substring(sentenceLength);
     }
 
-    this.gameText.text = finalText;
+    this.infoScene.setGameText(finalText);
   }
 
   /**
@@ -310,13 +151,15 @@ export default class GameScene extends Phaser.Scene {
     const secondStr = ("" + numSeconds).padStart(2, "0");
     const timeStr = `${minuteStr}:${secondStr}`;
 
-    this.statsText.text = `Time: ${timeStr}`;
-    this.statsText.text += `\nShuffles: ${this.planeManager.getNumShuffles()}`;
+    let newText = `Time: ${timeStr}`;
+    newText += `\nShuffles: ${this.planeManager.getNumShuffles()}`;
 
     //calc total steps
     let totalSteps = this.planeManager.getTotalSteps();
 
-    this.statsText.text += `\nStep count: ${totalSteps}`;
+    newText += `\nStep count: ${totalSteps}`;
+
+    this.infoScene.setStatsText(newText);
   }
 
   update(time, delta) {
