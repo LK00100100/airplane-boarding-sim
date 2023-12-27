@@ -48,16 +48,13 @@ export default class GameScene extends Phaser.Scene {
    * one time Phaser scene setup.
    */
   create() {
-    //turn on this scene
-    this.infoScene = this.infoScene ?? new InfoScene(this);
-    this.scene.add(InfoScene.HANDLE, this.infoScene, false);
-    this.scene.launch(InfoScene.HANDLE);
-
     this.resetScene();
 
     this.initCamera();
 
-    this.infoScene.setPlaneManager(this.planeManager);
+    //launch this sub-UI once
+    this.scene.add(InfoScene.HANDLE, this.infoScene, false);
+    this.scene.launch(InfoScene.HANDLE);
   }
 
   /**
@@ -68,6 +65,10 @@ export default class GameScene extends Phaser.Scene {
     this.simulateTimer?.destroy();
 
     this.planeManager = new PlaneManager(this, TheLevel);
+
+    //turn on this scene
+    this.infoScene = this.infoScene ?? new InfoScene(this);
+    this.infoScene.setPlaneManager(this.planeManager);
 
     this.simulationStarted = false;
     this.isSimulationOn = false;
