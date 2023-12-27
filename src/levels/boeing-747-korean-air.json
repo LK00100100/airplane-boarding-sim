@@ -1174,8 +1174,7 @@
         90
       ],
       "x": 700,
-      "y": 175,
-      "enter": true
+      "y": 175
     },
     {
       "id": 90,
@@ -2905,7 +2904,8 @@
         212
       ],
       "x": 1370,
-      "y": 220
+      "y": 220,
+      "enter": true
     },
     {
       "id": 207,
@@ -7770,7 +7770,7 @@
       "y": -20,
       "seat": {
         "aisle": 65,
-        "number": "G",
+        "number": "F",
         "class": "coach",
         "direction": "W"
       }
@@ -7785,7 +7785,7 @@
       "y": -60,
       "seat": {
         "aisle": 65,
-        "number": "H",
+        "number": "G",
         "class": "coach",
         "direction": "W"
       }
@@ -9247,7 +9247,7 @@
       "ticket": {
         "class": "coach",
         "aisle": 37,
-        "number": "CA"
+        "number": "C"
       }
     },
     {
