@@ -22,7 +22,7 @@ export class PlaneSearch {
       passenger.getTicket()
     );
 
-    if (path == null) throw Error("all target seats should exist");
+    if (path == null) throw new Error("all target seats should exist");
 
     passenger.pathToTarget = path;
   }

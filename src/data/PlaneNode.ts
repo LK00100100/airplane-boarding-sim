@@ -56,6 +56,20 @@ export class PlaneNode {
     return false;
   }
 
+  /**
+   * Call has hasOpenBaggageCompartments before calling this.
+   * @returns the direction of an open baggage compartment. throws error if none.
+   */
+  getAnyOpenBaggageCompartmentDirection(baggageSize: number): Direction {
+    for (let [direction, compartment] of this.baggageCompartments) {
+      if (compartment.hasRemainingSpace(baggageSize)) return direction;
+    }
+
+    throw new Error(
+      "Should be baggage left here. Please check baggage space before using this."
+    );
+  }
+
   setBaggageCompartment(direction: Direction, size: number) {
     this.baggageCompartments.set(direction, new BaggageCompartment(size));
   }

@@ -55,7 +55,7 @@ export default class PlaneManager {
 
   //in milliseconds
   private baggageLoadSpeed: number = 5000; //5000 is good
-  private passengerSpeed: number = 400; //400 is good
+  private passengerSpeed: number = 10; //400 is good
   private passengerWaitDelay: number = 150;
 
   private numShuffles: number; //number of passenger shuffles completed.
@@ -149,9 +149,9 @@ export default class PlaneManager {
 
       //start node
       if ("enter" in nodeJson) {
-        const enterId: number = nodeJson["enter"] as number;
-        this.enterNodesMap.set(enterId, planeNode);
-        planeNode.isEnterNode = true;
+        const isEnterNode: boolean = nodeJson["enter"] as boolean;
+        this.enterNodesMap.set(nodeJson.id, planeNode);
+        planeNode.isEnterNode = isEnterNode;
       }
 
       //seat node
@@ -217,7 +217,7 @@ export default class PlaneManager {
 
       const ticketJson = passengerJson.ticket;
       if (!ticketJson) {
-        throw Error("ticket required");
+        throw new Error("ticket required");
       }
       passenger.setTicket(
         new Ticket(ticketJson.class, ticketJson.aisle, ticketJson.number)
@@ -372,7 +372,12 @@ export default class PlaneManager {
                 onComplete: () => {
                   //throw in baggage
                   const baggage = passenger.baggages.pop();
-                  startNode.addBaggage(Direction.NORTH, baggage);
+                  const openBaggageDirection =
+                    startNode.getAnyOpenBaggageCompartmentDirection(
+                      baggage.size
+                    );
+
+                  startNode.addBaggage(openBaggageDirection, baggage);
                   passenger.sprites.getChildren()[1].destroy(); //HACK:
 
                   //keep on truckin'
@@ -596,8 +601,8 @@ export default class PlaneManager {
    */
   private unqueuePortToPlane(): void {
     if (this.passengerInPortQueue.length > 0) {
-      //for now, just get the first entrance
-      const enterNode = this.enterNodesMap.get(0);
+      //for now, just get the first entrance (assumed one)
+      const enterNode: PlaneNode = this.enterNodesMap.values().next().value;
 
       if (!this.nodeToPassengerMap.has(enterNode)) {
         const passenger = this.passengerInPortQueue.shift()!;
@@ -619,7 +624,7 @@ export default class PlaneManager {
       targetNode
     );
 
-    if (path == null) throw Error("all target seats should exist");
+    if (path == null) throw new Error("all target seats should exist");
 
     passenger.pathToTarget = path;
     this.passengerOnMove.push(passenger);

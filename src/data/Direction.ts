@@ -24,6 +24,6 @@ export function toDirection(letter: string): Direction {
     case "W":
       return Direction.WEST;
     default:
-      throw Error(`bad direction input: ${letter}`);
+      throw new Error(`bad direction input: ${letter}`);
   }
 }
