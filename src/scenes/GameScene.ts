@@ -1,5 +1,6 @@
 import * as Phaser from "phaser";
-import * as Level2 from "../levels/level2.json";
+//import * as Level2 from "../levels/level2.json";
+import * as Level747 from "../levels/boeing-747-korean-air.json";
 import { ButtonUtil } from "../util/ButtonUtil";
 import { SceneNames } from "./SceneNames";
 import PlaneManager from "../algo/PlaneManager";
@@ -19,6 +20,11 @@ export default class GameScene extends Phaser.Scene {
   private simulateSprite: Phaser.GameObjects.Sprite;
 
   private algoButtons: Array<Phaser.GameObjects.Sprite>;
+
+  //for input and camera
+  private controls: Phaser.Cameras.Controls.SmoothedKeyControl;
+  private cam: Phaser.Cameras.Scene2D.Camera;
+  private readonly defaultZoomLevel = 1;
 
   /**
    * constants
@@ -53,6 +59,7 @@ export default class GameScene extends Phaser.Scene {
 
     //plane
     this.load.image("plane-floor", "assets/plane-floor.png");
+    this.load.image("plane-seat-business", "assets/plane-seat-business.png");
     this.load.image("plane-seat-coach", "assets/plane-seat-coach.png");
     this.load.image("plane-seat-first", "assets/plane-seat-first.png");
   }
@@ -67,6 +74,8 @@ export default class GameScene extends Phaser.Scene {
     this.createButtons();
 
     this.resetScene();
+
+    this.initCamera();
   }
 
   /**
@@ -76,7 +85,8 @@ export default class GameScene extends Phaser.Scene {
     this.planeManager?.destroy();
     this.simulateTimer?.destroy();
 
-    this.planeManager = new PlaneManager(this, Level2);
+    //this.planeManager = new PlaneManager(this, Level2);
+    this.planeManager = new PlaneManager(this, Level747);
 
     this.simulationStarted = false;
     this.isSimulationOn = false;
@@ -230,6 +240,31 @@ export default class GameScene extends Phaser.Scene {
     ];
   }
 
+  private initCamera(): void {
+    /**
+     * Camera stuff
+     */
+    //let cursors = this.input.keyboard.createCursorKeys(); //cursors.right
+    let keys: any = this.input.keyboard.addKeys("W,S,A,D");
+    var controlConfig = {
+      camera: this.cameras.main,
+      left: keys.A,
+      right: keys.D,
+      up: keys.W,
+      down: keys.S,
+      zoomIn: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
+      zoomOut: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
+      acceleration: 1.0,
+      drag: 0.01,
+      maxSpeed: 1.0,
+    };
+
+    this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(
+      controlConfig
+    );
+    this.cam = this.cameras.main;
+    this.cam.setBounds(0, 0, 5000, 6000).setZoom(this.defaultZoomLevel);
+  }
   /**
    * restarts scene
    */
@@ -279,7 +314,7 @@ export default class GameScene extends Phaser.Scene {
     this.statsText.text += `\nStep count: ${totalSteps}`;
   }
 
-  update() {
+  update(time, delta) {
     if (this.isSimulationOn) {
       this.planeManager.simulateFrame();
 
@@ -292,6 +327,8 @@ export default class GameScene extends Phaser.Scene {
     if (this.IS_DEBUG_MODE) {
       this.planeManager.colorOccupiedNodes();
     }
+
+    this.controls.update(delta);
   }
 
   /**

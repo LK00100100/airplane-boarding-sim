@@ -8,6 +8,7 @@
   },
   "main": "dist/index.js",
   "scripts": {
+    "start": "npm run watch",
     "dev": "rollup --config rollup.config.dev.mjs",
     "build": "rollup --config rollup.config.dist.mjs",
     "watch": "rollup --watch --config rollup.config.dev.mjs",

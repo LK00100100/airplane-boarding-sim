@@ -88,7 +88,7 @@ export default class PlaneManager {
 
     this.passengerInPortQueue = [];
 
-    this.numShuffles = 0;
+    this.numShuffles = 0; //number of times a passenger has to seat shuffle.
 
     this.createPlaneNodes();
 
