@@ -1,5 +1,7 @@
 # Airplane Boarding Simulator
 
+Check out here: [link](https://sbs-airplane-boarding-simulator.s3.amazonaws.com/index.html)
+
 Simulates passenger boarding algorithms.
 Passengers cannot move through other passengers.
 
