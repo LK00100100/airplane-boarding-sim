@@ -54,8 +54,8 @@ export default class PlaneManager {
   private currentPlane: any;
 
   //in milliseconds
-  private baggageLoadSpeed: number = 50; //5000 is good
-  private passengerSpeed: number = 10; //400 is good
+  private baggageLoadSpeed: number = 1000; //5000 is good
+  private passengerSpeed: number = 100; //400 is good
   private passengerWaitDelay: number = 150; //passengers wait this amount of time before trying to move again.
   //this they all don't start moving at the same time. That would be visually odd.
 

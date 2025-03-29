@@ -36,3 +36,10 @@ In VSCode, I set breakpoints and run tests through the "Javascript Debug Termina
 ## notes
 
 Phaser starter template: https://github.com/photonstorm/phaser3-typescript-project-template
+
+
+## deploy
+
+To put stuff in an AWS S3 bucket, check out:
+
+`./scripts/deploy-to-s3.sh`

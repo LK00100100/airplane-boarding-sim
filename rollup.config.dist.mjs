@@ -1,5 +1,6 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import del from 'rollup-plugin-delete'
 import json from '@rollup/plugin-json';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
@@ -24,6 +25,9 @@ export default {
     },
 
     plugins: [
+
+        // this map is ~12 MBs
+        del({ targets: 'dist/game.js.map' }),
 
         //  Toggle the booleans here to enable / disable Phaser 3 features:
         replace({
